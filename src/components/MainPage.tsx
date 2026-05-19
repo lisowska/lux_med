@@ -41,7 +41,7 @@ const MainPage: React.FC = () => {
 
         if (
           selectedAgencies.length > 0 &&
-          !selectedAgencies.includes(mission.agency)
+          !selectedAgencies.includes(mission.formaWizity)
         ) {
           return false;
         }
@@ -55,7 +55,7 @@ const MainPage: React.FC = () => {
 
         if (
           selectedTypes.length > 0 &&
-          !selectedTypes.includes(mission.missionType)
+          !selectedTypes.includes(mission.doctorType)
         ) {
           return false;
         }
@@ -171,12 +171,7 @@ const MainPage: React.FC = () => {
           <Grid container spacing={2}>
             {filteredMissions.map((mission) => (
               <Grid item key={mission.id} xs={12} sm={6} md={4} lg={3}>
-                <MissionCard
-                  mission={mission}
-                  isFavorite={favorites.includes(mission.id)}
-                  onFavoriteToggle={handleFavoriteToggle}
-                  onClick={handleMissionClick}
-                />
+                <MissionCard mission={mission} onClick={handleMissionClick} />
               </Grid>
             ))}
           </Grid>

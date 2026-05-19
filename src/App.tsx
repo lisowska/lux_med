@@ -1,16 +1,46 @@
 import React from 'react';
 import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
 import MainPage from './components/MainPage';
-import type { Agency, MissionStatus, MissionType } from './types/mission';
+import type { FormaWizity, MissionStatus, DoctorType } from './types/mission';
 
 export interface FilterState {
   search: string;
-  agencies: Agency[];
+  FormaWizity: FormaWizity[];
   statuses: MissionStatus[];
-  missionTypes: MissionType[];
+  doctorTypes: DoctorType[];
   favoritesOnly: boolean;
 }
+declare module '@mui/material/styles' {
+  interface Palette {
+    doctorTypes: {
+      Ginekolog: string;
+      Pediatra: string;
+      Usg: string;
+      Dietetyk: string;
+      Okulista: string;
+    };
+    gradients: {
+      header: string;
+      card: string;
+      navy: string;
+    };
+  }
 
+  interface PaletteOptions {
+    doctorTypes?: {
+      Ginekolog?: string;
+      Pediatra?: string;
+      Usg?: string;
+      Dietetyk?: string;
+      Okulista?: string;
+    };
+    gradients?: {
+      header?: string;
+      card?: string;
+      navy?: string;
+    };
+  }
+}
 const theme = createTheme({
   palette: {
     primary: {
@@ -67,13 +97,13 @@ const theme = createTheme({
     // === NEUTRAL / BORDERS ===
     divider: '#C7D2DD', // Border/Muted (210 30% 85%)
     // === MISSION TYPE COLORS (custom) ===
-    missionTypes: {
-      orbital: '#0EA5E9', // Sky Blue
-      lunar: '#A78BFA', // Purple
-      mars: '#F97316', // Orange
-      deepSpace: '#8B5CF6', // Violet
-      spaceStation: '#06B6D4', // Cyan
-      satellite: '#10B981', // Emerald
+    doctorTypes: {
+      Ginekolog: '#0EA5E9', // Sky Blue
+      Pediatra: '#A78BFA', // Purple
+      Usg: '#F97316', // Orange
+      Dietetyk: '#8B5CF6', // Violet
+      Okulista: '#06B6D4', // Cyan
+      // satellite: '#10B981', // Emerald
     },
     // === GRADIENTS (custom) ===
     gradients: {

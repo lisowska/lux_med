@@ -1,29 +1,18 @@
-import type { Agency } from '../types/mission';
+import type { FormaWizity } from '../types/mission';
 import { Box } from '@mui/material';
 
 interface AgencyLogoProps {
-  agency: Agency;
+  formaWizity: FormaWizity;
   sx: any;
 }
 
-const agencyGradients: Record<Agency, { from: string; to: string }> = {
-  NASA: { from: 'hsl(210 100% 45%)', to: 'hsl(199 89% 48%)' },
-  ESA: { from: 'hsl(245 80% 55%)', to: 'hsl(270 70% 60%)' },
-  Roscosmos: { from: 'hsl(0 72% 50%)', to: 'hsl(15 80% 55%)' },
-  SpaceX: { from: 'hsl(215 60% 22%)', to: 'hsl(220 50% 35%)' },
-  CNSA: { from: 'hsl(0 80% 45%)', to: 'hsl(25 85% 50%)' },
-  ISRO: { from: 'hsl(25 90% 50%)', to: 'hsl(38 92% 50%)' },
-  JAXA: { from: 'hsl(199 89% 48%)', to: 'hsl(185 80% 45%)' },
-};
-
-export const AgencyLogo = ({ agency, sx }: AgencyLogoProps) => {
-  const initials = agency.slice(0, 2).toUpperCase();
-  const gradient = agencyGradients[agency];
+export const AgencyLogo = ({ formaWizity, sx }: AgencyLogoProps) => {
+  const initials = formaWizity.slice(0, 2).toUpperCase();
 
   return (
     <Box
       style={{
-        background: `linear-gradient(135deg, ${gradient.from} 0%, ${gradient.to} 100%)`,
+        background: `red`,
         width: '2.5rem',
         height: '2.5rem',
         fontWeight: '700',
@@ -33,7 +22,7 @@ export const AgencyLogo = ({ agency, sx }: AgencyLogoProps) => {
         display: 'flex',
         color: 'white',
       }}
-      title={agency}
+      title={formaWizity}
       sx={sx}
     >
       {initials}

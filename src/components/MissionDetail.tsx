@@ -16,7 +16,6 @@ import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import PeopleAltOutlinedIcon from '@mui/icons-material/PeopleAltOutlined';
 import PeopleIcon from '@mui/icons-material/People';
 import { Mission } from '../types/mission';
-import { AgencyLogo } from './AgencyLogo';
 import { StatusBadge } from './StatusBadge';
 import { TypeBadge } from './TypeBadge';
 import cover from '../assets/space.png';
@@ -95,15 +94,6 @@ const MissionDetail: React.FC<MissionDetailProps> = ({
             <CloseIcon />
           </IconButton>
         </Stack>
-        <AgencyLogo
-          agency={mission.agency}
-          sx={{
-            position: 'absolute',
-            bottom: '-1.5rem',
-            width: 56,
-            height: 56,
-          }}
-        />
       </Box>
 
       <DialogContent sx={{ padding: { xs: '25px 20px', sm: '40px 20px' } }}>
@@ -127,7 +117,7 @@ const MissionDetail: React.FC<MissionDetailProps> = ({
           }}
         >
           <StatusBadge status={mission.status} />
-          <TypeBadge type={mission.missionType} />
+          <TypeBadge type={mission.doctorType} />
         </Stack>
         <Box
           sx={{ border: '1px solid', borderColor: 'divider', mb: '15px' }}
@@ -197,14 +187,14 @@ const MissionDetail: React.FC<MissionDetailProps> = ({
               color="text.secondary"
               sx={{ fontSize: '0.625rem' }}
             >
-              AGENCY
+              forma Wizity
             </Typography>
             <Typography
               variant="body1"
               fontWeight={600}
               sx={{ fontSize: '0.75rem' }}
             >
-              {mission.agency}
+              {mission.formaWizity}
             </Typography>
           </Grid>
           <Grid xs={3} sm={3} textAlign="center">
@@ -268,8 +258,8 @@ const MissionDetail: React.FC<MissionDetailProps> = ({
               fontWeight={600}
               sx={{ fontSize: '0.75rem' }}
             >
-              {mission.crew.length > 0
-                ? `${mission.crew.length} crew`
+              {mission.lekarz.length > 0
+                ? `${mission.lekarz.length} crew`
                 : 'Uncrewed'}
             </Typography>
           </Grid>
@@ -278,14 +268,7 @@ const MissionDetail: React.FC<MissionDetailProps> = ({
           sx={{ border: '1px solid', borderColor: 'divider', mb: '15px' }}
         ></Box>
 
-        <Typography
-          variant="body1"
-          sx={{ lineHeight: 1.7, fontSize: { xs: '0.875rem', sm: '1rem' } }}
-        >
-          {mission.description}
-        </Typography>
-
-        {mission.crew.length > 0 && (
+        {mission.lekarz.length > 0 && (
           <Box sx={{ mt: 3 }}>
             <Box
               sx={{
@@ -301,11 +284,11 @@ const MissionDetail: React.FC<MissionDetailProps> = ({
               />
 
               <Typography variant="h6" sx={{ fontSize: '0.875rem' }}>
-                CREW MEMBERS
+                Lekarz
               </Typography>
             </Box>
             <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-              {mission.crew.map((member) => (
+              {mission.lekarz.map((member) => (
                 <Chip
                   key={member}
                   label={member}

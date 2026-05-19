@@ -8,31 +8,24 @@ import {
   Stack,
   Box,
 } from '@mui/material';
-import StarIcon from '@mui/icons-material/Star';
-import StarBorderIcon from '@mui/icons-material/StarBorder';
 import SupportAgentIcon from '@mui/icons-material/SupportAgent';
 import { Mission } from '../types/mission';
-import { AgencyLogo } from './AgencyLogo';
 import { StatusBadge } from './StatusBadge';
 import { TypeBadge } from './TypeBadge';
 import Tooltip from '@mui/material/Tooltip';
 
 interface MissionCardProps {
   mission: Mission;
-  isFavorite: boolean;
-  onFavoriteToggle: (missionId: string) => void;
   onClick: (mission: Mission) => void;
 }
 
 const MissionCard: React.FC<MissionCardProps> = ({
   mission,
-  isFavorite,
-  onFavoriteToggle,
+
   onClick,
 }) => {
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    onFavoriteToggle(mission.id);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -78,37 +71,15 @@ const MissionCard: React.FC<MissionCardProps> = ({
       onClick={() => onClick(mission)}
       onKeyDown={handleKeyDown}
       tabIndex={0}
-      aria-label={`${mission.name} mission, ${mission.agency}, ${mission.year}. ${mission.description.substring(0, 100)}`}
+      aria-label={`${mission.name} mission, ${mission.formaWizity}, ${mission.year}`}
     >
       <CardContent sx={{ flexGrow: 1, position: 'relative', p: 2.5 }}>
-        <IconButton
-          sx={{
-            position: 'absolute',
-            top: 8,
-            right: 8,
-            zIndex: 1,
-          }}
-          onClick={handleFavoriteClick}
-          size="small"
-          aria-label="Favorite missions"
-        >
-          {isFavorite ? (
-            <StarIcon sx={{ color: '#ffc107' }} aria-hidden="true" />
-          ) : (
-            <StarBorderIcon aria-hidden="true" />
-          )}
-        </IconButton>
-
         <Stack
           direction="row"
           spacing={2}
           alignItems="flex-start"
           sx={{ mb: 2 }}
         >
-          <AgencyLogo
-            agency={mission.agency}
-            sx={{ width: '2.5rem', height: '2.5rem' }}
-          />
           <Box sx={{ flex: 1, minWidth: 0 }}>
             <Typography
               variant="h6"
@@ -123,37 +94,22 @@ const MissionCard: React.FC<MissionCardProps> = ({
               color="text.secondary"
               sx={{ fontWeight: 600, mb: 0.5 }}
             >
-              {mission.agency} • {mission.year}
+              {mission.formaWizity} • {mission.year}
             </Typography>
           </Box>
         </Stack>
 
-        <Typography
-          variant="body2"
-          color="text.secondary"
-          sx={{
-            mb: 2,
-            display: '-webkit-box',
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: 'vertical',
-            overflow: 'hidden',
-            minHeight: '2.5rem',
-          }}
-        >
-          {mission.description}
-        </Typography>
-
         <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
           <StatusBadge status={mission.status} />
-          <TypeBadge type={mission.missionType} />
+          <TypeBadge type={mission.doctorType} />
           <Tooltip title={'Crew size'} sx={{ color: 'rgba(0, 0, 0, 0.87)' }}>
             <Chip
               icon={
                 <SupportAgentIcon sx={{ fontSize: '0.875rem !important' }} />
               }
               label={
-                mission.crew.length > 0
-                  ? `${mission.crew.length} crew`
+                mission.lekarz.length > 0
+                  ? `${mission.lekarz.length} crew`
                   : 'Uncrewed'
               }
               size="small"

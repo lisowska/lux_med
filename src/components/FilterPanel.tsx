@@ -57,26 +57,18 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
   const [statusAnchor, setStatusAnchor] = useState<null | HTMLElement>(null);
   const [typeAnchor, setTypeAnchor] = useState<null | HTMLElement>(null);
 
-  const agencies: Mission['agency'][] = [
-    'NASA',
-    'ESA',
-    'SpaceX',
-    'CNSA',
-    'ISRO',
-    'Roscosmos',
+  const agencies: Mission['formaWizity'][] = [
+    'telefoniczna',
+    'online',
+    'w placówce',
   ];
-  const statuses: Mission['status'][] = [
-    'Success',
-    'Failure',
-    'Ongoing',
-    'Planned',
-  ];
-  const types: Mission['missionType'][] = [
-    'Orbital',
-    'Lunar',
-    'Mars',
-    'Deep Space',
-    'ISS',
+  const statuses: Mission['status'][] = ['Odbyta', 'Planowana', 'Anulowana'];
+  const types: Mission['doctorType'][] = [
+    'Ginekolog',
+    'Pediatra',
+    'Usg',
+    'Dietetyk',
+    'Okulista',
   ];
 
   const activeFilterCount =
@@ -165,7 +157,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
               value={searchQuery}
               size="small"
               onChange={(e) => onSearchChange(e.target.value)}
-              aria-label="Search missions by name"
+              aria-label="Szukaj lekarza lub badania"
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start" sx={{ color: '#162B47' }}>
@@ -202,7 +194,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
                   component="span"
                   sx={{ display: { xs: 'none', sm: 'inline' } }}
                 >
-                  Showing{' '}
+                  Pokazuje{' '}
                 </Box>
                 {resultCount}
               </Typography>
@@ -213,7 +205,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
                   sx={{ display: { xs: 'none', sm: 'inline' } }}
                 >
                   {' '}
-                  missions
+                  wyników
                 </Box>
               </Typography>
             </Paper>
@@ -239,7 +231,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
               }
               sx={{ fontSize: { xs: '0.7rem', md: '0.8rem' } }}
             >
-              Filters {activeFilterCount > 0 && `(${activeFilterCount})`}
+              Filtry {activeFilterCount > 0 && `(${activeFilterCount})`}
             </Button>
 
             <Button
@@ -262,7 +254,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
               aria-haspopup="true"
               sx={{ fontSize: { xs: '0.7rem', md: '0.8rem' } }}
             >
-              Agency{' '}
+              Forma wizity{' '}
               {selectedAgencies.length > 0 && `(${selectedAgencies.length})`}
             </Button>
 
@@ -313,19 +305,6 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
               Type {selectedTypes.length > 0 && `(${selectedTypes.length})`}
             </Button>
 
-            <Button
-              variant={showFavoritesOnly ? 'contained' : 'outlined'}
-              startIcon={<StarIcon aria-hidden="true" />}
-              onClick={onFavoritesToggle}
-              size="small"
-              aria-label={
-                showFavoritesOnly ? 'Show all missions' : 'Show favorites only'
-              }
-              aria-pressed={showFavoritesOnly}
-              sx={{ fontSize: { xs: '0.7rem', md: '0.8rem' } }}
-            >
-              Favorites
-            </Button>
             {activeFilterCount > 0 && (
               <Button
                 variant="outlined"
@@ -338,7 +317,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
                   fontSize: { xs: '0.7rem', md: '0.8rem' },
                 }}
               >
-                Clear All&nbsp;
+                Wyczyść wszystkie&nbsp;
                 <Box
                   component="span"
                   sx={{

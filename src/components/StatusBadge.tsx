@@ -12,10 +12,11 @@ interface StatusBadgeProps {
 }
 export const getStatusIcon = (status: MissionStatus) => {
   const iconMap = {
-    Success: <CheckCircleOutlineIcon fontSize="small" htmlColor="#16A34A" />,
-    Failure: <HighlightOffOutlinedIcon fontSize="small" htmlColor="#EF4444" />,
-    Ongoing: <RotateRightRoundedIcon fontSize="small" htmlColor="#06B6D4" />,
-    Planned: <CalendarTodayIcon fontSize="small" htmlColor="#B453094" />,
+    Odbyta: <CheckCircleOutlineIcon fontSize="small" htmlColor="#16A34A" />,
+    Anulowana: (
+      <HighlightOffOutlinedIcon fontSize="small" htmlColor="#EF4444" />
+    ),
+    Planowana: <CalendarTodayIcon fontSize="small" htmlColor="#B453094" />,
   };
   return iconMap[status] ?? null;
 };

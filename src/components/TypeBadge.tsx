@@ -5,14 +5,14 @@ import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import SatelliteAltIcon from '@mui/icons-material/SatelliteAlt';
 import Tooltip from '@mui/material/Tooltip';
-import type { MissionType } from '../types/mission';
+import type { DoctorType } from '../types/mission';
 
 interface TypeBadgeProps {
-  type: MissionType;
+  type: DoctorType;
 }
 
 const typeConfig: Record<
-  MissionType,
+  DoctorType,
   {
     icon: React.ReactElement;
     color: string;
@@ -20,31 +20,31 @@ const typeConfig: Record<
     borderColor: string;
   }
 > = {
-  Orbital: {
+  Okulista: {
     icon: <PublicIcon fontSize="small" />,
     color: 'white',
     bgColor: '#162D4D',
     borderColor: 'rgba(14, 165, 233, 0.3)',
   },
-  Lunar: {
+  Ginekolog: {
     icon: <NightsStayIcon fontSize="small" />,
     color: '#A78BFA',
     bgColor: 'rgba(167, 139, 250, 0.15)',
     borderColor: 'rgba(167, 139, 250, 0.3)',
   },
-  Mars: {
+  Pediatra: {
     icon: <RadioButtonCheckedIcon fontSize="small" />,
     color: '#F97316',
     bgColor: 'rgba(249, 115, 22, 0.15)',
     borderColor: 'rgba(249, 115, 22, 0.3)',
   },
-  'Deep Space': {
+  Usg: {
     icon: <RocketLaunchIcon fontSize="small" />,
     color: '#8B5CF6',
     bgColor: 'rgba(139, 92, 246, 0.15)',
     borderColor: 'rgba(139, 92, 246, 0.3)',
   },
-  ISS: {
+  Dietetyk: {
     icon: <SatelliteAltIcon fontSize="small" />,
     color: '#06B6D4',
     bgColor: 'rgba(6, 182, 212, 0.15)',
@@ -58,15 +58,15 @@ export const TypeBadge = ({ type }: TypeBadgeProps) => {
   return (
     <Tooltip title={'Mission Type'} sx={{ color: 'rgba(0, 0, 0, 0.87)' }}>
       <Chip
-        icon={config.icon}
+        icon={config?.icon}
         label={type}
         size="small"
         sx={{
           fontSize: '0.75rem',
           fontWeight: 500,
-          color: config.color,
-          backgroundColor: config.bgColor,
-          border: `1px solid ${config.borderColor}`,
+          color: config?.color,
+          backgroundColor: config?.bgColor,
+          border: `1px solid ${config?.borderColor}`,
           '& .MuiChip-icon': {
             color: 'inherit',
           },
