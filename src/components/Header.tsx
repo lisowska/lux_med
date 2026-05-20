@@ -1,161 +1,79 @@
 import React from 'react';
 import { Box, Typography, Stack } from '@mui/material';
-import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
-import TravelExploreIcon from '@mui/icons-material/TravelExplore';
-import PublicIcon from '@mui/icons-material/Public';
-import { Avatar } from '@mui/material';
-import logo from '../assets/nasa-logo.svg';
+
+import LuxMed from '../assets/LUXMED.svg';
 
 const Header = () => {
   return (
     <Box
       sx={{
+        maxWidth: { xs: '64rem', lg: '70rem', xl: '80rem' },
         position: 'relative',
-        color: 'white',
-        padding: { xs: '1rem 1rem', md: '2rem 2rem' },
+        color: 'black',
+        // padding: { xs: '1rem 1rem', md: '1rem 1rem' },
         overflow: 'hidden',
-        background:
-          'linear-gradient(135deg, #16294A 0%, #0059B3 50%, #17A2E8 100%)',
+        background: 'white',
+        mt: '20px',
+        mx: 'auto',
+        width: '100%',
+        px: { xs: 2, md: 3 },
+        // maxHeight: '200px',
       }}
     >
-      <Box
-        sx={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          opacity: 0.1,
-          backgroundImage: `
-            radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.2) 1px, transparent 1px),
-            radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.15) 1px, transparent 1px)
-          `,
-          backgroundSize: '24px 24px',
-        }}
-      />
-
       <Box sx={{ position: 'relative', zIndex: 1 }}>
         <Stack
           direction="row"
           alignItems="center"
           justifyContent="space-between"
           spacing={1}
+          maxHeight="265px"
           sx={{
             mb: { xs: 1, md: 2 },
-            ml: { xs: 3, md: 7 },
-            mr: 7,
+            ml: { xs: 1, md: 7 },
+            mr: { xs: 1, md: 7 },
             mt: { xs: 3 },
+            my: '50px',
           }}
         >
+          <Box
+            component="img"
+            sx={{
+              height: 350,
+              width: 650,
+              maxHeight: { xs: 150, md: 220 },
+              maxWidth: { xs: 210, md: 650 },
+            }}
+            alt="Przykładowy obrazek."
+            src={LuxMed}
+          />
           <Box>
             <Typography
-              variant="h1"
-              component="h1"
+              variant="h5"
+              component="h2"
               sx={{
-                fontSize: { xs: '1.7rem', md: '3rem' },
-                fontWeight: 700,
-                flex: 1,
-                pb: { xs: 1 },
+                fontWeight: 'bold',
+                color: 'text.primary',
+                mb: 1.5, // Margines dolny oddzielający od paragrafu
+                fontSize: { xs: '0.9rem', md: 'rem' },
               }}
             >
-              SPACE MISSIONS
+              Masz objawy alergii?
             </Typography>
             <Typography
-              variant="h3"
-              component="h3"
+              variant="body1"
+              component="p"
               sx={{
-                fontSize: { xs: '1rem', md: '1.8rem' },
-                fontWeight: 700,
-                flex: 1,
-                color: 'rgba(255, 255, 255, 0.8)',
+                color: 'grey', // Szary kolor tekstu, jak na obrazku
+                lineHeight: 1.6, // Odpowiednia interlinia
+                fontSize: { xs: '0.75rem', md: '0.9rem' },
               }}
             >
-              Explore humanity's greatest journeys beyond Earth.
+              Katar, kaszel, wysypka lub bóle brzucha? Sprawdź pakiet badań na
+              alergeny z krwi i dowiedz się, co może Cię uczulać.
             </Typography>
-
-            <Box display="flex" alignItems="center" justifyContent="flex-start">
-              <Box display="flex" alignItems="center">
-                <TravelExploreIcon
-                  sx={{
-                    fontSize: {
-                      xs: '1rem',
-                      md: '1.5rem',
-                      color: 'rgba(255, 255, 255, 0.8)',
-                    },
-                  }}
-                  aria-hidden="true"
-                />
-                <Typography
-                  variant="body1"
-                  sx={{
-                    fontSize: { xs: '0.7rem', md: '0.9rem' },
-                    ml: 3,
-                    mr: 3,
-                    opacity: 0.95,
-                    color: 'rgba(255, 255, 255, 0.8)',
-                  }}
-                >
-                  EARTH
-                </Typography>
-              </Box>
-              <Box
-                sx={{
-                  flex: 1,
-                  maxWidth: '150px',
-                  height: '1px',
-                  background: (theme) => `linear-gradient(to right, 
-      transparent, ${theme.palette.text.disabled}66, transparent)`,
-                }}
-              />
-              <p>→→→</p>
-              <Box
-                sx={{
-                  flex: 1,
-                  maxWidth: '150px',
-                  height: '1px',
-                  background: (theme) => `linear-gradient(to right, 
-      transparent, 
-      ${theme.palette.text.disabled}66, 
-      transparent
-    )`,
-                }}
-              />
-              <Box display="flex" alignItems="center">
-                <Typography
-                  variant="body1"
-                  sx={{
-                    fontSize: { xs: '0.7rem', md: '0.9rem' },
-                    ml: 3,
-                    mr: 3,
-                    opacity: 0.95,
-                    color: 'rgba(255, 255, 255, 0.8)',
-                  }}
-                >
-                  BEYOND
-                </Typography>
-                <PublicIcon
-                  sx={{
-                    fontSize: {
-                      xs: '1rem',
-                      md: '1.5rem',
-                      color: 'rgba(255, 255, 255, 0.8)',
-                    },
-                  }}
-                  aria-hidden="true"
-                />
-              </Box>
-            </Box>
+            {/* 
+            <Box display="flex" alignItems="center" justifyContent="flex-start"> */}
           </Box>
-
-          <AutoAwesomeIcon
-            sx={{ fontSize: { xs: '1rem', md: '2rem' } }}
-            aria-hidden="true"
-          />
-          <Avatar
-            alt="NASA logo"
-            src={logo}
-            sx={{ width: { xs: 65, md: 95 }, height: { xs: 65, md: 95 } }}
-          />
         </Stack>
       </Box>
     </Box>

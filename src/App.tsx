@@ -1,18 +1,20 @@
 import React from 'react';
 import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
 import MainPage from './components/MainPage';
-import type { FormaWizity, MissionStatus, DoctorType } from './types/mission';
+import LuxMedNavbar from './components/NavBar';
+import AppointmentsSection from './components/ AppointmentsSection';
+import Header from './components/Header';
+import type { FormaWizity, MissionStatus, Usluga } from './types/mission';
 
 export interface FilterState {
   search: string;
   FormaWizity: FormaWizity[];
   statuses: MissionStatus[];
-  doctorTypes: DoctorType[];
-  favoritesOnly: boolean;
+  usluga: Usluga[];
 }
 declare module '@mui/material/styles' {
   interface Palette {
-    doctorTypes: {
+    usluga: {
       Ginekolog: string;
       Pediatra: string;
       Usg: string;
@@ -27,7 +29,7 @@ declare module '@mui/material/styles' {
   }
 
   interface PaletteOptions {
-    doctorTypes?: {
+    usluga?: {
       Ginekolog?: string;
       Pediatra?: string;
       Usg?: string;
@@ -97,7 +99,7 @@ const theme = createTheme({
     // === NEUTRAL / BORDERS ===
     divider: '#C7D2DD', // Border/Muted (210 30% 85%)
     // === MISSION TYPE COLORS (custom) ===
-    doctorTypes: {
+    usluga: {
       Ginekolog: '#0EA5E9', // Sky Blue
       Pediatra: '#A78BFA', // Purple
       Usg: '#F97316', // Orange
@@ -187,6 +189,9 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
+      <LuxMedNavbar />
+      <Header />
+      <AppointmentsSection />
       <MainPage />
     </ThemeProvider>
   );

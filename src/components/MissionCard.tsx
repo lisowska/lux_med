@@ -9,6 +9,7 @@ import {
   Box,
 } from '@mui/material';
 import SupportAgentIcon from '@mui/icons-material/SupportAgent';
+import GroupsIcon from '@mui/icons-material/Groups';
 import { Mission } from '../types/mission';
 import { StatusBadge } from './StatusBadge';
 import { TypeBadge } from './TypeBadge';
@@ -71,7 +72,6 @@ const MissionCard: React.FC<MissionCardProps> = ({
       onClick={() => onClick(mission)}
       onKeyDown={handleKeyDown}
       tabIndex={0}
-      aria-label={`${mission.name} mission, ${mission.formaWizity}, ${mission.year}`}
     >
       <CardContent sx={{ flexGrow: 1, position: 'relative', p: 2.5 }}>
         <Stack
@@ -82,36 +82,32 @@ const MissionCard: React.FC<MissionCardProps> = ({
         >
           <Box sx={{ flex: 1, minWidth: 0 }}>
             <Typography
-              variant="h6"
-              component="h3"
-              sx={{ fontWeight: 600, mb: 0.5, lineHeight: 1 }}
-              color="text.primary"
-            >
-              {mission.name}
-            </Typography>
-            <Typography
               variant="body2"
               color="text.secondary"
               sx={{ fontWeight: 600, mb: 0.5 }}
             >
-              {mission.formaWizity} • {mission.year}
+              {mission.formaWizity} • {mission.launchDate}
             </Typography>
           </Box>
         </Stack>
 
         <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
           <StatusBadge status={mission.status} />
-          <TypeBadge type={mission.doctorType} />
+          <TypeBadge type={mission.usluga} />
           <Tooltip title={'Crew size'} sx={{ color: 'rgba(0, 0, 0, 0.87)' }}>
             <Chip
               icon={
                 <SupportAgentIcon sx={{ fontSize: '0.875rem !important' }} />
               }
-              label={
-                mission.lekarz.length > 0
-                  ? `${mission.lekarz.length} crew`
-                  : 'Uncrewed'
-              }
+              label={mission.formaWizity}
+              size="small"
+              sx={{ fontSize: '0.75rem' }}
+            />
+          </Tooltip>
+          <Tooltip title={'Crew size'} sx={{ color: 'rgba(0, 0, 0, 0.87)' }}>
+            <Chip
+              icon={<GroupsIcon sx={{ fontSize: '0.875rem !important' }} />}
+              label={mission.typ}
               size="small"
               sx={{ fontSize: '0.75rem' }}
             />

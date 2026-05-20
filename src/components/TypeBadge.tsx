@@ -5,14 +5,14 @@ import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import SatelliteAltIcon from '@mui/icons-material/SatelliteAlt';
 import Tooltip from '@mui/material/Tooltip';
-import type { DoctorType } from '../types/mission';
+import type { Usluga } from '../types/mission';
 
 interface TypeBadgeProps {
-  type: DoctorType;
+  type: Usluga;
 }
 
 const typeConfig: Record<
-  DoctorType,
+  Usluga,
   {
     icon: React.ReactElement;
     color: string;

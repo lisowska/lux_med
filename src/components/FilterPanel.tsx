@@ -25,14 +25,12 @@ import { statusColor } from './styleUtils';
 interface FilterPanelProps {
   searchQuery: string;
   onSearchChange: (query: string) => void;
-  selectedAgencies: string[];
+  selectedForma: string[];
   onAgencyFilterChange: (agencies: string[]) => void;
   selectedStatuses: string[];
   onStatusFilterChange: (statuses: string[]) => void;
   selectedTypes: string[];
   onTypeFilterChange: (types: string[]) => void;
-  showFavoritesOnly: boolean;
-  onFavoritesToggle: () => void;
   resultCount: number;
   totalCount: number;
   onClearAll: () => void;
@@ -41,29 +39,27 @@ interface FilterPanelProps {
 const FilterPanel: React.FC<FilterPanelProps> = ({
   searchQuery,
   onSearchChange,
-  selectedAgencies,
+  selectedForma,
   onAgencyFilterChange,
   selectedStatuses,
   onStatusFilterChange,
   selectedTypes,
   onTypeFilterChange,
-  showFavoritesOnly,
-  onFavoritesToggle,
   resultCount,
   totalCount,
   onClearAll,
 }) => {
-  const [agencyAnchor, setAgencyAnchor] = useState<null | HTMLElement>(null);
+  const [formaAnchor, setFormaAnchor] = useState<null | HTMLElement>(null);
   const [statusAnchor, setStatusAnchor] = useState<null | HTMLElement>(null);
   const [typeAnchor, setTypeAnchor] = useState<null | HTMLElement>(null);
 
-  const agencies: Mission['formaWizity'][] = [
+  const wizyty: Mission['formaWizity'][] = [
     'telefoniczna',
     'online',
     'w placówce',
   ];
   const statuses: Mission['status'][] = ['Odbyta', 'Planowana', 'Anulowana'];
-  const types: Mission['doctorType'][] = [
+  const types: Mission['usluga'][] = [
     'Ginekolog',
     'Pediatra',
     'Usg',
@@ -72,16 +68,13 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
   ];
 
   const activeFilterCount =
-    selectedAgencies.length +
-    selectedStatuses.length +
-    selectedTypes.length +
-    (showFavoritesOnly ? 1 : 0);
+    selectedForma.length + selectedStatuses.length + selectedTypes.length;
 
   const handleAgencyToggle = (agency: string) => {
-    if (selectedAgencies.includes(agency)) {
-      onAgencyFilterChange(selectedAgencies.filter((a) => a !== agency));
+    if (selectedForma.includes(agency)) {
+      onAgencyFilterChange(selectedForma.filter((a) => a !== agency));
     } else {
-      onAgencyFilterChange([...selectedAgencies, agency]);
+      onAgencyFilterChange([...selectedForma, agency]);
     }
   };
 
@@ -100,16 +93,6 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
       onTypeFilterChange([...selectedTypes, type]);
     }
   };
-
-  const SelectHeader = ({ title }: { title: string }) => (
-    <Box
-      sx={{ px: 2, py: 1, borderBottom: '1px solid', borderColor: 'divider' }}
-    >
-      <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-        {title}
-      </Typography>
-    </Box>
-  );
 
   const CheckSlot = ({ checked }: { checked: boolean }) => (
     <Box
@@ -153,7 +136,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
           <Stack direction="row" spacing={2} sx={{ mb: 2 }} alignItems="center">
             <TextField
               fullWidth
-              placeholder="Search mission names…"
+              placeholder="Wyszukaj usługę…"
               value={searchQuery}
               size="small"
               onChange={(e) => onSearchChange(e.target.value)}
@@ -236,26 +219,26 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
 
             <Button
               id="agency-filter-button"
-              variant={selectedAgencies.length > 0 ? 'contained' : 'outlined'}
+              variant={selectedForma.length > 0 ? 'contained' : 'outlined'}
               startIcon={<BusinessIcon aria-hidden="true" />}
               endIcon={
                 <ArrowDropDownIcon
                   sx={{
-                    transform: agencyAnchor ? 'rotate(180deg)' : 'rotate(0deg)',
+                    transform: formaAnchor ? 'rotate(180deg)' : 'rotate(0deg)',
                     transition: 'transform 0.2s ease-in-out',
                   }}
                   aria-hidden="true"
                 />
               }
-              onClick={(e) => setAgencyAnchor(e.currentTarget)}
+              onClick={(e) => setFormaAnchor(e.currentTarget)}
               size="small"
-              aria-label={`Filter by agency${selectedAgencies.length > 0 ? `, ${selectedAgencies.length} selected` : ''}`}
-              aria-expanded={Boolean(agencyAnchor)}
+              aria-label={`Filter by forma${selectedForma.length > 0 ? `, ${selectedForma.length} selected` : ''}`}
+              aria-expanded={Boolean(formaAnchor)}
               aria-haspopup="true"
               sx={{ fontSize: { xs: '0.7rem', md: '0.8rem' } }}
             >
               Forma wizity{' '}
-              {selectedAgencies.length > 0 && `(${selectedAgencies.length})`}
+              {selectedForma.length > 0 && `(${selectedForma.length})`}
             </Button>
 
             <Button
@@ -302,7 +285,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
               aria-haspopup="true"
               sx={{ fontSize: { xs: '0.7rem', md: '0.8rem' } }}
             >
-              Type {selectedTypes.length > 0 && `(${selectedTypes.length})`}
+              Usługa {selectedTypes.length > 0 && `(${selectedTypes.length})`}
             </Button>
 
             {activeFilterCount > 0 && (
@@ -346,7 +329,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
               flexWrap="wrap"
               useFlexGap
             >
-              {selectedAgencies.map((agency) => (
+              {selectedForma.map((agency) => (
                 <Chip
                   key={agency}
                   label={agency}
@@ -370,21 +353,13 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
                   size="small"
                 />
               ))}
-
-              {showFavoritesOnly && (
-                <Chip
-                  label="Favorites Only"
-                  onDelete={onFavoritesToggle}
-                  size="small"
-                />
-              )}
             </Stack>
           )}
 
           <Menu
-            anchorEl={agencyAnchor}
-            open={Boolean(agencyAnchor)}
-            onClose={() => setAgencyAnchor(null)}
+            anchorEl={formaAnchor}
+            open={Boolean(formaAnchor)}
+            onClose={() => setFormaAnchor(null)}
             slotProps={{
               paper: {
                 sx: {
@@ -397,12 +372,11 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
             }}
             aria-labelledby="agency-filter-button"
           >
-            <SelectHeader title="Select agencies" />
-            {agencies.map((agency) => (
+            {wizyty.map((wizyta) => (
               <MenuItem
-                key={agency}
-                onClick={() => handleAgencyToggle(agency)}
-                selected={selectedAgencies.includes(agency)}
+                key={wizyta}
+                onClick={() => handleAgencyToggle(wizyta)}
+                selected={selectedForma.includes(wizyta)}
                 sx={{
                   py: 1.25,
                   gap: 1.1,
@@ -410,9 +384,9 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
                 }}
               >
                 <Typography sx={{ fontWeight: 500, fontSize: '0.875rem' }}>
-                  {agency}
+                  {wizyta}
                 </Typography>
-                <CheckSlot checked={selectedAgencies.includes(agency)} />
+                <CheckSlot checked={selectedForma.includes(wizyta)} />
               </MenuItem>
             ))}
           </Menu>
@@ -428,7 +402,6 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
             }}
             aria-labelledby="status-filter-button"
           >
-            <SelectHeader title="Select status" />
             {statuses.map((status) => (
               <MenuItem
                 key={status}
@@ -463,7 +436,6 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
             }}
             aria-labelledby="type-filter-button"
           >
-            <SelectHeader title="Select type" />
             {types.map((type) => (
               <MenuItem
                 key={type}

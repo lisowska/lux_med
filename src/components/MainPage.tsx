@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Box, Grid, Typography, Paper } from '@mui/material';
-import Header from './Header';
+
 import MissionCard from './MissionCard';
 import MissionDetail from './MissionDetail';
 import { Mission } from '../types/mission';
@@ -12,29 +12,22 @@ const MainPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedAgencies, setSelectedAgencies] = useState<string[]>([]);
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([
-    'Success',
+    'Odbyta',
   ]);
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
-  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+
   const [selectedMission, setSelectedMission] = useState<Mission | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
-  const [favorites, setFavorites] = useState<string[]>(() => {
-    const stored = localStorage.getItem('spaceMissionsFavorites');
-    return stored ? JSON.parse(stored) : [];
-  });
 
   const missions: Mission[] = missionData.missions as Mission[];
-
-  useEffect(() => {
-    localStorage.setItem('spaceMissionsFavorites', JSON.stringify(favorites));
-  }, [favorites]);
 
   const filteredMissions = useMemo(() => {
     return missions
       .filter((mission) => {
         if (searchQuery) {
+          console.log('searchQuery', searchQuery);
           const query = searchQuery.toLowerCase();
-          if (!mission.name.toLowerCase().includes(query)) {
+          if (!mission.usluga.toLowerCase().includes(query)) {
             return false;
           }
         }
@@ -55,14 +48,11 @@ const MainPage: React.FC = () => {
 
         if (
           selectedTypes.length > 0 &&
-          !selectedTypes.includes(mission.doctorType)
+          !selectedTypes.includes(mission.usluga)
         ) {
           return false;
         }
 
-        if (showFavoritesOnly && !favorites.includes(mission.id)) {
-          return false;
-        }
         return true;
       })
       .sort((a, b) => b.year - a.year);
@@ -72,19 +62,7 @@ const MainPage: React.FC = () => {
     selectedAgencies,
     selectedStatuses,
     selectedTypes,
-    showFavoritesOnly,
-    favorites,
   ]);
-
-  const handleFavoriteToggle = (missionId: string) => {
-    setFavorites((prev) => {
-      if (prev.includes(missionId)) {
-        return prev.filter((id) => id !== missionId);
-      } else {
-        return [...prev, missionId];
-      }
-    });
-  };
 
   const handleMissionClick = (mission: Mission) => {
     setSelectedMission(mission);
@@ -95,15 +73,13 @@ const MainPage: React.FC = () => {
     setSelectedAgencies([]);
     setSelectedStatuses([]);
     setSelectedTypes([]);
-    setShowFavoritesOnly(false);
   };
 
   return (
-    <Box sx={{ minHeight: '100vh', backgroundColor: '#f5f5f5' }}>
-      <Header />
+    <Box sx={{ minHeight: '100vh', backgroundColor: '#F7F9FB' }}>
       <Box
         sx={{
-          maxWidth: { xs: '64rem', lg: '80rem', xl: '96rem' },
+          maxWidth: { xs: '64rem', lg: '80rem', xl: '80rem' },
           mx: 'auto',
           width: '100%',
           px: { xs: 2, md: 3 },
@@ -112,14 +88,12 @@ const MainPage: React.FC = () => {
         <FilterPanel
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
-          selectedAgencies={selectedAgencies}
+          selectedForma={selectedAgencies}
           onAgencyFilterChange={setSelectedAgencies}
           selectedStatuses={selectedStatuses}
           onStatusFilterChange={setSelectedStatuses}
           selectedTypes={selectedTypes}
           onTypeFilterChange={setSelectedTypes}
-          showFavoritesOnly={showFavoritesOnly}
-          onFavoritesToggle={() => setShowFavoritesOnly(!showFavoritesOnly)}
           resultCount={filteredMissions.length}
           totalCount={missions.length}
           onClearAll={handleClearAll}

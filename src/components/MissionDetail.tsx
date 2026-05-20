@@ -37,18 +37,10 @@ const MissionDetail: React.FC<MissionDetailProps> = ({
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
-      month: 'short',
       day: 'numeric',
+      month: 'short',
       year: 'numeric',
     });
-  };
-
-  const formatCost = (cost?: number) => {
-    if (!cost) return 'N/A';
-    if (cost >= 1000) {
-      return `$${(cost / 1000).toFixed(1)}B`;
-    }
-    return `$${cost}M`;
   };
 
   return (
@@ -97,15 +89,6 @@ const MissionDetail: React.FC<MissionDetailProps> = ({
       </Box>
 
       <DialogContent sx={{ padding: { xs: '25px 20px', sm: '40px 20px' } }}>
-        <Typography
-          id="mission-dialog-title"
-          variant="h4"
-          component="h2"
-          sx={{ fontWeight: 700, mb: 1, fontSize: '1.5rem' }}
-        >
-          {mission.name}
-        </Typography>
-
         <Stack
           direction="row"
           spacing={1}
@@ -117,7 +100,7 @@ const MissionDetail: React.FC<MissionDetailProps> = ({
           }}
         >
           <StatusBadge status={mission.status} />
-          <TypeBadge type={mission.doctorType} />
+          <TypeBadge type={mission.usluga} />
         </Stack>
         <Box
           sx={{ border: '1px solid', borderColor: 'divider', mb: '15px' }}
@@ -154,7 +137,7 @@ const MissionDetail: React.FC<MissionDetailProps> = ({
               color="text.secondary"
               sx={{ fontSize: '0.625rem' }}
             >
-              LAUNCH DATE
+              DATA WIZITY
             </Typography>
             <Typography
               variant="body2"
@@ -195,72 +178,6 @@ const MissionDetail: React.FC<MissionDetailProps> = ({
               sx={{ fontSize: '0.75rem' }}
             >
               {mission.formaWizity}
-            </Typography>
-          </Grid>
-          <Grid xs={3} sm={3} textAlign="center">
-            <IconButton
-              sx={{
-                backgroundColor: '#0073e61a',
-                borderRadius: '50%',
-                width: 40,
-                height: 40,
-                padding: 0,
-                mb: 1,
-              }}
-              aria-hidden="true"
-            >
-              <AttachMoneyIcon
-                sx={{ fontSize: '1.2rem', color: 'primary.main' }}
-                aria-hidden="true"
-              />
-            </IconButton>
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              sx={{ fontSize: '0.625rem' }}
-            >
-              COST
-            </Typography>
-            <Typography
-              variant="body1"
-              fontWeight={600}
-              sx={{ fontSize: '0.75rem' }}
-            >
-              {formatCost(mission.cost)}
-            </Typography>
-          </Grid>
-          <Grid xs={3} sm={3} textAlign="center">
-            <IconButton
-              sx={{
-                backgroundColor: '#0073e61a',
-                borderRadius: '50%',
-                width: 40,
-                height: 40,
-                padding: 0,
-                mb: 1,
-              }}
-              aria-hidden="true"
-            >
-              <PeopleIcon
-                sx={{ fontSize: '1.2rem', color: 'primary.main' }}
-                aria-hidden="true"
-              />
-            </IconButton>
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              sx={{ fontSize: '0.625rem' }}
-            >
-              CREW
-            </Typography>
-            <Typography
-              variant="body1"
-              fontWeight={600}
-              sx={{ fontSize: '0.75rem' }}
-            >
-              {mission.lekarz.length > 0
-                ? `${mission.lekarz.length} crew`
-                : 'Uncrewed'}
             </Typography>
           </Grid>
         </Grid>
