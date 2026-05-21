@@ -191,7 +191,6 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <LuxMedNavbar />
-      <Header />
       <Routes>
         <Route path="/" element={<AppointmentsSection />} />
         <Route path="/appointments" element={<MainPage />} />

@@ -20,6 +20,7 @@ import Referrar from '../assets/referral.24x24.svg';
 import Stomatolgia from '../assets/stomatology.24x24.svg';
 import Wykres from '../assets/wykres.16x16.svg';
 import Arrow from '../assets/arrow-up-right.grey.16x16.svg';
+import Header from './Header';
 
 const TILES = [
   {
@@ -93,7 +94,7 @@ export default function AppointmentsSection() {
         href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap"
         rel="stylesheet"
       />
-
+      <Header />
       {/* Tiles row */}
       <Box
         sx={{

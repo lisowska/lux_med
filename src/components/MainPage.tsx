@@ -7,6 +7,7 @@ import { Mission } from '../types/mission';
 import SearchIcon from '@mui/icons-material/Search';
 import missionData from '../data/missionData.json';
 import FilterPanel from './FilterPanel';
+import HeaderHealth from './HeaderHealth';
 
 const MainPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -85,6 +86,7 @@ const MainPage: React.FC = () => {
           px: { xs: 2, md: 3 },
         }}
       >
+        <HeaderHealth />
         <FilterPanel
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
