@@ -5,14 +5,14 @@ import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import SatelliteAltIcon from '@mui/icons-material/SatelliteAlt';
 import Tooltip from '@mui/material/Tooltip';
-import type { Usluga } from '../types/mission';
+import type { Typ } from '../types/mission';
 
 interface TypeBadgeProps {
-  type: Usluga;
+  type: Typ;
 }
 
 const typeConfig: Record<
-  Usluga,
+  Typ,
   {
     icon: React.ReactElement;
     color: string;
@@ -20,41 +20,29 @@ const typeConfig: Record<
     borderColor: string;
   }
 > = {
-  Okulista: {
+  Badanie: {
     icon: <PublicIcon fontSize="small" />,
     color: 'white',
     bgColor: '#162D4D',
     borderColor: 'rgba(14, 165, 233, 0.3)',
   },
-  Ginekolog: {
+  Konsultacja: {
     icon: <NightsStayIcon fontSize="small" />,
     color: '#A78BFA',
     bgColor: 'rgba(167, 139, 250, 0.15)',
     borderColor: 'rgba(167, 139, 250, 0.3)',
   },
-  Pediatra: {
-    icon: <RadioButtonCheckedIcon fontSize="small" />,
-    color: '#F97316',
-    bgColor: 'rgba(249, 115, 22, 0.15)',
-    borderColor: 'rgba(249, 115, 22, 0.3)',
-  },
-  Usg: {
+  'Badania laboratoryjne': {
     icon: <RocketLaunchIcon fontSize="small" />,
     color: '#8B5CF6',
     bgColor: 'rgba(139, 92, 246, 0.15)',
     borderColor: 'rgba(139, 92, 246, 0.3)',
   },
-  Dietetyk: {
-    icon: <SatelliteAltIcon fontSize="small" />,
-    color: '#06B6D4',
-    bgColor: 'rgba(6, 182, 212, 0.15)',
-    borderColor: 'rgba(6, 182, 212, 0.3)',
-  },
 };
 
 export const TypeBadge = ({ type }: TypeBadgeProps) => {
   const config = typeConfig[type];
-
+  console.log('config', config);
   return (
     <Tooltip title={'Mission Type'} sx={{ color: 'rgba(0, 0, 0, 0.87)' }}>
       <Chip

@@ -55,7 +55,7 @@ const AppointmentsTable: React.FC<AppointmentsTableProps> = ({
 }) => {
   const paginatedAppointments = appointments.slice(
     page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
+    page * rowsPerPage + rowsPerPage,
   );
 
   return (
@@ -153,7 +153,7 @@ const AppointmentsTable: React.FC<AppointmentsTableProps> = ({
                     </Typography>
                   </TableCell>
                   <TableCell>
-                    <TypeBadge type={appointment.usluga} />
+                    <TypeBadge type={appointment.typ} />
                   </TableCell>
                   <TableCell>
                     <Box
