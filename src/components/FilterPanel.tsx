@@ -21,7 +21,7 @@ import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import CheckIcon from '@mui/icons-material/Check';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import CloseIcon from '@mui/icons-material/Close';
-import { Mission } from '../types/mission';
+import type { Mission } from '../types/mission';
 import { statusColor } from './styleUtils';
 
 interface FilterPanelProps {
