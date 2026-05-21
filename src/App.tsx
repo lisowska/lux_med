@@ -1,4 +1,5 @@
 import React from 'react';
+import { Routes, Route } from 'react-router-dom';
 import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
 import MainPage from './components/MainPage';
 import LuxMedNavbar from './components/NavBar';
@@ -191,8 +192,10 @@ function App() {
       <CssBaseline />
       <LuxMedNavbar />
       <Header />
-      <AppointmentsSection />
-      <MainPage />
+      <Routes>
+        <Route path="/" element={<AppointmentsSection />} />
+        <Route path="/appointments" element={<MainPage />} />
+      </Routes>
     </ThemeProvider>
   );
 }

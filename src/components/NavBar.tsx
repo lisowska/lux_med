@@ -12,13 +12,21 @@ import {
   useTheme,
   useMediaQuery,
 } from '@mui/material';
+import { Link, useNavigate } from 'react-router-dom';
 import MenuIcon from '@mui/icons-material/Menu';
 import AddIcon from '@mui/icons-material/Add';
 import LogoLuxMed from '../assets/LX_logo.90x26.svg';
 import Notification from '../assets/inbox.blue.24x24.svg';
 import smallLogo from '../assets/faviconLuxMed.ico';
 
-const NAV_ITEMS = ['Start', 'Leczenie', 'Leki', 'Zdrowie'];
+// const NAV_ITEMS = ['Start', 'Leczenie', 'Leki', 'Zdrowie'];
+
+const NAV_ITEMS: { label: string; to: string }[] = [
+  { label: 'Start', to: '/' },
+  { label: 'Leczenie', to: '/appointments' },
+  { label: 'Leki', to: '/' },
+  { label: 'Zdrowie', to: '/' },
+];
 
 const LuxMedLogo = () => (
   <Box sx={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -47,7 +55,7 @@ const LuxMedLogo = () => (
 
 export default function LuxMedNavbar() {
   const [activeTab, setActiveTab] = useState(0);
-
+  const navigate = useNavigate();
   return (
     <>
       {/* Google Fonts */}
@@ -88,7 +96,9 @@ export default function LuxMedNavbar() {
 
           {/* Nav tabs */}
           <Tabs
-            value={activeTab}
+            // value={activeTab}
+            value={activeTab === -1 ? 0 : activeTab}
+            // value={currentTab === -1 ? 0 : currentTab}
             onChange={(_, v) => setActiveTab(v)}
             sx={{
               flexGrow: 1,
@@ -113,8 +123,15 @@ export default function LuxMedNavbar() {
               },
             }}
           >
-            {NAV_ITEMS.map((label) => (
-              <Tab key={label} label={label} disableRipple />
+            {NAV_ITEMS.map((item) => (
+              <Tab
+                onClick={() => navigate(item.to)}
+                key={item.label}
+                label={item.label}
+                // to={to}
+                // component={Link}
+                disableRipple
+              />
             ))}
           </Tabs>
 
