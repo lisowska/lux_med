@@ -5,9 +5,11 @@
       "year": 1961,
       "formaWizity": "telefoniczna",
       "status": "Odbyta",
-      "usluga": "Ginekolog",
-      "typ": "Konsultacja",
-      "lekarz": ["Lek. Med. Grażyna Korolczuk"],
+      "usluga": "Pobranie krwi",
+      "typ": "Badania laboratoryjne",
+      "lekarz": [
+        "Lek. Med. Grażyna Korolczuk"
+      ],
       "launchDate": "12-04-2026",
       "cost": 5
     },
@@ -18,7 +20,9 @@
       "status": "Odbyta",
       "usluga": "Pediatra",
       "typ": "Konsultacja",
-      "lekarz": ["Lek. Med. Anna Borkowska"],
+      "lekarz": [
+        "Lek. Med. Anna Borkowska"
+      ],
       "launchDate": "16-02-2026",
       "cost": 355
     },
@@ -29,7 +33,9 @@
       "status": "Odbyta",
       "usluga": "Usg",
       "typ": "USG",
-      "lekarz": ["dr hab.n.med Rafał Słapa"],
+      "lekarz": [
+        "dr hab.n.med Rafał Słapa"
+      ],
       "launchDate": "11-03-2026",
       "cost": 375
     },
@@ -40,7 +46,9 @@
       "status": "Anulowana",
       "usluga": "Dietetyk",
       "typ": "Konsultacja",
-      "lekarz": ["Lek. Ewa Przenna"],
+      "lekarz": [
+        "Lek. Ewa Przenna"
+      ],
       "launchDate": "20-05-2026",
       "cost": 935
     },
@@ -51,7 +59,9 @@
       "status": "Planowana",
       "usluga": "Okulista",
       "typ": "Konsultacja",
-      "lekarz": ["Anna Kot"],
+      "lekarz": [
+        "Anna Kot"
+      ],
       "launchDate": "20-02-2026",
       "cost": 935
     }
