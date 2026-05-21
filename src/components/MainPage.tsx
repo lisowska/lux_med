@@ -1,38 +1,59 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { Box, Grid, Typography, Paper } from '@mui/material';
+import React, { useState, useMemo } from 'react';
+import { Box, Typography, Paper } from '@mui/material';
 
-import MissionCard from './MissionCard';
 import MissionDetail from './MissionDetail';
 import { Mission } from '../types/mission';
 import SearchIcon from '@mui/icons-material/Search';
 import missionData from '../data/missionData.json';
 import FilterPanel from './FilterPanel';
 import HeaderHealth from './HeaderHealth';
+import AppointmentsTable from './AppointmentsTable';
 
 const MainPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedAgencies, setSelectedAgencies] = useState<string[]>([]);
-  const [selectedStatuses, setSelectedStatuses] = useState<string[]>([
-    'Odbyta',
-  ]);
+  const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
+  const [selectedDoctor, setSelectedDoctor] = useState('');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
 
   const [selectedMission, setSelectedMission] = useState<Mission | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
 
+  // Pagination state
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
   const missions: Mission[] = missionData.missions as Mission[];
+
+  // Extract unique doctors for autocomplete
+  const availableDoctors = useMemo(() => {
+    const doctors = new Set<string>();
+    missions.forEach((mission) => {
+      mission.lekarz.forEach((doc) => doctors.add(doc));
+    });
+    return Array.from(doctors).sort();
+  }, [missions]);
+
+  // Parse date string (DD-MM-YYYY) to Date object
+  const parseDate = (dateStr: string): Date => {
+    const [day, month, year] = dateStr.split('-');
+    return new Date(Number(year), Number(month) - 1, Number(day));
+  };
 
   const filteredMissions = useMemo(() => {
     return missions
       .filter((mission) => {
+        // Search query filter
         if (searchQuery) {
-          console.log('searchQuery', searchQuery);
           const query = searchQuery.toLowerCase();
           if (!mission.usluga.toLowerCase().includes(query)) {
             return false;
           }
         }
 
+        // Forma wizyty filter
         if (
           selectedAgencies.length > 0 &&
           !selectedAgencies.includes(mission.formaWizity)
@@ -40,6 +61,7 @@ const MainPage: React.FC = () => {
           return false;
         }
 
+        // Status filter
         if (
           selectedStatuses.length > 0 &&
           !selectedStatuses.includes(mission.status)
@@ -47,6 +69,7 @@ const MainPage: React.FC = () => {
           return false;
         }
 
+        // Usluga filter
         if (
           selectedTypes.length > 0 &&
           !selectedTypes.includes(mission.usluga)
@@ -54,33 +77,85 @@ const MainPage: React.FC = () => {
           return false;
         }
 
+        // Doctor filter
+        if (selectedDoctor) {
+          const doctorMatch = mission.lekarz.some((doc) =>
+            doc.toLowerCase().includes(selectedDoctor.toLowerCase())
+          );
+          if (!doctorMatch) {
+            return false;
+          }
+        }
+
+        // Date range filter
+        if (dateFrom || dateTo) {
+          const missionDate = parseDate(mission.launchDate);
+
+          if (dateFrom) {
+            const fromDate = new Date(dateFrom);
+            if (missionDate < fromDate) {
+              return false;
+            }
+          }
+
+          if (dateTo) {
+            const toDate = new Date(dateTo);
+            if (missionDate > toDate) {
+              return false;
+            }
+          }
+        }
+
         return true;
       })
-      .sort((a, b) => b.year - a.year);
+      .sort((a, b) => {
+        const dateA = parseDate(a.launchDate);
+        const dateB = parseDate(b.launchDate);
+        return dateB.getTime() - dateA.getTime();
+      });
   }, [
     missions,
     searchQuery,
     selectedAgencies,
     selectedStatuses,
     selectedTypes,
+    selectedDoctor,
+    dateFrom,
+    dateTo,
   ]);
 
   const handleMissionClick = (mission: Mission) => {
     setSelectedMission(mission);
     setIsDetailOpen(true);
   };
+
   const handleClearAll = () => {
     setSearchQuery('');
     setSelectedAgencies([]);
     setSelectedStatuses([]);
     setSelectedTypes([]);
+    setSelectedDoctor('');
+    setDateFrom('');
+    setDateTo('');
+    setPage(0);
+  };
+
+  const handlePageChange = (_event: unknown, newPage: number) => {
+    setPage(newPage);
+  };
+
+  const handleRowsPerPageChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
   };
 
   return (
-    <Box sx={{ minHeight: '100vh', backgroundColor: '#F7F9FB' }}>
+    <Box sx={{ minHeight: '100vh', backgroundColor: '#F8FAFC' }}>
       <Box
         sx={{
-          maxWidth: { xs: '64rem', lg: '80rem', xl: '80rem' },
+          maxWidth: { xs: '100%', lg: '1400px' },
           mx: 'auto',
           width: '100%',
           px: { xs: 2, md: 3 },
@@ -89,21 +164,49 @@ const MainPage: React.FC = () => {
         <HeaderHealth />
         <FilterPanel
           searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
+          onSearchChange={(query) => {
+            setSearchQuery(query);
+            setPage(0);
+          }}
           selectedForma={selectedAgencies}
-          onAgencyFilterChange={setSelectedAgencies}
+          onAgencyFilterChange={(agencies) => {
+            setSelectedAgencies(agencies);
+            setPage(0);
+          }}
           selectedStatuses={selectedStatuses}
-          onStatusFilterChange={setSelectedStatuses}
+          onStatusFilterChange={(statuses) => {
+            setSelectedStatuses(statuses);
+            setPage(0);
+          }}
           selectedTypes={selectedTypes}
-          onTypeFilterChange={setSelectedTypes}
+          onTypeFilterChange={(types) => {
+            setSelectedTypes(types);
+            setPage(0);
+          }}
+          selectedDoctor={selectedDoctor}
+          onDoctorFilterChange={(doctor) => {
+            setSelectedDoctor(doctor);
+            setPage(0);
+          }}
+          dateFrom={dateFrom}
+          dateTo={dateTo}
+          onDateFromChange={(date) => {
+            setDateFrom(date);
+            setPage(0);
+          }}
+          onDateToChange={(date) => {
+            setDateTo(date);
+            setPage(0);
+          }}
           resultCount={filteredMissions.length}
           totalCount={missions.length}
           onClearAll={handleClearAll}
+          availableDoctors={availableDoctors}
         />
       </Box>
       <Box
         sx={{
-          maxWidth: { xs: '64rem', lg: '80rem', xl: '96rem' },
+          maxWidth: { xs: '100%', lg: '1400px' },
           mx: 'auto',
           width: '100%',
           p: { xs: 2, md: 3 },
@@ -112,45 +215,51 @@ const MainPage: React.FC = () => {
         {filteredMissions.length === 0 ? (
           <Paper
             sx={{
-              p: 4,
+              p: 6,
               backgroundColor: 'white',
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'center',
               alignItems: 'center',
+              borderRadius: 3,
+              border: '1px solid',
+              borderColor: 'divider',
             }}
+            elevation={0}
           >
             <Box
-              style={{
-                width: '45px',
-                height: '45px',
-                marginBottom: '5px',
-                borderRadius: '4px',
+              sx={{
+                width: 56,
+                height: 56,
+                mb: 2,
+                borderRadius: 2,
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
-                background:
-                  'linear-gradient(135deg, hsl(210 100% 45%) 0%, hsl(199 89% 48%) 100%)',
+                backgroundColor: '#F0F9FF',
               }}
             >
-              <SearchIcon sx={{ color: 'white' }} />
+              <SearchIcon sx={{ color: '#0EA5E9', fontSize: 28 }} />
             </Box>
-            <Typography variant="h6" color="#101D2E" gutterBottom>
-              No missions found
+            <Typography
+              variant="h6"
+              sx={{ color: '#1E293B', fontWeight: 600, mb: 1 }}
+            >
+              Brak wynikow
             </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Try searching by a different mission name or adjusting your
-              filters.
+            <Typography variant="body2" sx={{ color: '#64748B' }}>
+              Sprobuj wyszukac inna usluge lub dostosuj filtry
             </Typography>
           </Paper>
         ) : (
-          <Grid container spacing={2}>
-            {filteredMissions.map((mission) => (
-              <Grid item key={mission.id} xs={12} sm={6} md={4} lg={3}>
-                <MissionCard mission={mission} onClick={handleMissionClick} />
-              </Grid>
-            ))}
-          </Grid>
+          <AppointmentsTable
+            appointments={filteredMissions}
+            onRowClick={handleMissionClick}
+            page={page}
+            rowsPerPage={rowsPerPage}
+            onPageChange={handlePageChange}
+            onRowsPerPageChange={handleRowsPerPageChange}
+          />
         )}
       </Box>
       <MissionDetail

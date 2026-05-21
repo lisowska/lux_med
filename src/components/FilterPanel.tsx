@@ -10,15 +10,17 @@ import {
   Stack,
   Typography,
   Paper,
+  Autocomplete,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
-import FilterListIcon from '@mui/icons-material/FilterList';
 import BusinessIcon from '@mui/icons-material/Business';
 import ScheduleIcon from '@mui/icons-material/Schedule';
-import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
-import StarIcon from '@mui/icons-material/Star';
+import MedicalServicesIcon from '@mui/icons-material/MedicalServices';
+import PersonIcon from '@mui/icons-material/Person';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import CheckIcon from '@mui/icons-material/Check';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import CloseIcon from '@mui/icons-material/Close';
 import { Mission } from '../types/mission';
 import { statusColor } from './styleUtils';
 
@@ -31,9 +33,16 @@ interface FilterPanelProps {
   onStatusFilterChange: (statuses: string[]) => void;
   selectedTypes: string[];
   onTypeFilterChange: (types: string[]) => void;
+  selectedDoctor: string;
+  onDoctorFilterChange: (doctor: string) => void;
+  dateFrom: string;
+  dateTo: string;
+  onDateFromChange: (date: string) => void;
+  onDateToChange: (date: string) => void;
   resultCount: number;
   totalCount: number;
   onClearAll: () => void;
+  availableDoctors: string[];
 }
 
 const FilterPanel: React.FC<FilterPanelProps> = ({
@@ -45,9 +54,16 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
   onStatusFilterChange,
   selectedTypes,
   onTypeFilterChange,
+  selectedDoctor,
+  onDoctorFilterChange,
+  dateFrom,
+  dateTo,
+  onDateFromChange,
+  onDateToChange,
   resultCount,
   totalCount,
   onClearAll,
+  availableDoctors,
 }) => {
   const [formaAnchor, setFormaAnchor] = useState<null | HTMLElement>(null);
   const [statusAnchor, setStatusAnchor] = useState<null | HTMLElement>(null);
@@ -68,7 +84,12 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
   ];
 
   const activeFilterCount =
-    selectedForma.length + selectedStatuses.length + selectedTypes.length;
+    selectedForma.length +
+    selectedStatuses.length +
+    selectedTypes.length +
+    (selectedDoctor ? 1 : 0) +
+    (dateFrom ? 1 : 0) +
+    (dateTo ? 1 : 0);
 
   const handleAgencyToggle = (agency: string) => {
     if (selectedForma.includes(agency)) {
@@ -107,220 +128,330 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
     </Box>
   );
 
+  const getFormaWizytyLabel = (forma: string): string => {
+    const labels: Record<string, string> = {
+      telefoniczna: 'Telefoniczna',
+      online: 'Online',
+      'w placówce': 'W placówce',
+    };
+    return labels[forma] || forma;
+  };
+
   return (
     <Box sx={{ position: 'sticky', top: 16, zIndex: 20, pt: 2, pb: 2 }}>
       <Paper
-        elevation={4}
+        elevation={0}
         sx={{
           position: 'relative',
           overflow: 'hidden',
-          borderRadius: 2,
-          bgcolor: 'rgba(255, 255, 255, 0.8)',
-          backdropFilter: 'blur(20px)',
+          borderRadius: 3,
+          bgcolor: 'white',
           border: '1px solid',
           borderColor: 'divider',
         }}
       >
-        {/* Gradient accent line */}
-        <Box
-          sx={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            height: 2,
-            background: 'linear-gradient(90deg, #3b82f6, #8b5cf6, #3b82f6)',
-          }}
-        />
-        <Box sx={{ p: 2, backgroundColor: 'white' }}>
-          <Stack direction="row" spacing={2} sx={{ mb: 2 }} alignItems="center">
+        <Box sx={{ p: 3 }}>
+          {/* First row - Search and result count */}
+          <Stack
+            direction={{ xs: 'column', md: 'row' }}
+            spacing={2}
+            sx={{ mb: 2 }}
+            alignItems={{ xs: 'stretch', md: 'center' }}
+          >
             <TextField
               fullWidth
-              placeholder="Wyszukaj usługę…"
+              placeholder="Wyszukaj usluge..."
               value={searchQuery}
               size="small"
               onChange={(e) => onSearchChange(e.target.value)}
-              aria-label="Szukaj lekarza lub badania"
+              aria-label="Szukaj uslugi"
               InputProps={{
                 startAdornment: (
-                  <InputAdornment position="start" sx={{ color: '#162B47' }}>
+                  <InputAdornment position="start">
                     <SearchIcon
-                      sx={{ color: 'text.secondary', fontSize: 20 }}
+                      sx={{ color: '#94A3B8', fontSize: 20 }}
                       aria-hidden="true"
                     />
                   </InputAdornment>
                 ),
               }}
               sx={{
+                maxWidth: { md: 320 },
                 '& .MuiOutlinedInput-root': {
                   borderRadius: 2,
-                  bgcolor: '#CDD9E480',
+                  bgcolor: '#F8FAFC',
+                  '&:hover': {
+                    bgcolor: '#F1F5F9',
+                  },
+                  '& fieldset': {
+                    borderColor: '#E2E8F0',
+                  },
+                  '&:hover fieldset': {
+                    borderColor: '#CBD5E1',
+                  },
                 },
               }}
             />
-            <Paper
+            <Box sx={{ flexGrow: 1 }} />
+            <Typography
               sx={{
-                px: 2,
-                py: 0.9,
-                backgroundColor: '#CDD9E480',
-                minWidth: { xs: '110px', md: '240px' },
-                textAlign: 'center',
-                borderRadius: 2,
+                fontSize: '0.875rem',
+                color: '#64748B',
+                whiteSpace: 'nowrap',
               }}
             >
-              <Typography
-                component="span"
-                color="#101D2E"
-                sx={{ fontWeight: '700', pr: '5px' }}
-              >
-                <Box
-                  component="span"
-                  sx={{ display: { xs: 'none', sm: 'inline' } }}
-                >
-                  Pokazuje{' '}
-                </Box>
+              Znaleziono{' '}
+              <Box component="span" sx={{ color: '#0EA5E9', fontWeight: 600 }}>
                 {resultCount}
-              </Typography>
-              <Typography component="span" color="#365780">
-                of {totalCount}
-                <Box
-                  component="span"
-                  sx={{ display: { xs: 'none', sm: 'inline' } }}
-                >
-                  {' '}
-                  wyników
-                </Box>
-              </Typography>
-            </Paper>
+              </Box>{' '}
+              z {totalCount} wpisow
+            </Typography>
           </Stack>
 
+          {/* Second row - Filter buttons */}
           <Stack
             direction="row"
-            spacing={1}
+            spacing={1.5}
             flexWrap="wrap"
             useFlexGap
-            gap="12px"
+            gap={1.5}
+            alignItems="center"
           >
+            {/* Forma wizyty dropdown */}
             <Button
-              variant={activeFilterCount > 0 ? 'contained' : 'outlined'}
-              startIcon={<FilterListIcon aria-hidden="true" />}
-              onClick={onClearAll}
-              disabled={activeFilterCount === 0}
-              size="small"
-              aria-label={
-                activeFilterCount > 0
-                  ? `Clear all ${activeFilterCount} filters`
-                  : 'No filters to clear'
-              }
-              sx={{ fontSize: { xs: '0.7rem', md: '0.8rem' } }}
-            >
-              Filtry {activeFilterCount > 0 && `(${activeFilterCount})`}
-            </Button>
-
-            <Button
-              id="agency-filter-button"
-              variant={selectedForma.length > 0 ? 'contained' : 'outlined'}
-              startIcon={<BusinessIcon aria-hidden="true" />}
+              id="forma-filter-button"
+              variant="outlined"
               endIcon={
                 <ArrowDropDownIcon
                   sx={{
                     transform: formaAnchor ? 'rotate(180deg)' : 'rotate(0deg)',
                     transition: 'transform 0.2s ease-in-out',
                   }}
-                  aria-hidden="true"
                 />
               }
               onClick={(e) => setFormaAnchor(e.currentTarget)}
               size="small"
-              aria-label={`Filter by forma${selectedForma.length > 0 ? `, ${selectedForma.length} selected` : ''}`}
-              aria-expanded={Boolean(formaAnchor)}
-              aria-haspopup="true"
-              sx={{ fontSize: { xs: '0.7rem', md: '0.8rem' } }}
+              sx={{
+                textTransform: 'none',
+                borderRadius: 2,
+                borderColor: selectedForma.length > 0 ? '#0EA5E9' : '#E2E8F0',
+                color: selectedForma.length > 0 ? '#0EA5E9' : '#475569',
+                bgcolor: selectedForma.length > 0 ? '#F0F9FF' : 'transparent',
+                '&:hover': {
+                  borderColor: '#0EA5E9',
+                  bgcolor: '#F0F9FF',
+                },
+                px: 2,
+                py: 0.75,
+              }}
             >
-              Forma wizity{' '}
-              {selectedForma.length > 0 && `(${selectedForma.length})`}
+              <BusinessIcon sx={{ mr: 1, fontSize: 18 }} />
+              Forma wizyty
+              {selectedForma.length > 0 && ` (${selectedForma.length})`}
             </Button>
 
+            {/* Status dropdown */}
             <Button
               id="status-filter-button"
-              variant={selectedStatuses.length > 0 ? 'contained' : 'outlined'}
-              startIcon={<ScheduleIcon aria-hidden="true" />}
+              variant="outlined"
               endIcon={
                 <ArrowDropDownIcon
                   sx={{
                     transform: statusAnchor ? 'rotate(180deg)' : 'rotate(0deg)',
                     transition: 'transform 0.2s ease-in-out',
                   }}
-                  aria-hidden="true"
                 />
               }
               onClick={(e) => setStatusAnchor(e.currentTarget)}
               size="small"
-              aria-label={`Filter by status${selectedStatuses.length > 0 ? `, ${selectedStatuses.length} selected` : ''}`}
-              aria-expanded={Boolean(statusAnchor)}
-              aria-haspopup="true"
-              sx={{ fontSize: { xs: '0.7rem', md: '0.8rem' } }}
+              sx={{
+                textTransform: 'none',
+                borderRadius: 2,
+                borderColor:
+                  selectedStatuses.length > 0 ? '#0EA5E9' : '#E2E8F0',
+                color: selectedStatuses.length > 0 ? '#0EA5E9' : '#475569',
+                bgcolor:
+                  selectedStatuses.length > 0 ? '#F0F9FF' : 'transparent',
+                '&:hover': {
+                  borderColor: '#0EA5E9',
+                  bgcolor: '#F0F9FF',
+                },
+                px: 2,
+                py: 0.75,
+              }}
             >
-              Status{' '}
-              {selectedStatuses.length > 0 && `(${selectedStatuses.length})`}
+              <ScheduleIcon sx={{ mr: 1, fontSize: 18 }} />
+              Status
+              {selectedStatuses.length > 0 && ` (${selectedStatuses.length})`}
             </Button>
 
+            {/* Usluga dropdown */}
             <Button
               id="type-filter-button"
-              variant={selectedTypes.length > 0 ? 'contained' : 'outlined'}
-              startIcon={<RocketLaunchIcon aria-hidden="true" />}
+              variant="outlined"
               endIcon={
                 <ArrowDropDownIcon
                   sx={{
                     transform: typeAnchor ? 'rotate(180deg)' : 'rotate(0deg)',
                     transition: 'transform 0.2s ease-in-out',
                   }}
-                  aria-hidden="true"
                 />
               }
               onClick={(e) => setTypeAnchor(e.currentTarget)}
               size="small"
-              aria-label={`Filter by mission type${selectedTypes.length > 0 ? `, ${selectedTypes.length} selected` : ''}`}
-              aria-expanded={Boolean(typeAnchor)}
-              aria-haspopup="true"
-              sx={{ fontSize: { xs: '0.7rem', md: '0.8rem' } }}
+              sx={{
+                textTransform: 'none',
+                borderRadius: 2,
+                borderColor: selectedTypes.length > 0 ? '#0EA5E9' : '#E2E8F0',
+                color: selectedTypes.length > 0 ? '#0EA5E9' : '#475569',
+                bgcolor: selectedTypes.length > 0 ? '#F0F9FF' : 'transparent',
+                '&:hover': {
+                  borderColor: '#0EA5E9',
+                  bgcolor: '#F0F9FF',
+                },
+                px: 2,
+                py: 0.75,
+              }}
             >
-              Usługa {selectedTypes.length > 0 && `(${selectedTypes.length})`}
+              <MedicalServicesIcon sx={{ mr: 1, fontSize: 18 }} />
+              Usluga
+              {selectedTypes.length > 0 && ` (${selectedTypes.length})`}
             </Button>
 
+            {/* Lekarz autocomplete */}
+            <Autocomplete
+              freeSolo
+              options={availableDoctors}
+              value={selectedDoctor}
+              onChange={(_, newValue) => onDoctorFilterChange(newValue || '')}
+              onInputChange={(_, newValue) => onDoctorFilterChange(newValue)}
+              size="small"
+              sx={{
+                minWidth: 180,
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 2,
+                  bgcolor: selectedDoctor ? '#F0F9FF' : 'transparent',
+                  '& fieldset': {
+                    borderColor: selectedDoctor ? '#0EA5E9' : '#E2E8F0',
+                  },
+                  '&:hover fieldset': {
+                    borderColor: '#0EA5E9',
+                  },
+                },
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  placeholder="Lekarz"
+                  InputProps={{
+                    ...params.InputProps,
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <PersonIcon
+                          sx={{
+                            fontSize: 18,
+                            color: selectedDoctor ? '#0EA5E9' : '#94A3B8',
+                          }}
+                        />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              )}
+            />
+
+            {/* Date range pickers */}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <TextField
+                type="date"
+                size="small"
+                label="Od"
+                value={dateFrom}
+                onChange={(e) => onDateFromChange(e.target.value)}
+                InputLabelProps={{ shrink: true }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <CalendarTodayIcon
+                        sx={{
+                          fontSize: 16,
+                          color: dateFrom ? '#0EA5E9' : '#94A3B8',
+                        }}
+                      />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{
+                  width: 160,
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 2,
+                    bgcolor: dateFrom ? '#F0F9FF' : 'transparent',
+                    '& fieldset': {
+                      borderColor: dateFrom ? '#0EA5E9' : '#E2E8F0',
+                    },
+                    '&:hover fieldset': {
+                      borderColor: '#0EA5E9',
+                    },
+                  },
+                }}
+              />
+              <TextField
+                type="date"
+                size="small"
+                label="Do"
+                value={dateTo}
+                onChange={(e) => onDateToChange(e.target.value)}
+                InputLabelProps={{ shrink: true }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <CalendarTodayIcon
+                        sx={{
+                          fontSize: 16,
+                          color: dateTo ? '#0EA5E9' : '#94A3B8',
+                        }}
+                      />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{
+                  width: 160,
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 2,
+                    bgcolor: dateTo ? '#F0F9FF' : 'transparent',
+                    '& fieldset': {
+                      borderColor: dateTo ? '#0EA5E9' : '#E2E8F0',
+                    },
+                    '&:hover fieldset': {
+                      borderColor: '#0EA5E9',
+                    },
+                  },
+                }}
+              />
+            </Box>
+
+            {/* Clear all button */}
             {activeFilterCount > 0 && (
               <Button
-                variant="outlined"
+                variant="text"
                 size="small"
-                color="primary"
                 onClick={onClearAll}
-                aria-label={`Clear ${activeFilterCount} active filters`}
                 sx={{
-                  marginLeft: { md: 'auto' },
-                  fontSize: { xs: '0.7rem', md: '0.8rem' },
+                  textTransform: 'none',
+                  color: '#EF4444',
+                  '&:hover': {
+                    bgcolor: '#FEF2F2',
+                  },
+                  ml: 'auto',
                 }}
               >
-                Wyczyść wszystkie&nbsp;
-                <Box
-                  component="span"
-                  sx={{
-                    minWidth: 20,
-                    height: 20,
-                    borderRadius: '999px',
-                    bgcolor: 'primary.main',
-                    color: 'primary.contrastText',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    px: 0.75,
-                  }}
-                >
-                  {activeFilterCount}
-                </Box>
+                <CloseIcon sx={{ mr: 0.5, fontSize: 16 }} />
+                Wyczysc filtry
               </Button>
             )}
           </Stack>
 
+          {/* Active filters chips */}
           {activeFilterCount > 0 && (
             <Stack
               direction="row"
@@ -329,12 +460,22 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
               flexWrap="wrap"
               useFlexGap
             >
-              {selectedForma.map((agency) => (
+              {selectedForma.map((forma) => (
                 <Chip
-                  key={agency}
-                  label={agency}
-                  onDelete={() => handleAgencyToggle(agency)}
+                  key={forma}
+                  label={getFormaWizytyLabel(forma)}
+                  onDelete={() => handleAgencyToggle(forma)}
                   size="small"
+                  sx={{
+                    bgcolor: '#E0F2FE',
+                    color: '#0369A1',
+                    '& .MuiChip-deleteIcon': {
+                      color: '#0369A1',
+                      '&:hover': {
+                        color: '#0284C7',
+                      },
+                    },
+                  }}
                 />
               ))}
               {selectedStatuses.map((status) => (
@@ -343,6 +484,27 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
                   label={status}
                   onDelete={() => handleStatusToggle(status)}
                   size="small"
+                  icon={
+                    <Box
+                      sx={{
+                        width: 8,
+                        height: 8,
+                        borderRadius: '50%',
+                        bgcolor: statusColor[status as Mission['status']],
+                        ml: 1,
+                      }}
+                    />
+                  }
+                  sx={{
+                    bgcolor: '#E0F2FE',
+                    color: '#0369A1',
+                    '& .MuiChip-deleteIcon': {
+                      color: '#0369A1',
+                      '&:hover': {
+                        color: '#0284C7',
+                      },
+                    },
+                  }}
                 />
               ))}
               {selectedTypes.map((type) => (
@@ -351,11 +513,73 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
                   label={type}
                   onDelete={() => handleTypeToggle(type)}
                   size="small"
+                  sx={{
+                    bgcolor: '#E0F2FE',
+                    color: '#0369A1',
+                    '& .MuiChip-deleteIcon': {
+                      color: '#0369A1',
+                      '&:hover': {
+                        color: '#0284C7',
+                      },
+                    },
+                  }}
                 />
               ))}
+              {selectedDoctor && (
+                <Chip
+                  label={`Lekarz: ${selectedDoctor}`}
+                  onDelete={() => onDoctorFilterChange('')}
+                  size="small"
+                  sx={{
+                    bgcolor: '#E0F2FE',
+                    color: '#0369A1',
+                    '& .MuiChip-deleteIcon': {
+                      color: '#0369A1',
+                      '&:hover': {
+                        color: '#0284C7',
+                      },
+                    },
+                  }}
+                />
+              )}
+              {dateFrom && (
+                <Chip
+                  label={`Od: ${dateFrom}`}
+                  onDelete={() => onDateFromChange('')}
+                  size="small"
+                  sx={{
+                    bgcolor: '#E0F2FE',
+                    color: '#0369A1',
+                    '& .MuiChip-deleteIcon': {
+                      color: '#0369A1',
+                      '&:hover': {
+                        color: '#0284C7',
+                      },
+                    },
+                  }}
+                />
+              )}
+              {dateTo && (
+                <Chip
+                  label={`Do: ${dateTo}`}
+                  onDelete={() => onDateToChange('')}
+                  size="small"
+                  sx={{
+                    bgcolor: '#E0F2FE',
+                    color: '#0369A1',
+                    '& .MuiChip-deleteIcon': {
+                      color: '#0369A1',
+                      '&:hover': {
+                        color: '#0284C7',
+                      },
+                    },
+                  }}
+                />
+              )}
             </Stack>
           )}
 
+          {/* Dropdown Menus */}
           <Menu
             anchorEl={formaAnchor}
             open={Boolean(formaAnchor)}
@@ -363,14 +587,13 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
             slotProps={{
               paper: {
                 sx: {
-                  width: 160,
+                  minWidth: 180,
                   borderRadius: 2,
-                  overflow: 'hidden',
+                  boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
                   mt: 1,
                 },
               },
             }}
-            aria-labelledby="agency-filter-button"
           >
             {wizyty.map((wizyta) => (
               <MenuItem
@@ -379,12 +602,12 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
                 selected={selectedForma.includes(wizyta)}
                 sx={{
                   py: 1.25,
-                  gap: 1.1,
+                  gap: 1.5,
                   justifyContent: 'space-between',
                 }}
               >
                 <Typography sx={{ fontWeight: 500, fontSize: '0.875rem' }}>
-                  {wizyta}
+                  {getFormaWizytyLabel(wizyta)}
                 </Typography>
                 <CheckSlot checked={selectedForma.includes(wizyta)} />
               </MenuItem>
@@ -397,53 +620,63 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
             onClose={() => setStatusAnchor(null)}
             slotProps={{
               paper: {
-                sx: { width: 160, borderRadius: 2, overflow: 'hidden', mt: 1 },
+                sx: {
+                  minWidth: 180,
+                  borderRadius: 2,
+                  boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+                  mt: 1,
+                },
               },
             }}
-            aria-labelledby="status-filter-button"
           >
             {statuses.map((status) => (
               <MenuItem
                 key={status}
                 onClick={() => handleStatusToggle(status)}
                 selected={selectedStatuses.includes(status)}
-                sx={{ py: 1.25, gap: 1.1, justifyContent: 'space-between' }}
+                sx={{ py: 1.25, gap: 1.5, justifyContent: 'space-between' }}
               >
-                <Box
-                  aria-hidden
-                  sx={{
-                    width: 12,
-                    height: 12,
-                    borderRadius: '50%',
-                    bgcolor: statusColor[status],
-                  }}
-                />
-                <Typography sx={{ fontWeight: 500, fontSize: '0.875rem' }}>
-                  {status}
-                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                  <Box
+                    sx={{
+                      width: 10,
+                      height: 10,
+                      borderRadius: '50%',
+                      bgcolor: statusColor[status],
+                    }}
+                  />
+                  <Typography sx={{ fontWeight: 500, fontSize: '0.875rem' }}>
+                    {status}
+                  </Typography>
+                </Box>
                 <CheckSlot checked={selectedStatuses.includes(status)} />
               </MenuItem>
             ))}
           </Menu>
+
           <Menu
             anchorEl={typeAnchor}
             open={Boolean(typeAnchor)}
             onClose={() => setTypeAnchor(null)}
             slotProps={{
               paper: {
-                sx: { width: 160, borderRadius: 2, overflow: 'hidden', mt: 1 },
+                sx: {
+                  minWidth: 180,
+                  borderRadius: 2,
+                  boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+                  mt: 1,
+                },
               },
             }}
-            aria-labelledby="type-filter-button"
           >
             {types.map((type) => (
               <MenuItem
                 key={type}
                 onClick={() => handleTypeToggle(type)}
                 selected={selectedTypes.includes(type)}
-                sx={{ py: 1.25, gap: 1.25, justifyContent: 'space-between' }}
+                sx={{ py: 1.25, gap: 1.5, justifyContent: 'space-between' }}
               >
-                <Typography sx={{ fontWeight: 600, fontSize: '0.875rem' }}>
+                <Typography sx={{ fontWeight: 500, fontSize: '0.875rem' }}>
                   {type}
                 </Typography>
                 <CheckSlot checked={selectedTypes.includes(type)} />
