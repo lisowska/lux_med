@@ -8,8 +8,11 @@ import missionData from '../data/missionData.json';
 import FilterPanel from './FilterPanel';
 import HeaderHealth from './HeaderHealth';
 import AppointmentsTable from './AppointmentsTable';
+import VisitHistoryMobile from './VisitHistoryMobile';
+import { useIsMobile } from '../hooks/use-mobile';
 
 const MainPage: React.FC = () => {
+  const isMobile = useIsMobile();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedAgencies, setSelectedAgencies] = useState<string[]>([]);
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
@@ -151,6 +154,24 @@ const MainPage: React.FC = () => {
     setPage(0);
   };
 
+  // Mobile view
+  if (isMobile) {
+    return (
+      <Box sx={{ minHeight: '100vh', backgroundColor: '#F8FAFC' }}>
+        <Box sx={{ px: 2, pt: 2 }}>
+          <HeaderHealth />
+        </Box>
+        <VisitHistoryMobile onMissionClick={handleMissionClick} />
+        <MissionDetail
+          mission={selectedMission}
+          open={isDetailOpen}
+          onClose={() => setIsDetailOpen(false)}
+        />
+      </Box>
+    );
+  }
+
+  // Desktop view
   return (
     <Box sx={{ minHeight: '100vh', backgroundColor: '#F8FAFC' }}>
       <Box
