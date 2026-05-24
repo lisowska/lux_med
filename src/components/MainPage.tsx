@@ -251,15 +251,7 @@ const MainPage: React.FC = () => {
           onClearAll={handleClearAll}
           availableDoctors={availableDoctors}
         />
-      </Box>
-      <Box
-        sx={{
-          maxWidth: { xs: '100%', lg: '1400px' },
-          mx: 'auto',
-          width: '100%',
-          p: { xs: 2, md: 3 },
-        }}
-      >
+
         {filteredMissions.length === 0 ? (
           <Paper
             sx={{

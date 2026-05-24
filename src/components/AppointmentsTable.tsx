@@ -63,9 +63,12 @@ const AppointmentsTable: React.FC<AppointmentsTableProps> = ({
       elevation={0}
       sx={{
         borderRadius: 3,
+        borderTopLeftRadius: 0,
+        borderTopRightRadius: 0,
         overflow: 'hidden',
         border: '1px solid',
         borderColor: 'divider',
+        borderTop: 'none',
         backgroundColor: 'white',
       }}
     >
