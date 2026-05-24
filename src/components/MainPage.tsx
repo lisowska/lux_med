@@ -9,10 +9,12 @@ import FilterPanel from './FilterPanel';
 import HeaderHealth from './HeaderHealth';
 import AppointmentsTable from './AppointmentsTable';
 import VisitHistoryMobile from './VisitHistoryMobile';
+import ServiceToggle, { ServiceTab } from './ServiceToggle';
 import { useIsMobile } from '../hooks/use-mobile';
 
 const MainPage: React.FC = () => {
   const isMobile = useIsMobile();
+  const [serviceTab, setServiceTab] = useState<ServiceTab>('zaplanowane');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedAgencies, setSelectedAgencies] = useState<string[]>([]);
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
@@ -46,8 +48,16 @@ const MainPage: React.FC = () => {
   };
 
   const filteredMissions = useMemo(() => {
+    // Determine status filter based on service tab
+    const statusFilter = serviceTab === 'zaplanowane' ? 'Planowana' : 'Odbyta';
+    
     return missions
       .filter((mission) => {
+        // Service tab filter (primary)
+        if (mission.status !== statusFilter) {
+          return false;
+        }
+
         // Search query filter
         if (searchQuery) {
           const query = searchQuery.toLowerCase();
@@ -118,6 +128,7 @@ const MainPage: React.FC = () => {
       });
   }, [
     missions,
+    serviceTab,
     searchQuery,
     selectedAgencies,
     selectedStatuses,
@@ -161,7 +172,11 @@ const MainPage: React.FC = () => {
         <Box sx={{ px: 2, pt: 2 }}>
           <HeaderHealth />
         </Box>
-        <VisitHistoryMobile onMissionClick={handleMissionClick} />
+        <VisitHistoryMobile 
+          onMissionClick={handleMissionClick}
+          serviceTab={serviceTab}
+          onServiceTabChange={setServiceTab}
+        />
         <MissionDetail
           mission={selectedMission}
           open={isDetailOpen}
@@ -183,6 +198,18 @@ const MainPage: React.FC = () => {
         }}
       >
         <HeaderHealth />
+        
+        {/* Service Toggle */}
+        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3, mt: 2 }}>
+          <ServiceToggle 
+            value={serviceTab} 
+            onChange={(tab) => {
+              setServiceTab(tab);
+              setPage(0);
+            }} 
+          />
+        </Box>
+
         <FilterPanel
           searchQuery={searchQuery}
           onSearchChange={(query) => {

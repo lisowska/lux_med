@@ -30,6 +30,7 @@ import PhoneIcon from "@mui/icons-material/Phone";
 import ComputerIcon from "@mui/icons-material/Computer";
 import type { Mission, MissionStatus } from "../types/mission";
 import missionData from "../data/missionData.json";
+import ServiceToggle, { ServiceTab } from "./ServiceToggle";
 
 type FormaWizyty = Mission["formaWizity"];
 type Usluga = Mission["usluga"];
@@ -147,9 +148,15 @@ function FilterAccordion({
 
 interface VisitHistoryMobileProps {
   onMissionClick: (mission: Mission) => void;
+  serviceTab: ServiceTab;
+  onServiceTabChange: (tab: ServiceTab) => void;
 }
 
-export default function VisitHistoryMobile({ onMissionClick }: VisitHistoryMobileProps) {
+export default function VisitHistoryMobile({ 
+  onMissionClick, 
+  serviceTab, 
+  onServiceTabChange 
+}: VisitHistoryMobileProps) {
   const missions: Mission[] = missionData.missions as Mission[];
 
   const [query, setQuery] = useState("");
@@ -248,8 +255,14 @@ export default function VisitHistoryMobile({ onMissionClick }: VisitHistoryMobil
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
+    // Determine status filter based on service tab
+    const statusFilter = serviceTab === 'zaplanowane' ? 'Planowana' : 'Odbyta';
+    
     return missions
       .filter((m) => {
+        // Service tab filter (primary)
+        if (m.status !== statusFilter) return false;
+        
         if (formy.length && !formy.includes(m.formaWizity)) return false;
         if (statuses.length && !statuses.includes(m.status)) return false;
         if (uslugi.length && !uslugi.includes(m.usluga)) return false;
@@ -270,7 +283,7 @@ export default function VisitHistoryMobile({ onMissionClick }: VisitHistoryMobil
         const dateB = parseDate(b.launchDate);
         return dateB.getTime() - dateA.getTime();
       });
-  }, [query, formy, statuses, uslugi, doctors, dateFrom, dateTo, missions]);
+  }, [query, serviceTab, formy, statuses, uslugi, doctors, dateFrom, dateTo, missions]);
 
   const activeFilters =
     formy.length +
@@ -309,6 +322,14 @@ export default function VisitHistoryMobile({ onMissionClick }: VisitHistoryMobil
 
   return (
     <Box sx={{ position: "relative", pb: 12, px: 2, pt: 2 }}>
+      {/* Service Toggle */}
+      <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+        <ServiceToggle 
+          value={serviceTab} 
+          onChange={onServiceTabChange} 
+        />
+      </Box>
+
       {/* Sticky search */}
       <Box
         sx={{
