@@ -138,16 +138,19 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
   };
 
   return (
-    <Box sx={{ position: 'sticky', top: 16, zIndex: 20, pt: 2, pb: 2 }}>
+    <Box sx={{ position: 'sticky', top: 16, zIndex: 20, pt: 2 }}>
       <Paper
         elevation={0}
         sx={{
           position: 'relative',
           overflow: 'hidden',
           borderRadius: 3,
+          borderBottomLeftRadius: 0,
+          borderBottomRightRadius: 0,
           bgcolor: 'white',
           border: '1px solid',
           borderColor: 'divider',
+          borderBottom: 'none',
         }}
       >
         <Box sx={{ p: 3 }}>
