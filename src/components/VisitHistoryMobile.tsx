@@ -17,6 +17,7 @@ import TuneIcon from "@mui/icons-material/Tune";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
 import ScienceIcon from "@mui/icons-material/Science";
+import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import PlaceIcon from "@mui/icons-material/Place";
 import PersonIcon from "@mui/icons-material/Person";
@@ -32,6 +33,126 @@ import ServiceToggle, { ServiceTab } from "./ServiceToggle";
 
 // Brand blue color
 const BRAND_BLUE = "#005aa9";
+const FILTER_BLUE_LIGHT = "#E8F4FD";
+const FILTER_BLUE_HOVER = "#D6E4F7";
+const FILTER_GREY_BORDER = "#E5E7EB";
+const FILTER_CARD_SHADOW = "0 2px 10px rgba(15, 28, 46, 0.08)";
+const BRAND_BLUE_DARK = "#004a8c";
+const BRAND_BLUE_PRESSED = "#003d75";
+
+/** MUI Chip overrides – prevents grey hover / white-on-grey focus */
+const formaQuickChipSx = (active: boolean) => ({
+  bgcolor: active ? BRAND_BLUE : "#E1E8F8",
+  color: active ? "#fff" : BRAND_BLUE,
+  fontWeight: 600,
+  flexShrink: 0,
+  border: `2px solid ${active ? BRAND_BLUE : "transparent"}`,
+  "& .MuiChip-icon": {
+    color: `${active ? "#fff" : BRAND_BLUE} !important`,
+  },
+  "&&.MuiChip-clickable:hover, &&.MuiChip-clickable.Mui-focusVisible": {
+    bgcolor: active ? BRAND_BLUE_DARK : FILTER_BLUE_HOVER,
+    color: active ? "#fff" : BRAND_BLUE,
+    borderColor: BRAND_BLUE,
+    "& .MuiChip-icon": {
+      color: `${active ? "#fff" : BRAND_BLUE} !important`,
+    },
+  },
+  "&&.MuiChip-clickable:active": {
+    bgcolor: active ? BRAND_BLUE_PRESSED : "#C5D9F0",
+    color: active ? "#fff" : BRAND_BLUE,
+    borderColor: BRAND_BLUE,
+    "& .MuiChip-icon": {
+      color: `${active ? "#fff" : BRAND_BLUE} !important`,
+    },
+  },
+});
+
+const filterTypChipSx = (active: boolean) => ({
+  height: 40,
+  borderRadius: 999,
+  bgcolor: active ? FILTER_BLUE_LIGHT : "#fff",
+  color: active ? BRAND_BLUE : "#6B7280",
+  fontWeight: 600,
+  fontSize: 14,
+  border: `1.5px solid ${active ? BRAND_BLUE : FILTER_GREY_BORDER}`,
+  "& .MuiChip-label": { px: 1.5 },
+  "& .MuiChip-icon": {
+    color: `${active ? BRAND_BLUE : "#9CA3AF"} !important`,
+  },
+  "&&.MuiChip-clickable:hover, &&.MuiChip-clickable.Mui-focusVisible": {
+    bgcolor: active ? FILTER_BLUE_LIGHT : "#F9FAFB",
+    color: active ? BRAND_BLUE : "#6B7280",
+    borderColor: BRAND_BLUE,
+    "& .MuiChip-icon": {
+      color: `${active ? BRAND_BLUE : "#9CA3AF"} !important`,
+    },
+  },
+  "&&.MuiChip-clickable:active": {
+    bgcolor: active ? FILTER_BLUE_HOVER : "#F3F4F6",
+    borderColor: BRAND_BLUE,
+  },
+});
+
+const filterPillButtonSx = (active: boolean) => ({
+  flex: 1,
+  borderRadius: 999,
+  textTransform: "none" as const,
+  fontWeight: 600,
+  fontSize: 15,
+  py: 1.25,
+  boxShadow: "none",
+  bgcolor: active ? BRAND_BLUE : "#fff",
+  color: active ? "#fff" : "#6B7280",
+  border: `1.5px solid ${active ? BRAND_BLUE : FILTER_GREY_BORDER}`,
+  "&:hover": {
+    bgcolor: active ? BRAND_BLUE_DARK : "#F9FAFB",
+    color: active ? "#fff" : "#6B7280",
+    borderColor: active ? BRAND_BLUE_DARK : FILTER_GREY_BORDER,
+    boxShadow: "none",
+  },
+  "&:focus, &:focus-visible": {
+    bgcolor: active ? BRAND_BLUE : "#fff",
+    color: active ? "#fff" : "#6B7280",
+    borderColor: BRAND_BLUE,
+    boxShadow: "none",
+  },
+  "&:active": {
+    bgcolor: active ? BRAND_BLUE_PRESSED : "#F3F4F6",
+    color: active ? "#fff" : "#6B7280",
+    boxShadow: "none",
+  },
+});
+
+const filterFormaCardSx = (active: boolean) => ({
+  flex: 1,
+  py: 2,
+  px: 1,
+  borderRadius: 2.5,
+  border: `2px solid ${active ? BRAND_BLUE : "transparent"}`,
+  bgcolor: active ? FILTER_BLUE_LIGHT : "#fff",
+  boxShadow: FILTER_CARD_SHADOW,
+  display: "flex",
+  flexDirection: "column" as const,
+  alignItems: "center",
+  gap: 1,
+  cursor: "pointer",
+  transition: "border-color 0.15s, background-color 0.15s",
+  "&:hover": {
+    bgcolor: active ? FILTER_BLUE_LIGHT : "#F9FAFB",
+    borderColor: active ? BRAND_BLUE : FILTER_GREY_BORDER,
+  },
+  "&:focus-visible": {
+    outline: `2px solid ${BRAND_BLUE}`,
+    outlineOffset: 2,
+    bgcolor: active ? FILTER_BLUE_LIGHT : "#fff",
+    borderColor: BRAND_BLUE,
+  },
+  "&:active": {
+    bgcolor: active ? FILTER_BLUE_HOVER : "#F3F4F6",
+    borderColor: BRAND_BLUE,
+  },
+});
 
 type FormaWizyty = Mission["formaWizity"];
 
@@ -295,16 +416,10 @@ export default function VisitHistoryMobile({
             return (
               <Chip
                 key={f}
-                icon={<Icon sx={{ fontSize: 16, color: `${active ? "#fff" : BRAND_BLUE} !important` }} />}
+                icon={<Icon sx={{ fontSize: 16 }} />}
                 label={meta.label}
                 onClick={() => toggleForma(f)}
-                sx={{
-                  bgcolor: active ? BRAND_BLUE : "#E1E8F8",
-                  color: active ? "#fff" : BRAND_BLUE,
-                  fontWeight: 600,
-                  flexShrink: 0,
-                  border: active ? `2px solid ${BRAND_BLUE}` : "2px solid transparent",
-                }}
+                sx={formaQuickChipSx(active)}
               />
             );
           })}
@@ -492,6 +607,7 @@ export default function VisitHistoryMobile({
           fullWidth
           variant="contained"
           onClick={openDrawer}
+          disableRipple
           startIcon={
             <Badge badgeContent={activeFilters} color="error">
               <TuneIcon />
@@ -503,14 +619,17 @@ export default function VisitHistoryMobile({
             py: 1.25,
             borderRadius: 999,
             bgcolor: BRAND_BLUE,
-            "&:hover": { bgcolor: "#004a8c" },
+            boxShadow: "none",
+            "&:hover": { bgcolor: BRAND_BLUE_DARK, boxShadow: "none" },
+            "&:focus, &:focus-visible": { bgcolor: BRAND_BLUE, boxShadow: "none" },
+            "&:active": { bgcolor: BRAND_BLUE_PRESSED, boxShadow: "none" },
           }}
         >
           Filtry{activeFilters > 0 ? ` (${activeFilters})` : ""}
         </Button>
       </Box>
 
-      {/* Filter bottom sheet - New Design */}
+      {/* Filter bottom sheet */}
       <Drawer
         anchor="bottom"
         open={drawerOpen}
@@ -520,11 +639,11 @@ export default function VisitHistoryMobile({
             sx: {
               borderTopLeftRadius: 24,
               borderTopRightRadius: 24,
-              maxHeight: "90vh",
+              maxHeight: "92vh",
               display: "flex",
               flexDirection: "column",
-              border: `3px solid ${BRAND_BLUE}`,
-              borderBottom: "none",
+              bgcolor: "#fff",
+              boxShadow: "0 -8px 32px rgba(15, 28, 46, 0.12)",
             },
           },
         }}
@@ -540,25 +659,42 @@ export default function VisitHistoryMobile({
             alignItems: "center",
           }}
         >
-          <IconButton 
-            onClick={() => setDrawerOpen(false)} 
+          <IconButton
+            onClick={() => setDrawerOpen(false)}
             size="small"
-            sx={{ bgcolor: "#F5F5F5", borderRadius: "50%" }}
+            sx={{
+              bgcolor: "#fff",
+              borderRadius: "50%",
+              boxShadow: FILTER_CARD_SHADOW,
+              width: 40,
+              height: 40,
+            }}
           >
-            <ChevronLeftIcon />
+            <ChevronLeftIcon sx={{ fontSize: 22 }} />
           </IconButton>
-          <Typography variant="h6" sx={{ fontWeight: 700, fontSize: 18 }}>
+          <Typography
+            variant="h6"
+            sx={{
+              fontWeight: 700,
+              fontSize: 18,
+              color: "text.primary",
+              flex: 1,
+              textAlign: "center",
+            }}
+          >
             Filtruj wizyty
           </Typography>
           <Button
             size="small"
             onClick={clearDraft}
             disabled={draftActive === 0}
-            sx={{ 
-              textTransform: "none", 
-              fontWeight: 600, 
-              color: BRAND_BLUE,
-              minWidth: 'auto',
+            sx={{
+              textTransform: "none",
+              fontWeight: 500,
+              fontSize: 15,
+              color: "#9CA3AF",
+              minWidth: "auto",
+              "&.Mui-disabled": { color: "#D1D5DB" },
             }}
           >
             Czyść
@@ -566,59 +702,33 @@ export default function VisitHistoryMobile({
         </Box>
 
         {/* Scrollable body */}
-        <Box sx={{ flex: 1, overflowY: "auto", px: 2, py: 1 }}>
+        <Box sx={{ flex: 1, overflowY: "auto", px: 2, py: 0.5 }}>
           {/* Status wizyty */}
           <Box sx={{ mb: 3 }}>
-            <Typography sx={{ fontWeight: 600, fontSize: 14, color: "text.secondary", mb: 1.5 }}>
+            <Typography sx={{ fontWeight: 700, fontSize: 15, color: "text.primary", mb: 1.5 }}>
               Status wizyty
             </Typography>
             <Box sx={{ display: "flex", gap: 1 }}>
-              <Button
-                variant={draftStatusTab === "zaplanowane" ? "contained" : "outlined"}
-                onClick={() => setDraftStatusTab("zaplanowane")}
-                sx={{
-                  borderRadius: 999,
-                  textTransform: "none",
-                  fontWeight: 600,
-                  px: 2.5,
-                  py: 1,
-                  bgcolor: draftStatusTab === "zaplanowane" ? "#FF6B35" : "transparent",
-                  color: draftStatusTab === "zaplanowane" ? "#fff" : "text.secondary",
-                  borderColor: draftStatusTab === "zaplanowane" ? "#FF6B35" : "divider",
-                  "&:hover": {
-                    bgcolor: draftStatusTab === "zaplanowane" ? "#E55A2B" : "rgba(0,0,0,0.04)",
-                    borderColor: draftStatusTab === "zaplanowane" ? "#E55A2B" : "divider",
-                  },
-                }}
-              >
-                Zaplanowane
-              </Button>
-              <Button
-                variant={draftStatusTab === "zrealizowane" ? "contained" : "outlined"}
-                onClick={() => setDraftStatusTab("zrealizowane")}
-                sx={{
-                  borderRadius: 999,
-                  textTransform: "none",
-                  fontWeight: 600,
-                  px: 2.5,
-                  py: 1,
-                  bgcolor: draftStatusTab === "zrealizowane" ? "#FF6B35" : "transparent",
-                  color: draftStatusTab === "zrealizowane" ? "#fff" : "text.secondary",
-                  borderColor: draftStatusTab === "zrealizowane" ? "#FF6B35" : "divider",
-                  "&:hover": {
-                    bgcolor: draftStatusTab === "zrealizowane" ? "#E55A2B" : "rgba(0,0,0,0.04)",
-                    borderColor: draftStatusTab === "zrealizowane" ? "#E55A2B" : "divider",
-                  },
-                }}
-              >
-                Zrealizowane
-              </Button>
+              {(["zaplanowane", "zrealizowane"] as const).map((tab) => {
+                const active = draftStatusTab === tab;
+                const label = tab === "zaplanowane" ? "Zaplanowane" : "Zrealizowane";
+                return (
+                  <Button
+                    key={tab}
+                    onClick={() => setDraftStatusTab(tab)}
+                    disableRipple
+                    sx={filterPillButtonSx(active)}
+                  >
+                    {label}
+                  </Button>
+                );
+              })}
             </Box>
           </Box>
 
-          {/* Forma wizyty - Card style */}
+          {/* Forma wizyty */}
           <Box sx={{ mb: 3 }}>
-            <Typography sx={{ fontWeight: 600, fontSize: 14, color: "text.secondary", mb: 1.5 }}>
+            <Typography sx={{ fontWeight: 700, fontSize: 15, color: "text.primary", mb: 1.5 }}>
               Forma wizyty
             </Typography>
             <Box sx={{ display: "flex", gap: 1.5 }}>
@@ -629,29 +739,23 @@ export default function VisitHistoryMobile({
                 return (
                   <Box
                     key={f}
+                    role="button"
+                    tabIndex={0}
                     onClick={() => toggleDraftForma(f)}
-                    sx={{
-                      flex: 1,
-                      py: 2,
-                      px: 1,
-                      borderRadius: 3,
-                      border: "2px solid",
-                      borderColor: active ? BRAND_BLUE : "divider",
-                      bgcolor: active ? "#F0F7FF" : "#fff",
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      gap: 1,
-                      cursor: "pointer",
-                      transition: "all 0.15s",
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        toggleDraftForma(f);
+                      }
                     }}
+                    sx={filterFormaCardSx(active)}
                   >
-                    <Icon sx={{ fontSize: 28, color: active ? BRAND_BLUE : "text.secondary" }} />
-                    <Typography 
-                      sx={{ 
-                        fontSize: 12, 
-                        fontWeight: 600, 
-                        color: active ? BRAND_BLUE : "text.secondary",
+                    <Icon sx={{ fontSize: 28, color: active ? BRAND_BLUE : "#9CA3AF" }} />
+                    <Typography
+                      sx={{
+                        fontSize: 13,
+                        fontWeight: 600,
+                        color: active ? BRAND_BLUE : "#6B7280",
                         textAlign: "center",
                       }}
                     >
@@ -663,83 +767,109 @@ export default function VisitHistoryMobile({
             </Box>
           </Box>
 
-          {/* Typ - Chip style */}
+          {/* Typ */}
           <Box sx={{ mb: 3 }}>
-            <Typography sx={{ fontWeight: 600, fontSize: 14, color: "text.secondary", mb: 1.5 }}>
+            <Typography sx={{ fontWeight: 700, fontSize: 15, color: "text.primary", mb: 1.5 }}>
               Typ
             </Typography>
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
               {TYP_OPTIONS.map((t) => {
                 const active = draftTypy.includes(t);
+                const TypIcon =
+                  t === "Badanie"
+                    ? ScienceIcon
+                    : t === "Konsultacja"
+                      ? ChatBubbleOutlineIcon
+                      : ScienceIcon;
                 return (
                   <Chip
                     key={t}
-                    icon={
-                      t === "Badanie" ? <ScienceIcon sx={{ fontSize: 16, color: `${active ? BRAND_BLUE : "text.secondary"} !important` }} /> :
-                      t === "Konsultacja" ? <LocalHospitalIcon sx={{ fontSize: 16, color: `${active ? BRAND_BLUE : "text.secondary"} !important` }} /> :
-                      <ScienceIcon sx={{ fontSize: 16, color: `${active ? BRAND_BLUE : "text.secondary"} !important` }} />
-                    }
+                    icon={<TypIcon sx={{ fontSize: "18px !important" }} />}
                     label={t}
                     onClick={() => toggleDraftTyp(t)}
-                    sx={{
-                      bgcolor: active ? "#F0F7FF" : "#F5F5F5",
-                      color: active ? BRAND_BLUE : "text.secondary",
-                      fontWeight: 600,
-                      border: active ? `2px solid ${BRAND_BLUE}` : "2px solid transparent",
-                      "&:hover": { bgcolor: active ? "#E0EFFF" : "#EEEEEE" },
-                    }}
+                    sx={filterTypChipSx(active)}
                   />
                 );
               })}
             </Box>
           </Box>
 
-          {/* Specjalista / Usługa - Radio list */}
+          {/* Specjalista / Usługa */}
           <Box sx={{ mb: 2 }}>
-            <Typography sx={{ fontWeight: 600, fontSize: 14, color: "text.secondary", mb: 1.5 }}>
+            <Typography sx={{ fontWeight: 700, fontSize: 15, color: "text.primary", mb: 1.5 }}>
               Specjalista / Usługa
             </Typography>
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 1.25 }}>
               {SPECJALISTA_OPTIONS.map(({ label, Icon }) => {
                 const active = draftSpecjalista === label;
                 return (
                   <Box
                     key={label}
+                    role="button"
+                    tabIndex={0}
                     onClick={() => setDraftSpecjalista(active ? null : label)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        setDraftSpecjalista(active ? null : label);
+                      }
+                    }}
                     sx={{
                       display: "flex",
                       alignItems: "center",
                       gap: 1.5,
                       p: 1.5,
                       borderRadius: 3,
-                      border: "2px solid",
-                      borderColor: active ? BRAND_BLUE : "divider",
-                      bgcolor: active ? "#F0F7FF" : "#fff",
+                      border: active ? `2px solid ${BRAND_BLUE}` : "2px solid transparent",
+                      bgcolor: active ? FILTER_BLUE_LIGHT : "#fff",
+                      boxShadow: active ? "none" : FILTER_CARD_SHADOW,
                       cursor: "pointer",
-                      transition: "all 0.15s",
+                      transition: "border-color 0.15s, box-shadow 0.15s, background-color 0.15s",
+                      "&:hover": {
+                        bgcolor: active ? FILTER_BLUE_LIGHT : "#F9FAFB",
+                        borderColor: active ? BRAND_BLUE : "transparent",
+                      },
+                      "&:focus-visible": {
+                        outline: `2px solid ${BRAND_BLUE}`,
+                        outlineOffset: 2,
+                        borderColor: BRAND_BLUE,
+                      },
+                      "&:active": {
+                        bgcolor: active ? FILTER_BLUE_HOVER : "#F3F4F6",
+                      },
                     }}
                   >
                     <Box
                       sx={{
-                        width: 36,
-                        height: 36,
-                        borderRadius: 2,
-                        bgcolor: active ? "#E0EFFF" : "#F5F5F5",
+                        width: 40,
+                        height: 40,
+                        borderRadius: "50%",
+                        bgcolor: active ? "#fff" : "#F3F4F6",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
+                        flexShrink: 0,
                       }}
                     >
-                      <Icon sx={{ fontSize: 20, color: active ? BRAND_BLUE : "text.secondary" }} />
+                      <Icon sx={{ fontSize: 22, color: active ? BRAND_BLUE : "#9CA3AF" }} />
                     </Box>
-                    <Typography sx={{ flex: 1, fontWeight: 500, fontSize: 15 }}>
+                    <Typography
+                      sx={{
+                        flex: 1,
+                        fontWeight: active ? 600 : 500,
+                        fontSize: 15,
+                        color: active ? BRAND_BLUE : "text.primary",
+                      }}
+                    >
                       {label}
                     </Typography>
-                    <Radio 
+                    <Radio
                       checked={active}
-                      sx={{ 
-                        color: "divider",
+                      sx={{
+                        p: 0.5,
+                        color: FILTER_GREY_BORDER,
                         "&.Mui-checked": { color: BRAND_BLUE },
+                        "& .MuiSvgIcon-root": { fontSize: 22 },
                       }}
                     />
                   </Box>
@@ -754,6 +884,9 @@ export default function VisitHistoryMobile({
           sx={{
             px: 2,
             py: 2,
+            pt: 1,
+            borderTop: "1px solid",
+            borderColor: "#F3F4F6",
             pb: "calc(16px + env(safe-area-inset-bottom))",
           }}
         >
@@ -761,32 +894,39 @@ export default function VisitHistoryMobile({
             fullWidth
             variant="contained"
             onClick={applyDraft}
+            disableRipple
             sx={{
               textTransform: "none",
               fontWeight: 700,
-              py: 1.5,
+              py: 1.75,
               borderRadius: 999,
               fontSize: 16,
               bgcolor: BRAND_BLUE,
-              "&:hover": { bgcolor: "#004a8c" },
+              boxShadow: "none",
+              "&:hover": { bgcolor: BRAND_BLUE_DARK, boxShadow: "none" },
+              "&:focus, &:focus-visible": { bgcolor: BRAND_BLUE, boxShadow: "none" },
+              "&:active": { bgcolor: BRAND_BLUE_PRESSED, boxShadow: "none" },
             }}
           >
             Zastosuj filtry
-            {draftActive > 0 && (
-              <Box
-                component="span"
-                sx={{
-                  ml: 1,
-                  px: 1,
-                  py: 0.25,
-                  borderRadius: 999,
-                  bgcolor: "rgba(255,255,255,0.25)",
-                  fontSize: 14,
-                }}
-              >
-                {draftCount}
-              </Box>
-            )}
+            <Box
+              component="span"
+              sx={{
+                ml: 1,
+                minWidth: 28,
+                height: 28,
+                px: 1,
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                borderRadius: "50%",
+                bgcolor: "rgba(255,255,255,0.28)",
+                fontSize: 14,
+                fontWeight: 700,
+              }}
+            >
+              {draftCount}
+            </Box>
           </Button>
         </Box>
       </Drawer>
