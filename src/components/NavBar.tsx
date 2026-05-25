@@ -19,11 +19,10 @@ import LogoLuxMed from '../assets/LX_logo.90x26.svg';
 import Notification from '../assets/inbox.blue.24x24.svg';
 import smallLogo from '../assets/faviconLuxMed.ico';
 
-// const NAV_ITEMS = ['Start', 'Leczenie', 'Leki', 'Zdrowie'];
 
 const NAV_ITEMS: { label: string; to: string }[] = [
-  { label: 'Start', to: '/' },
-  { label: 'Leczenie', to: '/appointments' },
+  { label: 'Start', to: '/appointments' },
+  { label: 'Leczenie', to: '/' },
   { label: 'Leki', to: '/' },
   { label: 'Zdrowie', to: '/' },
 ];
@@ -32,23 +31,8 @@ const LuxMedLogo = () => (
   <Box sx={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
     <Box
       component="img"
-      // sx={
-      //   {
-      //     height: 350,
-      //     width: 650,
-      //     maxHeight: { xs: 233, md: 350 },
-      //     maxWidth: { xs: 350, md: 650 },
-      //   }
-      // }
-      // sx={{
-      //   content: {
-      //     xs: `url(${smallLogo})`,
-      //     md: `url(${LogoLuxMed})`,
-      //   },
-      // }}
       alt="Przykładowy obrazek."
       src={LogoLuxMed}
-      // src={{xs:smallLogo, md:LogoLuxMed}}
     />
   </Box>
 );
@@ -128,8 +112,7 @@ export default function LuxMedNavbar() {
                 onClick={() => navigate(item.to)}
                 key={item.label}
                 label={item.label}
-                // to={to}
-                // component={Link}
+                
                 disableRipple
               />
             ))}

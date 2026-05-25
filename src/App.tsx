@@ -21,6 +21,8 @@ declare module '@mui/material/styles' {
       Usg: string;
       Dietetyk: string;
       Okulista: string;
+      Laryngolog: string;
+      Dermatolog:string
     };
     gradients: {
       header: string;
@@ -36,6 +38,9 @@ declare module '@mui/material/styles' {
       Usg?: string;
       Dietetyk?: string;
       Okulista?: string;
+      Laryngolog: string;
+      Dermatolog:string
+    
     };
     gradients?: {
       header?: string;
@@ -192,8 +197,8 @@ function App() {
       <CssBaseline />
       <LuxMedNavbar />
       <Routes>
-        <Route path="/" element={<AppointmentsSection />} />
-        <Route path="/appointments" element={<MainPage />} />
+        <Route path="/" element={<MainPage />} />
+        <Route path="/appointments" element={<AppointmentsSection />} />
       </Routes>
     </ThemeProvider>
   );
