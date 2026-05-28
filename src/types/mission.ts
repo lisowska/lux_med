@@ -8,6 +8,7 @@ export interface Mission {
   lekarz: string[];
   launchDate: string; //ISO date
   cost?: number;
+  placowka?:string;
 }
 
 export type FormaWizity = 'telefoniczna' | 'online' | 'Wplacówce';

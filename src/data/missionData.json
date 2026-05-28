@@ -3,13 +3,14 @@
     {
       "id": "vostok-1",
       "year": 1961,
-      "formaWizity": "telefoniczna",
+      "formaWizity": "w placówce",
       "status": "Odbyta",
       "usluga": "Pobranie krwi",
       "typ": "Badania laboratoryjne",
       "lekarz": ["Lek. Med. Grażyna Korolczuk"],
       "launchDate": "12-04-2026",
-      "cost": 5
+      "cost": 5,
+       "placowka": "LX Warszawa - Park Postępu 21C"
     },
     {
       "id": "apollo-11",
@@ -25,13 +26,14 @@
     {
       "id": "apollo-13",
       "year": 1970,
-      "formaWizity": "online",
+      "formaWizity":"w placówce",
       "status": "Odbyta",
       "usluga": "Usg",
       "typ": "Badanie",
       "lekarz": ["dr hab.n.med Rafał Słapa"],
       "launchDate": "11-03-2026",
-      "cost": 375
+      "cost": 375,
+      "placowka": "LX Warszawa - Park Postępu 21C"
     },
     {
       "id": "viking-1",
@@ -51,9 +53,10 @@
       "status": "Odbyta",
       "usluga": "Okulista",
       "typ": "Konsultacja",
-      "lekarz": ["Anna Kot"],
+      "lekarz": ["Lek. Med. Anna Kot"],
       "launchDate": "01-02-2026",
-      "cost": 935
+      "cost": 935,
+       "placowka": "LX Warszawa - Park Postępu 21C"
     },
     {
       "id": "viking-3",
@@ -62,9 +65,10 @@
       "status": "Odbyta",
       "usluga": "Okulista",
       "typ": "Konsultacja",
-      "lekarz": ["Anna Kot"],
+      "lekarz": ["Lek. Med. Anna Kot"],
       "launchDate": "15-04-2026",
-      "cost": 935
+      "cost": 935,
+      "placowka": "LX Warszawa - Park Postępu 21C"
     },
     {
       "id": "viking-4",
@@ -73,7 +77,7 @@
       "status": "Odbyta",
       "usluga": "Okulista",
       "typ": "Konsultacja",
-      "lekarz": ["Anna Kot"],
+      "lekarz": ["Lek. Med. Anna Kot"],
       "launchDate": "20-02-2026",
       "cost": 935
     },
@@ -84,7 +88,7 @@
       "status": "Odbyta",
       "usluga": "Okulista",
       "typ": "Konsultacja",
-      "lekarz": ["Anna Kot"],
+      "lekarz": ["Lek. Med. Anna Kot"],
       "launchDate": "20-02-2026",
       "cost": 935
     },
@@ -95,7 +99,7 @@
       "status": "Odbyta",
       "usluga": "Laryngolog",
       "typ": "Konsultacja",
-      "lekarz": ["Janina Kot"],
+      "lekarz": ["Lek. Med. Janina Kot"],
       "launchDate": "26-04-2026",
       "cost": 935
     },
@@ -106,9 +110,34 @@
       "status": "Odbyta",
       "usluga": "Dermatolog",
       "typ": "Konsultacja",
-      "lekarz": ["Anna Tuz"],
+      "lekarz": ["Lek. Med.Anna Tuz"],
       "launchDate": "23-02-2026",
-      "cost": 935
+      "cost": 935,
+      "placowka": "LX Warszawa - Park Postępu 21C"
+    },
+    {
+      "id": "viking-7",
+      "year": 1975,
+      "formaWizity": "telefoniczna",
+      "status": "Planowana",
+      "usluga": "Dermatolog",
+      "typ": "Konsultacja",
+      "lekarz": ["Lek. Med. Anna Tuz"],
+      "launchDate": "23-08-2026",
+      "cost": 935,
+      "placowka": "LX Warszawa - Park Postępu 21C"
+    },
+    {
+      "id": "viking-7",
+      "year": 1975,
+      "formaWizity": "telefoniczna",
+      "status": "Odbyta",
+      "usluga": "Stomatolog",
+      "typ": "Konsultacja",
+      "lekarz": ["Lek. Med.Anna Furtak"],
+      "launchDate": "23-02-2026",
+      "cost": 935,
+      "placowka": "LX Stomatologia Warszawa - Domaniewska 39B"
     }
   ]
 }

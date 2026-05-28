@@ -13,6 +13,9 @@ import {
   Typography,
 } from '@mui/material';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import PhoneIcon from '@mui/icons-material/Phone';
+import ComputerIcon from '@mui/icons-material/Computer';
+import PlaceIcon from '@mui/icons-material/Place';
 import { Mission } from '../types/mission';
 import { StatusBadge } from './StatusBadge';
 import { TypeBadge } from './TypeBadge';
@@ -28,21 +31,35 @@ interface AppointmentsTableProps {
 
 const formatDate = (dateString: string): string => {
   const [day, month, year] = dateString.split('-');
-  const date = new Date(Number(year), Number(month) - 1, Number(day));
-  return date.toLocaleDateString('pl-PL', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  });
+  // desired format: dd.mm.yyyy
+  return `${String(day).padStart(2, '0')}.${String(month).padStart(2, '0')}.${year}`;
 };
 
-const getFormaWizytyLabel = (forma: Mission['formaWizity']): string => {
-  const labels: Record<Mission['formaWizity'], string> = {
-    telefoniczna: 'Telefoniczna',
-    online: 'Online',
-    'w placówce': 'W placówce',
-  };
-  return labels[forma] || forma;
+const formaConfig: Record<
+  Mission['formaWizity'],
+  { label: string; color: string; bg: string; border: string; Icon: typeof PhoneIcon }
+> = {
+  telefoniczna: {
+    label: 'Telemedycyna',
+    color: '#01847d',
+    bg: 'rgba(1, 132, 125, 0.12)',
+    border: 'rgba(1, 132, 125, 0.35)',
+    Icon: PhoneIcon,
+  },
+  online: {
+    label: 'Online',
+    color: '#005aa9',
+    bg: 'rgba(0, 90, 169, 0.12)',
+    border: 'rgba(0, 90, 169, 0.35)',
+    Icon: ComputerIcon,
+  },
+  'w placówce': {
+    label: 'Wizyta w placówce',
+    color: '#ad029c',
+    bg: 'rgba(173, 2, 156, 0.10)',
+    border: 'rgba(173, 2, 156, 0.35)',
+    Icon: PlaceIcon,
+  },
 };
 
 const AppointmentsTable: React.FC<AppointmentsTableProps> = ({
@@ -77,7 +94,8 @@ const AppointmentsTable: React.FC<AppointmentsTableProps> = ({
           <TableHead>
             <TableRow
               sx={{
-                backgroundColor: '#F8FAFC',
+                backgroundColor:'#F0F2F6',
+                // backgroundColor: '#E2E8F0',
                 '& th': {
                   fontWeight: 600,
                   color: '#475569',
@@ -89,11 +107,11 @@ const AppointmentsTable: React.FC<AppointmentsTableProps> = ({
               }}
             >
               <TableCell>Usluga</TableCell>
-              <TableCell>Data i godzina</TableCell>
+              <TableCell>Data</TableCell>
               <TableCell>Lekarz</TableCell>
               <TableCell>Typ</TableCell>
               <TableCell>Forma wizyty</TableCell>
-              <TableCell>Status</TableCell>
+              {/* <TableCell>Status</TableCell> */}
               <TableCell align="right">Akcje</TableCell>
             </TableRow>
           </TableHead>
@@ -159,25 +177,34 @@ const AppointmentsTable: React.FC<AppointmentsTableProps> = ({
                     <TypeBadge type={appointment.typ} />
                   </TableCell>
                   <TableCell>
+                    {(() => {
+                      const cfg = formaConfig[appointment.formaWizity];
+                      const FormaIcon = cfg.Icon;
+                      return (
                     <Box
                       sx={{
                         display: 'inline-flex',
                         alignItems: 'center',
-                        px: 1.5,
-                        py: 0.5,
+                        px: 1.25,
+                        py: 0.45,
                         borderRadius: 1,
-                        backgroundColor: '#F1F5F9',
-                        color: '#475569',
-                        fontSize: '0.8125rem',
-                        fontWeight: 500,
+                        backgroundColor: cfg.bg,
+                        color: cfg.color,
+                        fontSize: '0.75rem',
+                        fontWeight: 600,
+                        border: `1px solid ${cfg.border}`,
+                        gap: 0.75,
                       }}
                     >
-                      {getFormaWizytyLabel(appointment.formaWizity)}
+                      <FormaIcon sx={{ fontSize: 16 }} />
+                      {cfg.label}
                     </Box>
+                      );
+                    })()}
                   </TableCell>
-                  <TableCell>
+                  {/* <TableCell>
                     <StatusBadge status={appointment.status} />
-                  </TableCell>
+                  </TableCell> */}
                   <TableCell align="right">
                     <IconButton
                       size="small"

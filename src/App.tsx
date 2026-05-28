@@ -1,8 +1,8 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
+import { ThemeProvider, createTheme, CssBaseline, Box } from '@mui/material';
 import MainPage from './components/MainPage';
-import LuxMedNavbar from './components/NavBar';
+import LuxMedNavbar, { MOBILE_BOTTOM_NAV_HEIGHT } from './components/NavBar';
 import AppointmentsSection from './components/ AppointmentsSection';
 import Header from './components/Header';
 import type { FormaWizity, MissionStatus, Usluga } from './types/mission';
@@ -196,10 +196,19 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <LuxMedNavbar />
-      <Routes>
-        <Route path="/" element={<MainPage />} />
-        <Route path="/appointments" element={<AppointmentsSection />} />
-      </Routes>
+      <Box
+        sx={{
+          pb: {
+            xs: `calc(${MOBILE_BOTTOM_NAV_HEIGHT}px + env(safe-area-inset-bottom))`,
+            md: 0,
+          },
+        }}
+      >
+        <Routes>
+          <Route path="/" element={<MainPage />} />
+          <Route path="/appointments" element={<AppointmentsSection />} />
+        </Routes>
+      </Box>
     </ThemeProvider>
   );
 }

@@ -41,6 +41,12 @@ const MainPage: React.FC = () => {
     return Array.from(doctors).sort();
   }, [missions]);
 
+  const availableUslugi = useMemo(() => {
+    const uslugi = new Set<string>();
+    missions.forEach((m) => uslugi.add(m.usluga));
+    return Array.from(uslugi).sort();
+  }, [missions]);
+
   // Parse date string (DD-MM-YYYY) to Date object
   const parseDate = (dateStr: string): Date => {
     const [day, month, year] = dateStr.split('-');
@@ -169,9 +175,6 @@ const MainPage: React.FC = () => {
   if (isMobile) {
     return (
       <Box sx={{ minHeight: '100vh', backgroundColor: '#F8FAFC' }}>
-        <Box sx={{ px: 2, pt: 2 }}>
-          <HeaderHealth />
-        </Box>
         <VisitHistoryMobile 
           onMissionClick={handleMissionClick}
           serviceTab={serviceTab}
@@ -200,107 +203,120 @@ const MainPage: React.FC = () => {
         <HeaderHealth />
         
         {/* Service Toggle */}
-        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3, mt: 2 }}>
-          <ServiceToggle 
-            value={serviceTab} 
+        <Box
+          sx={{
+            width: '100%',
+            mb: 3,
+            mt: 2,
+            display: 'flex',
+            justifyContent: { xs: 'stretch', md: 'center' },
+          }}
+        >
+          <ServiceToggle
+            value={serviceTab}
             onChange={(tab) => {
               setServiceTab(tab);
               setPage(0);
-            }} 
+            }}
+          />
+        </Box>
+          
+        <Box sx={{ maxWidth: 920, mx: 'auto' }}>
+          <FilterPanel
+            searchQuery={searchQuery}
+            onSearchChange={(query) => {
+              setSearchQuery(query);
+              setPage(0);
+            }}
+            availableUslugi={availableUslugi}
+            selectedForma={selectedAgencies}
+            onAgencyFilterChange={(agencies) => {
+              setSelectedAgencies(agencies);
+              setPage(0);
+            }}
+            selectedStatuses={selectedStatuses}
+            onStatusFilterChange={(statuses) => {
+              setSelectedStatuses(statuses);
+              setPage(0);
+            }}
+            selectedTypes={selectedTypes}
+            onTypeFilterChange={(types) => {
+              setSelectedTypes(types);
+              setPage(0);
+            }}
+            selectedDoctor={selectedDoctor}
+            onDoctorFilterChange={(doctor) => {
+              setSelectedDoctor(doctor);
+              setPage(0);
+            }}
+            dateFrom={dateFrom}
+            dateTo={dateTo}
+            onDateFromChange={(date) => {
+              setDateFrom(date);
+              setPage(0);
+            }}
+            onDateToChange={(date) => {
+              setDateTo(date);
+              setPage(0);
+            }}
+            resultCount={filteredMissions.length}
+            totalCount={missions.length}
+            onClearAll={handleClearAll}
+            availableDoctors={availableDoctors}
           />
         </Box>
 
-        <FilterPanel
-          searchQuery={searchQuery}
-          onSearchChange={(query) => {
-            setSearchQuery(query);
-            setPage(0);
-          }}
-          selectedForma={selectedAgencies}
-          onAgencyFilterChange={(agencies) => {
-            setSelectedAgencies(agencies);
-            setPage(0);
-          }}
-          selectedStatuses={selectedStatuses}
-          onStatusFilterChange={(statuses) => {
-            setSelectedStatuses(statuses);
-            setPage(0);
-          }}
-          selectedTypes={selectedTypes}
-          onTypeFilterChange={(types) => {
-            setSelectedTypes(types);
-            setPage(0);
-          }}
-          selectedDoctor={selectedDoctor}
-          onDoctorFilterChange={(doctor) => {
-            setSelectedDoctor(doctor);
-            setPage(0);
-          }}
-          dateFrom={dateFrom}
-          dateTo={dateTo}
-          onDateFromChange={(date) => {
-            setDateFrom(date);
-            setPage(0);
-          }}
-          onDateToChange={(date) => {
-            setDateTo(date);
-            setPage(0);
-          }}
-          resultCount={filteredMissions.length}
-          totalCount={missions.length}
-          onClearAll={handleClearAll}
-          availableDoctors={availableDoctors}
-        />
-
-        {filteredMissions.length === 0 ? (
-          <Paper
-            sx={{
-              p: 6,
-              backgroundColor: 'white',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'center',
-              borderRadius: 3,
-              border: '1px solid',
-              borderColor: 'divider',
-            }}
-            elevation={0}
-          >
-            <Box
+        <Box sx={{ maxWidth: 920, mx: 'auto' }}>
+          {filteredMissions.length === 0 ? (
+            <Paper
               sx={{
-                width: 56,
-                height: 56,
-                mb: 2,
-                borderRadius: 2,
+                p: 6,
+                backgroundColor: 'white',
                 display: 'flex',
+                flexDirection: 'column',
                 justifyContent: 'center',
                 alignItems: 'center',
-                backgroundColor: '#F0F9FF',
+                borderRadius: 3,
+                border: '1px solid',
+                borderColor: 'divider',
               }}
+              elevation={0}
             >
-              <SearchIcon sx={{ color: '#0EA5E9', fontSize: 28 }} />
-            </Box>
-            <Typography
-              variant="h6"
-              sx={{ color: '#1E293B', fontWeight: 600, mb: 1 }}
-            >
-              Brak wynikow
-            </Typography>
-            <Typography variant="body2" sx={{ color: '#64748B' }}>
-              Sprobuj wyszukac inna usluge lub dostosuj filtry
-            </Typography>
-          </Paper>
-        ) : (
-          <AppointmentsTable
-            appointments={filteredMissions}
-            onRowClick={handleMissionClick}
-            page={page}
-            rowsPerPage={rowsPerPage}
-            onPageChange={handlePageChange}
-            onRowsPerPageChange={handleRowsPerPageChange}
-          />
-        )}
+              <Box
+                sx={{
+                  width: 56,
+                  height: 56,
+                  mb: 2,
+                  borderRadius: 2,
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  backgroundColor: '#F0F9FF',
+                }}
+              >
+                <SearchIcon sx={{ color: '#004078', fontSize: 28 }} />
+              </Box>
+              <Typography
+                variant="h6"
+                sx={{ color: '#1E293B', fontWeight: 600, mb: 1 }}
+              >
+                Brak wynikow
+              </Typography>
+              <Typography variant="body2" sx={{ color: '#64748B' }}>
+                Sprobuj wyszukac inna usluge lub dostosuj filtry
+              </Typography>
+            </Paper>
+          ) : (
+            <AppointmentsTable
+              appointments={filteredMissions}
+              onRowClick={handleMissionClick}
+              page={page}
+              rowsPerPage={rowsPerPage}
+              onPageChange={handlePageChange}
+              onRowsPerPageChange={handleRowsPerPageChange}
+            />
+          )}
+        </Box>
       </Box>
       <MissionDetail
         mission={selectedMission}

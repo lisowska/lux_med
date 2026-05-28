@@ -22,27 +22,26 @@ const typeConfig: Record<
 > = {
   Badanie: {
     icon: <PublicIcon fontSize="small" />,
-    color: 'white',
-    bgColor: '#162D4D',
-    borderColor: 'rgba(14, 165, 233, 0.3)',
+    color: '#162D4D',
+    bgColor: 'rgba(22, 45, 77, 0.12)',
+    borderColor: 'rgba(22, 45, 77, 0.28)',
   },
   Konsultacja: {
     icon: <NightsStayIcon fontSize="small" />,
     color: '#A78BFA',
-    bgColor: 'rgba(167, 139, 250, 0.15)',
-    borderColor: 'rgba(167, 139, 250, 0.3)',
+    bgColor: 'rgba(167, 139, 250, 0.12)',
+    borderColor: 'rgba(167, 139, 250, 0.28)',
   },
   'Badania laboratoryjne': {
     icon: <RocketLaunchIcon fontSize="small" />,
     color: '#8B5CF6',
-    bgColor: 'rgba(139, 92, 246, 0.15)',
-    borderColor: 'rgba(139, 92, 246, 0.3)',
+    bgColor: 'rgba(139, 92, 246, 0.12)',
+    borderColor: 'rgba(139, 92, 246, 0.28)',
   },
 };
 
 export const TypeBadge = ({ type }: TypeBadgeProps) => {
   const config = typeConfig[type];
-  console.log('config', config);
   return (
     <Tooltip title={'Mission Type'} sx={{ color: 'rgba(0, 0, 0, 0.87)' }}>
       <Chip

@@ -61,7 +61,7 @@ const TILES = [
 ];
 
 const TABLE_COLUMNS = [
-  'Data i godzina',
+  'Data',
   'Placówka',
   'Specjalność',
   'Lekarz',

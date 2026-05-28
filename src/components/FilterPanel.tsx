@@ -27,6 +27,7 @@ import { statusColor } from './styleUtils';
 interface FilterPanelProps {
   searchQuery: string;
   onSearchChange: (query: string) => void;
+  availableUslugi: string[];
   selectedForma: string[];
   onAgencyFilterChange: (agencies: string[]) => void;
   selectedStatuses: string[];
@@ -48,6 +49,7 @@ interface FilterPanelProps {
 const FilterPanel: React.FC<FilterPanelProps> = ({
   searchQuery,
   onSearchChange,
+  availableUslugi,
   selectedForma,
   onAgencyFilterChange,
   selectedStatuses,
@@ -90,6 +92,88 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
     (selectedDoctor ? 1 : 0) +
     (dateFrom ? 1 : 0) +
     (dateTo ? 1 : 0);
+
+  const filterSelectButtonSx = (isActive: boolean) => ({
+    textTransform: 'none',
+    borderRadius: 2,
+    borderWidth: '1px',
+    borderColor: isActive ? '#004078' : '#005AA9',
+    color: isActive ? '#004078' : '#005AA9',
+    bgcolor: isActive ? '#DFEFFF' : 'transparent',
+    boxShadow: 'none',
+    height: 40,
+    minHeight: 40,
+    lineHeight: 1,
+    '& .MuiSvgIcon-root': { color: 'inherit' },
+    '&:hover': {
+      borderColor: '#004078',
+      bgcolor: '#F7FAFD',
+      color: '#004078',
+      boxShadow: 'none',
+    },
+    '&:focus, &:focus-visible': {
+      boxShadow: 'none',
+      outline: 'none',
+    },
+    '&:active': {
+      borderColor: '#004078',
+      bgcolor: '#DFEFFF',
+      color: '#004078',
+      boxShadow: 'none',
+    },
+    px: 2,
+    py: 0.75,
+  });
+
+  const filterFieldSx = (isActive: boolean) => ({
+    '& .MuiOutlinedInput-root': {
+      height: 40,
+      minHeight: 40,
+      borderRadius: 2,
+      borderWidth: '1px',
+      bgcolor: isActive ? '#DFEFFF' : 'transparent',
+      py: 0,
+      alignItems: 'center',
+      '& fieldset': {
+        borderColor: isActive ? '#004078' : '#005AA9',
+      },
+      '&:hover fieldset': {
+        borderColor: '#004078',
+      },
+    },
+    '&& .MuiOutlinedInput-root.Mui-focused fieldset': {
+      borderColor: '#004078',
+    },
+    '& .MuiOutlinedInput-input, & .MuiInputBase-input': {
+      height: 40,
+      boxSizing: 'border-box',
+      paddingTop: 0,
+      paddingBottom: 0,
+      display: 'flex',
+      alignItems: 'center',
+      color: isActive ? '#004078' : '#005AA9',
+    },
+    '& input[type=\"date\"]': {
+      height: 40,
+      paddingTop: 0,
+      paddingBottom: 0,
+    },
+    // Chrome/Safari date icon color (native calendar indicator)
+    '& input[type=\"date\"]::-webkit-calendar-picker-indicator': {
+      opacity: 1,
+      filter: isActive
+        ? 'invert(18%) sepia(32%) saturate(4200%) hue-rotate(190deg) brightness(85%) contrast(105%)'
+        : 'invert(22%) sepia(28%) saturate(4200%) hue-rotate(190deg) brightness(95%) contrast(105%)',
+      cursor: 'pointer',
+    },
+    '& .MuiInputLabel-root': {
+      color: '#005AA9',
+    },
+    '& .MuiInputLabel-root.Mui-focused': {
+      color: '#004078',
+    },
+    '&:focus, &:focus-visible': { boxShadow: 'none', outline: 'none' },
+  });
 
   const handleAgencyToggle = (agency: string) => {
     if (selectedForma.includes(agency)) {
@@ -143,7 +227,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
         elevation={0}
         sx={{
           position: 'relative',
-          overflow: 'hidden',
+          overflow: 'visible',
           borderRadius: 3,
           borderBottomLeftRadius: 0,
           borderBottomRightRadius: 0,
@@ -161,39 +245,66 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
             sx={{ mb: 2 }}
             alignItems={{ xs: 'stretch', md: 'center' }}
           >
-            <TextField
-              fullWidth
-              placeholder="Wyszukaj usluge..."
-              value={searchQuery}
-              size="small"
-              onChange={(e) => onSearchChange(e.target.value)}
-              aria-label="Szukaj uslugi"
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon
-                      sx={{ color: '#94A3B8', fontSize: 20 }}
-                      aria-hidden="true"
-                    />
-                  </InputAdornment>
-                ),
-              }}
-              sx={{
-                maxWidth: { md: 320 },
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: 2,
-                  bgcolor: '#F8FAFC',
-                  '&:hover': {
-                    bgcolor: '#F1F5F9',
-                  },
-                  '& fieldset': {
-                    borderColor: '#E2E8F0',
-                  },
-                  '&:hover fieldset': {
-                    borderColor: '#CBD5E1',
+            <Autocomplete
+              freeSolo
+              openOnFocus
+              options={availableUslugi}
+              inputValue={searchQuery}
+              onInputChange={(_, v) => onSearchChange(v)}
+              onChange={(_, v) => onSearchChange((v as string) || '')}
+              slotProps={{
+                popper: {
+                  sx: { zIndex: 1400 },
+                  placement: 'bottom-start',
+                },
+                paper: {
+                  sx: {
+                    mt: 0.5,
+                    boxShadow: '0 8px 24px rgba(15, 28, 46, 0.12)',
                   },
                 },
               }}
+              ListboxProps={{ style: { maxHeight: 280 } }}
+              sx={{
+                width: { xs: '100%', md: 560 },
+                '& .MuiAutocomplete-listbox': { py: 0.5 },
+                '& .MuiAutocomplete-option': { whiteSpace: 'nowrap' },
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  fullWidth
+                  placeholder="Wyszukaj usluge..."
+                  size="small"
+                  aria-label="Szukaj uslugi"
+                  InputProps={{
+                    ...params.InputProps,
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <SearchIcon
+                          sx={{ color: '#94A3B8', fontSize: 20 }}
+                          aria-hidden="true"
+                        />
+                      </InputAdornment>
+                    ),
+                  }}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: 2,
+                      bgcolor: '#F8FAFC',
+                      '&:hover': {
+                        bgcolor: '#F1F5F9',
+                      },
+                      '& fieldset': {
+                        borderColor: '#E2E8F0',
+                      },
+                      '&:hover fieldset': {
+                        borderColor: '#CBD5E1',
+                      },
+                    },
+                  }}
+                />
+              )}
             />
             <Box sx={{ flexGrow: 1 }} />
             <Typography
@@ -204,7 +315,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
               }}
             >
               Znaleziono{' '}
-              <Box component="span" sx={{ color: '#0EA5E9', fontWeight: 600 }}>
+              <Box component="span" sx={{ color: '#004078', fontWeight: 600 }}>
                 {resultCount}
               </Box>{' '}
               z {totalCount} wpisow
@@ -234,26 +345,14 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
               }
               onClick={(e) => setFormaAnchor(e.currentTarget)}
               size="small"
-              sx={{
-                textTransform: 'none',
-                borderRadius: 2,
-                borderColor: selectedForma.length > 0 ? '#0EA5E9' : '#E2E8F0',
-                color: selectedForma.length > 0 ? '#0EA5E9' : '#475569',
-                bgcolor: selectedForma.length > 0 ? '#F0F9FF' : 'transparent',
-                '&:hover': {
-                  borderColor: '#0EA5E9',
-                  bgcolor: '#F0F9FF',
-                },
-                px: 2,
-                py: 0.75,
-              }}
+              sx={filterSelectButtonSx(selectedForma.length > 0)}
             >
               <BusinessIcon sx={{ mr: 1, fontSize: 18 }} />
               Forma wizyty
               {selectedForma.length > 0 && ` (${selectedForma.length})`}
             </Button>
 
-            {/* Status dropdown */}
+            {/* Status dropdown
             <Button
               id="status-filter-button"
               variant="outlined"
@@ -267,26 +366,12 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
               }
               onClick={(e) => setStatusAnchor(e.currentTarget)}
               size="small"
-              sx={{
-                textTransform: 'none',
-                borderRadius: 2,
-                borderColor:
-                  selectedStatuses.length > 0 ? '#0EA5E9' : '#E2E8F0',
-                color: selectedStatuses.length > 0 ? '#0EA5E9' : '#475569',
-                bgcolor:
-                  selectedStatuses.length > 0 ? '#F0F9FF' : 'transparent',
-                '&:hover': {
-                  borderColor: '#0EA5E9',
-                  bgcolor: '#F0F9FF',
-                },
-                px: 2,
-                py: 0.75,
-              }}
+              sx={filterSelectButtonSx(selectedStatuses.length > 0)}
             >
               <ScheduleIcon sx={{ mr: 1, fontSize: 18 }} />
               Status
               {selectedStatuses.length > 0 && ` (${selectedStatuses.length})`}
-            </Button>
+            </Button> */}
 
             {/* Usluga dropdown */}
             <Button
@@ -302,19 +387,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
               }
               onClick={(e) => setTypeAnchor(e.currentTarget)}
               size="small"
-              sx={{
-                textTransform: 'none',
-                borderRadius: 2,
-                borderColor: selectedTypes.length > 0 ? '#0EA5E9' : '#E2E8F0',
-                color: selectedTypes.length > 0 ? '#0EA5E9' : '#475569',
-                bgcolor: selectedTypes.length > 0 ? '#F0F9FF' : 'transparent',
-                '&:hover': {
-                  borderColor: '#0EA5E9',
-                  bgcolor: '#F0F9FF',
-                },
-                px: 2,
-                py: 0.75,
-              }}
+              sx={filterSelectButtonSx(selectedTypes.length > 0)}
             >
               <MedicalServicesIcon sx={{ mr: 1, fontSize: 18 }} />
               Usluga
@@ -329,19 +402,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
               onChange={(_, newValue) => onDoctorFilterChange(newValue || '')}
               onInputChange={(_, newValue) => onDoctorFilterChange(newValue)}
               size="small"
-              sx={{
-                minWidth: 180,
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: 2,
-                  bgcolor: selectedDoctor ? '#F0F9FF' : 'transparent',
-                  '& fieldset': {
-                    borderColor: selectedDoctor ? '#0EA5E9' : '#E2E8F0',
-                  },
-                  '&:hover fieldset': {
-                    borderColor: '#0EA5E9',
-                  },
-                },
-              }}
+              sx={{ minWidth: 180, ...filterFieldSx(Boolean(selectedDoctor)) }}
               renderInput={(params) => (
                 <TextField
                   {...params}
@@ -353,7 +414,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
                         <PersonIcon
                           sx={{
                             fontSize: 18,
-                            color: selectedDoctor ? '#0EA5E9' : '#94A3B8',
+                            color: selectedDoctor ? '#004078' : '#005AA9',
                           }}
                         />
                       </InputAdornment>
@@ -372,31 +433,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
                 value={dateFrom}
                 onChange={(e) => onDateFromChange(e.target.value)}
                 InputLabelProps={{ shrink: true }}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <CalendarTodayIcon
-                        sx={{
-                          fontSize: 16,
-                          color: dateFrom ? '#0EA5E9' : '#94A3B8',
-                        }}
-                      />
-                    </InputAdornment>
-                  ),
-                }}
-                sx={{
-                  width: 160,
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: 2,
-                    bgcolor: dateFrom ? '#F0F9FF' : 'transparent',
-                    '& fieldset': {
-                      borderColor: dateFrom ? '#0EA5E9' : '#E2E8F0',
-                    },
-                    '&:hover fieldset': {
-                      borderColor: '#0EA5E9',
-                    },
-                  },
-                }}
+                sx={{ width: 160, ...filterFieldSx(Boolean(dateFrom)) }}
               />
               <TextField
                 type="date"
@@ -405,31 +442,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
                 value={dateTo}
                 onChange={(e) => onDateToChange(e.target.value)}
                 InputLabelProps={{ shrink: true }}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <CalendarTodayIcon
-                        sx={{
-                          fontSize: 16,
-                          color: dateTo ? '#0EA5E9' : '#94A3B8',
-                        }}
-                      />
-                    </InputAdornment>
-                  ),
-                }}
-                sx={{
-                  width: 160,
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: 2,
-                    bgcolor: dateTo ? '#F0F9FF' : 'transparent',
-                    '& fieldset': {
-                      borderColor: dateTo ? '#0EA5E9' : '#E2E8F0',
-                    },
-                    '&:hover fieldset': {
-                      borderColor: '#0EA5E9',
-                    },
-                  },
-                }}
+                sx={{ width: 160, ...filterFieldSx(Boolean(dateTo)) }}
               />
             </Box>
 

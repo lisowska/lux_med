@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import {
   Box,
+  Autocomplete,
   TextField,
   InputAdornment,
   IconButton,
@@ -8,17 +9,21 @@ import {
   Typography,
   Drawer,
   Button,
-  Badge,
   Radio,
+  Collapse,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import CloseIcon from "@mui/icons-material/Close";
 import TuneIcon from "@mui/icons-material/Tune";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
+
 import ScienceIcon from "@mui/icons-material/Science";
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
+import BiotechIcon from '@mui/icons-material/Biotech';
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
+import EventIcon from '@mui/icons-material/Event';
 import PlaceIcon from "@mui/icons-material/Place";
 import PersonIcon from "@mui/icons-material/Person";
 import PhoneIcon from "@mui/icons-material/Phone";
@@ -27,9 +32,11 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import MedicalServicesIcon from "@mui/icons-material/MedicalServices";
 import RestaurantIcon from "@mui/icons-material/Restaurant";
 import SpaIcon from "@mui/icons-material/Spa";
-import type { Mission, MissionStatus } from "../types/mission";
+import type { Mission } from "../types/mission";
 import missionData from "../data/missionData.json";
 import ServiceToggle, { ServiceTab } from "./ServiceToggle";
+import IconUsg from "../assets/usg.png";
+import PeopleIcon from '@mui/icons-material/People';
 
 // Brand blue color
 const BRAND_BLUE = "#005aa9";
@@ -156,23 +163,40 @@ const filterFormaCardSx = (active: boolean) => ({
 
 type FormaWizyty = Mission["formaWizity"];
 
-const TYPE_META: Record<string, { color: string; bg: string; Icon: typeof LocalHospitalIcon }> = {
-  Badanie: { color: "#0A6E8C", bg: "#E0F2F8", Icon: ScienceIcon },
-  Konsultacja: { color: BRAND_BLUE, bg: "#E1E8F8", Icon: LocalHospitalIcon },
-  "Badania laboratoryjne": { color: "#5B2D90", bg: "#EFE6FA", Icon: ScienceIcon },
-  USG: { color: "#0A6E8C", bg: "#E0F2F8", Icon: ScienceIcon },
+type TypeMeta = {
+  color: string;
+  bg: string;
+  Icon?: typeof PeopleIcon;
+  imageSrc?: string;
 };
 
-const STATUS_META: Record<MissionStatus, { color: string; bg: string }> = {
-  Odbyta: { color: "#1a6b14", bg: "#E4F5E0" },
-  Planowana: { color: "#002677", bg: "#E1E8F8" },
-  Anulowana: { color: "#8a1a1a", bg: "#FBE3E3" },
+const TYPE_META: Record<string, TypeMeta> = {
+  Badanie: { color: "#0A6E8C", bg: "#E0F2F8", imageSrc: IconUsg },
+  Konsultacja: { color: BRAND_BLUE, bg: "#E1E8F8", Icon: PeopleIcon },
+  "Badania laboratoryjne": { color: "#5B2D90", bg: "#EFE6FA", Icon: BiotechIcon },
+  USG: { color: "#0A6E8C", bg: "#E0F2F8", imageSrc: IconUsg },
+};
+
+const TypeBadgeIcon = ({ typ, size = 32 }: { typ: string; size?: number }) => {
+  const meta = TYPE_META[typ] || TYPE_META.Konsultacja;
+  if (meta.imageSrc) {
+    return (
+      <Box
+        component="img"
+        src={meta.imageSrc}
+        alt=""
+        sx={{ width: size, height: size, objectFit: "contain", display: "block" }}
+      />
+    );
+  }
+  const Icon = meta.Icon ?? PeopleIcon;
+  return <Icon sx={{ fontSize: Math.round(size * 0.75), color: meta.color }} />;
 };
 
 const FORMA_META: Record<FormaWizyty, { color: string; bg: string; Icon: typeof PhoneIcon; label: string }> = {
-  telefoniczna: { color: "#0A6E8C", bg: "#E0F2F8", Icon: PhoneIcon, label: "Mobile" },
-  online: { color: "#5B2D90", bg: "#EFE6FA", Icon: ComputerIcon, label: "Online" },
-  "w placówce": { color: BRAND_BLUE, bg: "#E1E8F8", Icon: PlaceIcon, label: "Placówka" },
+  telefoniczna: { color: "#01847d", bg: "#E0F2F8", Icon: PhoneIcon, label: "Telemedycyna" },
+  online: { color: "#005aa9", bg: "#E1E8F8", Icon: ComputerIcon, label: "Online" },
+  "w placówce": { color: "#ad029c", bg: "#FCE8F9", Icon: PlaceIcon, label: "Wizyta w placówce" },
 };
 
 const ALL_FORMY: FormaWizyty[] = ["telefoniczna", "online", "w placówce"];
@@ -215,6 +239,9 @@ export default function VisitHistoryMobile({
   const [draftFormy, setDraftFormy] = useState<FormaWizyty[]>([]);
   const [draftTypy, setDraftTypy] = useState<string[]>([]);
   const [draftSpecjalista, setDraftSpecjalista] = useState<string | null>(null);
+  const [draftDateFrom, setDraftDateFrom] = useState("");
+  const [draftDateTo, setDraftDateTo] = useState("");
+  const [dateRangeOpen, setDateRangeOpen] = useState(false);
 
   // Get unique doctors from data
   const availableDoctors = useMemo(() => {
@@ -236,11 +263,50 @@ export default function VisitHistoryMobile({
     return new Date(Number(year), Number(month) - 1, Number(day));
   };
 
+  const matchesDateRange = (launchDate: string, from: string, to: string) => {
+    if (!from && !to) return true;
+    const missionDay = parseDate(launchDate);
+    missionDay.setHours(0, 0, 0, 0);
+    if (from) {
+      const fromDay = new Date(from);
+      fromDay.setHours(0, 0, 0, 0);
+      if (missionDay < fromDay) return false;
+    }
+    if (to) {
+      const toDay = new Date(to);
+      toDay.setHours(23, 59, 59, 999);
+      if (missionDay > toDay) return false;
+    }
+    return true;
+  };
+
+  const dateFieldSx = (hasValue: boolean) => ({
+    "& .MuiOutlinedInput-root": {
+      borderRadius: 2.5,
+      bgcolor: hasValue ? FILTER_BLUE_LIGHT : "#fff",
+      "& fieldset": {
+        borderColor: hasValue ? BRAND_BLUE : FILTER_GREY_BORDER,
+      },
+      "&:hover fieldset": {
+        borderColor: BRAND_BLUE,
+      },
+      "&.Mui-focused fieldset": {
+        borderColor: BRAND_BLUE,
+      },
+    },
+    "& .MuiInputLabel-root.Mui-focused": {
+      color: BRAND_BLUE,
+    },
+  });
+
   const openDrawer = () => {
     setDraftStatusTab(serviceTab);
     setDraftFormy(formy);
     setDraftTypy(typy);
     setDraftSpecjalista(uslugi[0] || null);
+    setDraftDateFrom(dateFrom);
+    setDraftDateTo(dateTo);
+    setDateRangeOpen(Boolean(dateFrom || dateTo));
     setDrawerOpen(true);
   };
 
@@ -249,6 +315,8 @@ export default function VisitHistoryMobile({
     setFormy(draftFormy);
     setTypy(draftTypy);
     setUslugi(draftSpecjalista ? [draftSpecjalista] : []);
+    setDateFrom(draftDateFrom);
+    setDateTo(draftDateTo);
     setDrawerOpen(false);
   };
 
@@ -257,6 +325,9 @@ export default function VisitHistoryMobile({
     setDraftFormy([]);
     setDraftTypy([]);
     setDraftSpecjalista(null);
+    setDraftDateFrom("");
+    setDraftDateTo("");
+    setDateRangeOpen(false);
   };
 
   const draftCount = useMemo(() => {
@@ -268,18 +339,21 @@ export default function VisitHistoryMobile({
       if (draftFormy.length && !draftFormy.includes(m.formaWizity)) return false;
       if (draftTypy.length && !draftTypy.includes(m.typ)) return false;
       if (draftSpecjalista && m.usluga !== draftSpecjalista) return false;
+      if (!matchesDateRange(m.launchDate, draftDateFrom, draftDateTo)) return false;
       if (q) {
         const blob = `${m.lekarz.join(" ")} ${m.usluga} ${m.typ}`.toLowerCase();
         if (!blob.includes(q)) return false;
       }
       return true;
     }).length;
-  }, [query, draftStatusTab, draftFormy, draftTypy, draftSpecjalista, missions]);
+  }, [query, draftStatusTab, draftFormy, draftTypy, draftSpecjalista, draftDateFrom, draftDateTo, missions]);
 
   const draftActive =
     draftFormy.length +
     draftTypy.length +
-    (draftSpecjalista ? 1 : 0);
+    (draftSpecjalista ? 1 : 0) +
+    (draftDateFrom ? 1 : 0) +
+    (draftDateTo ? 1 : 0);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -292,11 +366,7 @@ export default function VisitHistoryMobile({
         if (typy.length && !typy.includes(m.typ)) return false;
         if (uslugi.length && !uslugi.includes(m.usluga)) return false;
         if (doctors.length && !doctors.some((d) => m.lekarz.includes(d))) return false;
-        if (dateFrom || dateTo) {
-          const missionDate = parseDate(m.launchDate);
-          if (dateFrom && missionDate < new Date(dateFrom)) return false;
-          if (dateTo && missionDate > new Date(dateTo)) return false;
-        }
+        if (!matchesDateRange(m.launchDate, dateFrom, dateTo)) return false;
         if (q) {
           const blob = `${m.lekarz.join(" ")} ${m.usluga} ${m.typ}`.toLowerCase();
           if (!blob.includes(q)) return false;
@@ -352,12 +422,12 @@ export default function VisitHistoryMobile({
     setDraftTypy(draftTypy.includes(t) ? draftTypy.filter((x) => x !== t) : [...draftTypy, t]);
 
   return (
-    <Box sx={{ position: "relative", pb: 12, px: 2, pt: 2 }}>
+    <Box sx={{ position: "relative", pb: 2, px: 2, pt: 3 }}>
       {/* Service Toggle */}
-      <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
-        <ServiceToggle 
-          value={serviceTab} 
-          onChange={onServiceTabChange} 
+      <Box sx={{ width: '100%', mb: 3 }}>
+        <ServiceToggle
+          value={serviceTab}
+          onChange={onServiceTabChange}
         />
       </Box>
 
@@ -368,42 +438,112 @@ export default function VisitHistoryMobile({
           top: 0,
           zIndex: 5,
           bgcolor: "#F8FAFC",
-          pb: 1.5,
+          pb: 2.5,
         }}
       >
-        <TextField
-          placeholder="Szukaj lekarza lub uslugi..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          fullWidth
-          size="small"
-          sx={{
-            "& .MuiOutlinedInput-root": { borderRadius: 999, bgcolor: "#fff" },
-          }}
-          slotProps={{
-            input: {
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon sx={{ color: "text.secondary" }} />
-                </InputAdornment>
-              ),
-              endAdornment: query ? (
-                <InputAdornment position="end">
-                  <IconButton size="small" onClick={() => setQuery("")}>
-                    <CloseIcon fontSize="small" />
-                  </IconButton>
-                </InputAdornment>
-              ) : null,
-            },
-          }}
+        <Autocomplete
+          freeSolo
+          options={availableUslugi}
+          inputValue={query}
+          onInputChange={(_, v) => setQuery(v)}
+          onChange={(_, v) => setQuery((v as string) || "")}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              placeholder="Szukaj lekarza lub uslugi..."
+              fullWidth
+              size="small"
+              sx={{
+                "& .MuiOutlinedInput-root": { borderRadius: 999, bgcolor: "#fff" },
+              }}
+              InputProps={{
+                ...params.InputProps,
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon sx={{ color: "text.secondary" }} />
+                  </InputAdornment>
+                ),
+                endAdornment: (
+                  <>
+                    {query ? (
+                      <InputAdornment position="end">
+                        <IconButton size="small" onClick={() => setQuery("")}>
+                          <CloseIcon fontSize="small" />
+                        </IconButton>
+                      </InputAdornment>
+                    ) : null}
+                    {params.InputProps.endAdornment}
+                  </>
+                ),
+              }}
+            />
+          )}
         />
 
+        {/* Filtry – pod wyszukiwarką */}
+        <Box sx={{ display: "flex", alignItems: "center", mt: 2 }}>
+          <Button
+            onClick={openDrawer}
+            startIcon={<TuneIcon sx={{ fontSize: 20, color: BRAND_BLUE }} />}
+            sx={{
+              textTransform: "none",
+              fontWeight: 600,
+              fontSize: 14,
+              letterSpacing: 0.5,
+              color: BRAND_BLUE,
+              bgcolor: FILTER_BLUE_LIGHT,
+              borderRadius: 999,
+              px: 2,
+              py: 0.75,
+              minHeight: 40,
+              boxShadow: "none",
+              "&:hover": {
+                bgcolor: FILTER_BLUE_HOVER,
+                boxShadow: "none",
+              },
+              "&:focus, &:focus-visible": {
+                bgcolor: FILTER_BLUE_LIGHT,
+                boxShadow: "none",
+              },
+              "&:active": {
+                bgcolor: "#C5D9F0",
+                boxShadow: "none",
+              },
+              "& .MuiButton-startIcon": { mr: 0.75, ml: 0 },
+            }}
+          >
+            FILTRUJ
+            {activeFilters > 0 && (
+              <Box
+                component="span"
+                sx={{
+                  ml: 0.75,
+                  minWidth: 20,
+                  height: 20,
+                  px: 0.75,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  borderRadius: 999,
+                  bgcolor: BRAND_BLUE,
+                  color: "#fff",
+                  fontSize: 12,
+                  fontWeight: 700,
+                  lineHeight: 1,
+                }}
+              >
+                {activeFilters}
+              </Box>
+            )}
+          </Button>
+        </Box>
+
         {/* Quick forma chips */}
-        <Box
+        {/* <Box
           sx={{
             display: "flex",
             gap: 1,
-            mt: 1.5,
+            mt: 1,
             overflowX: "auto",
             pb: 0.5,
             "&::-webkit-scrollbar": { display: "none" },
@@ -423,7 +563,7 @@ export default function VisitHistoryMobile({
               />
             );
           })}
-        </Box>
+        </Box> */}
       </Box>
 
       {/* Results count + clear */}
@@ -451,7 +591,7 @@ export default function VisitHistoryMobile({
               setQuery("");
             }}
           >
-            Wyczysc
+            Wyczyść filtry
           </Button>
         )}
       </Box>
@@ -479,106 +619,106 @@ export default function VisitHistoryMobile({
           <Box sx={{ display: "flex", flexDirection: "column", gap: 1, mt: 0.5 }}>
             {items.map((m) => {
               const tm = TYPE_META[m.typ] || TYPE_META.Konsultacja;
-              const sm = STATUS_META[m.status];
-              const TypeIcon = tm.Icon;
               const formaMeta = FORMA_META[m.formaWizity];
+              const dateLabel = parseDate(m.launchDate).toLocaleDateString("pl-PL", {
+                day: "2-digit",
+                month: "long",
+                year: "numeric",
+              });
               return (
                 <Box
                   key={m.id}
                   onClick={() => onMissionClick(m)}
                   sx={{
                     bgcolor: "#fff",
-                    borderRadius: 3,
+                    borderRadius: 4,
                     border: "1px solid",
-                    borderColor: "divider",
-                    p: 2,
+                    borderColor: "#F1F5F9",
+                    p: 2.25,
+                    boxShadow: "0 2px 12px rgba(15, 28, 46, 0.06)",
                     display: "flex",
+                    flexDirection: "column",
                     gap: 1.5,
-                    alignItems: "flex-start",
                     cursor: "pointer",
                     transition: "border-color .15s",
                     "&:active": { borderColor: BRAND_BLUE },
                   }}
                 >
-                  <Box
-                    sx={{
-                      width: 44,
-                      height: 44,
-                      borderRadius: 2,
-                      bgcolor: tm.bg,
-                      color: tm.color,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      flexShrink: 0,
-                    }}
-                  >
-                    <TypeIcon />
-                  </Box>
-                  <Box sx={{ flex: 1, minWidth: 0 }}>
+                  {/* Top row: forma + icon badge */}
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
+                      <formaMeta.Icon sx={{ fontSize: 18, color: formaMeta.color }} />
+                      <Typography sx={{ fontSize: 15, fontWeight: 600, color: formaMeta.color }}>
+                        {formaMeta.label}
+                      </Typography>
+                    </Box>
+                    <Box sx={{ flex: 1 }} />
                     <Box
                       sx={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: "50%",
+                        bgcolor: tm.bg,
                         display: "flex",
-                        justifyContent: "space-between",
                         alignItems: "center",
-                        gap: 1,
+                        justifyContent: "center",
+                        flexShrink: 0,
                       }}
                     >
-                      <Typography
-                        variant="caption"
-                        sx={{ color: "text.secondary", fontWeight: 600 }}
-                      >
-                        {parseDate(m.launchDate).toLocaleDateString("pl-PL", {
-                          day: "2-digit",
-                          month: "short",
-                          year: "numeric",
-                        })}
-                      </Typography>
-                      <Chip
-                        label={m.status}
-                        size="small"
-                        sx={{
-                          bgcolor: sm.bg,
-                          color: sm.color,
-                          height: 20,
-                          fontSize: 11,
-                          fontWeight: 600,
-                        }}
-                      />
+                      <TypeBadgeIcon typ={m.typ} size={42} />
                     </Box>
-                    <Typography
-                      variant="body2"
-                      sx={{ fontWeight: 700, color: "text.primary", mt: 0.25 }}
-                    >
-                      {m.usluga}
-                    </Typography>
-                    <Typography
-                      variant="caption"
-                      sx={{
-                        color: tm.color,
-                        fontWeight: 600,
-                        textTransform: "uppercase",
-                        letterSpacing: 0.5,
-                      }}
-                    >
-                      {m.typ}
-                    </Typography>
+                  </Box>
+
+                  {/* Title */}
+                  <Typography
+                    sx={{
+                      fontSize: 22,
+                      fontWeight: 800,
+                      letterSpacing: -0.2,
+                      color: "text.primary",
+                      lineHeight: 1.15,
+                    }}
+                  >
+                    {m.typ} {m.usluga}
+                  </Typography>
+
+                  <Box sx={{ height: 1, bgcolor: "#EEF2F7" }} />
+
+                  {/* Details */}
+                  <Box sx={{ display: "flex", flexDirection: "column", gap: 1.25 }}>
+                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 2 }}>
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 1.25, minWidth: 0 }}>
+                        <EventIcon sx={{ fontSize: 18, color: "#6B7280" }} />
+                        <Typography sx={{ fontSize: 16, fontWeight: 500, color: "text.primary" }} noWrap>
+                          {dateLabel}
+                        </Typography>
+                      </Box>
+                      {/* optional time if ever added */}
+                      {"time" in (m as any) && (m as any).time ? (
+                        <Typography sx={{ fontSize: 16, fontWeight: 500, color: "#6B7280" }}>
+                          {(m as any).time}
+                        </Typography>
+                      ) : null}
+                    </Box>
+
                     {m.lekarz.length > 0 && (
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, mt: 0.75 }}>
-                        <PersonIcon sx={{ fontSize: 14, color: "text.secondary" }} />
-                        <Typography variant="caption" color="text.secondary" noWrap>
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 1.25 }}>
+                        <PersonIcon sx={{ fontSize: 18, color: "#6B7280" }} />
+                        <Typography sx={{ fontSize: 18, fontWeight: 500, color: "#6B7280" }} noWrap>
                           {m.lekarz.join(", ")}
                         </Typography>
                       </Box>
                     )}
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, mt: 0.25 }}>
-                      <formaMeta.Icon sx={{ fontSize: 14, color: "text.secondary" }} />
-                      <Typography variant="caption" color="text.secondary" noWrap>
-                        {formaMeta.label}
-                      </Typography>
-                    </Box>
+
+                    {m.formaWizity === "w placówce" && m.placowka ? (
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 1.25 }}>
+                        <PlaceIcon sx={{ fontSize: 18, color: "#6B7280" }} />
+                        <Typography sx={{ fontSize: 18, fontWeight: 500, color: "#6B7280" }} noWrap>
+                          {m.placowka}
+                        </Typography>
+                      </Box>
+                    ) : null}
                   </Box>
-                  <ChevronRightIcon sx={{ color: "text.secondary", alignSelf: "center" }} />
                 </Box>
               );
             })}
@@ -586,65 +726,20 @@ export default function VisitHistoryMobile({
         </Box>
       ))}
 
-      {/* Sticky bottom filter bar */}
-      <Box
-        sx={{
-          position: "fixed",
-          left: 0,
-          right: 0,
-          bottom: 0,
-          zIndex: 1200,
-          bgcolor: "#fff",
-          borderTop: "1px solid",
-          borderColor: "divider",
-          px: 2,
-          py: 1.25,
-          boxShadow: "0 -4px 16px rgba(0,0,0,0.08)",
-          pb: "calc(10px + env(safe-area-inset-bottom))",
-        }}
-      >
-        <Button
-          fullWidth
-          variant="contained"
-          onClick={openDrawer}
-          disableRipple
-          startIcon={
-            <Badge badgeContent={activeFilters} color="error">
-              <TuneIcon />
-            </Badge>
-          }
-          sx={{
-            textTransform: "none",
-            fontWeight: 700,
-            py: 1.25,
-            borderRadius: 999,
-            bgcolor: BRAND_BLUE,
-            boxShadow: "none",
-            "&:hover": { bgcolor: BRAND_BLUE_DARK, boxShadow: "none" },
-            "&:focus, &:focus-visible": { bgcolor: BRAND_BLUE, boxShadow: "none" },
-            "&:active": { bgcolor: BRAND_BLUE_PRESSED, boxShadow: "none" },
-          }}
-        >
-          Filtry{activeFilters > 0 ? ` (${activeFilters})` : ""}
-        </Button>
-      </Box>
-
       {/* Filter bottom sheet */}
       <Drawer
         anchor="bottom"
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
-        slotProps={{
-          paper: {
-            sx: {
-              borderTopLeftRadius: 24,
-              borderTopRightRadius: 24,
-              maxHeight: "92vh",
-              display: "flex",
-              flexDirection: "column",
-              bgcolor: "#fff",
-              boxShadow: "0 -8px 32px rgba(15, 28, 46, 0.12)",
-            },
+        PaperProps={{
+          sx: {
+            borderTopLeftRadius: 24,
+            borderTopRightRadius: 24,
+            maxHeight: "92vh",
+            display: "flex",
+            flexDirection: "column",
+            bgcolor: "#fff",
+            boxShadow: "0 -8px 32px rgba(15, 28, 46, 0.12)",
           },
         }}
       >
@@ -692,12 +787,12 @@ export default function VisitHistoryMobile({
               textTransform: "none",
               fontWeight: 500,
               fontSize: 15,
-              color: "#9CA3AF",
+              color: "#005aa9",
               minWidth: "auto",
               "&.Mui-disabled": { color: "#D1D5DB" },
             }}
           >
-            Czyść
+            Wyczyść
           </Button>
         </Box>
 
@@ -729,7 +824,7 @@ export default function VisitHistoryMobile({
           {/* Forma wizyty */}
           <Box sx={{ mb: 3 }}>
             <Typography sx={{ fontWeight: 700, fontSize: 15, color: "text.primary", mb: 1.5 }}>
-              Forma wizyty
+              Forma wizyty an
             </Typography>
             <Box sx={{ display: "flex", gap: 1.5 }}>
               {ALL_FORMY.map((f) => {
@@ -748,8 +843,14 @@ export default function VisitHistoryMobile({
                         toggleDraftForma(f);
                       }
                     }}
-                    sx={filterFormaCardSx(active)}
+                    sx={{
+                      ...filterFormaCardSx(active),
+                      py: "8px", // Override padding top and bottom to 8px
+                    }}
                   >
+             
+                    
+                
                     <Icon sx={{ fontSize: 28, color: active ? BRAND_BLUE : "#9CA3AF" }} />
                     <Typography
                       sx={{
@@ -776,15 +877,32 @@ export default function VisitHistoryMobile({
               {TYP_OPTIONS.map((t) => {
                 const active = draftTypy.includes(t);
                 const TypIcon =
-                  t === "Badanie"
-                    ? ScienceIcon
-                    : t === "Konsultacja"
-                      ? ChatBubbleOutlineIcon
+                  t === "Konsultacja"
+                    ? ChatBubbleOutlineIcon
+                    : t === "Laboratoryjne"
+                      ? BiotechIcon
                       : ScienceIcon;
+
                 return (
                   <Chip
                     key={t}
-                    icon={<TypIcon sx={{ fontSize: "18px !important" }} />}
+                    icon={
+                      t === "Badanie" ? (
+                        <Box
+                          component="img"
+                          src={IconUsg}
+                          alt=""
+                          sx={{
+                            // width: "22px !important",
+                            height: "22px !important",
+                            objectFit: "contain",
+                            display: "block",
+                          }}
+                        />
+                      ) : (
+                        <TypIcon sx={{ fontSize: "18px !important" }} />
+                      )
+                    }
                     label={t}
                     onClick={() => toggleDraftTyp(t)}
                     sx={filterTypChipSx(active)}
@@ -877,6 +995,82 @@ export default function VisitHistoryMobile({
               })}
             </Box>
           </Box>
+
+          {/* Zakres dat */}
+          <Box sx={{ mb: 2 }}>
+            <Box
+              role="button"
+              tabIndex={0}
+              onClick={() => setDateRangeOpen((open) => !open)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setDateRangeOpen((open) => !open);
+                }
+              }}
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                cursor: "pointer",
+                mb: dateRangeOpen ? 1.5 : 0,
+              }}
+            >
+              <Typography sx={{ fontWeight: 700, fontSize: 15, color: "text.primary" }}>
+                Zakres dat
+              </Typography>
+              <ExpandMoreIcon
+                sx={{
+                  color: "#6B7280",
+                  transition: "transform 0.2s",
+                  transform: dateRangeOpen ? "rotate(180deg)" : "rotate(0deg)",
+                }}
+              />
+            </Box>
+            <Collapse in={dateRangeOpen}>
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+                <TextField
+                  type="date"
+                  label="Od dnia"
+                  value={draftDateFrom}
+                  onChange={(e) => setDraftDateFrom(e.target.value)}
+                  fullWidth
+                  size="small"
+                  InputLabelProps={{ shrink: true }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <CalendarTodayIcon
+                          sx={{ fontSize: 18, color: draftDateFrom ? BRAND_BLUE : "#9CA3AF" }}
+                        />
+                      </InputAdornment>
+                    ),
+                  }}
+                  sx={dateFieldSx(Boolean(draftDateFrom))}
+                />
+                <TextField
+                  type="date"
+                  label="Do dnia"
+                  value={draftDateTo}
+                  onChange={(e) => setDraftDateTo(e.target.value)}
+                  fullWidth
+                  size="small"
+                  InputLabelProps={{ shrink: true }}
+                  inputProps={{ min: draftDateFrom || undefined }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <CalendarTodayIcon
+                          sx={{ fontSize: 18, color: draftDateTo ? BRAND_BLUE : "#9CA3AF" }}
+                        />
+                      </InputAdornment>
+                    ),
+                  }}
+                  sx={dateFieldSx(Boolean(draftDateTo))}
+                />
+              </Box>
+            </Collapse>
+          </Box>
         </Box>
 
         {/* Sticky CTA */}
@@ -925,7 +1119,8 @@ export default function VisitHistoryMobile({
                 fontWeight: 700,
               }}
             >
-              {draftCount}
+              {draftActive}
+         
             </Box>
           </Button>
         </Box>
