@@ -37,6 +37,7 @@ import missionData from "../data/missionData.json";
 import ServiceToggle, { ServiceTab } from "./ServiceToggle";
 import IconUsg from "../assets/usg.png";
 import PeopleIcon from '@mui/icons-material/People';
+import { TYPE_META, TypeIcon } from "./TypeIcon";
 
 // Brand blue color
 const BRAND_BLUE = "#005aa9";
@@ -163,36 +164,6 @@ const filterFormaCardSx = (active: boolean) => ({
 
 type FormaWizyty = Mission["formaWizity"];
 
-type TypeMeta = {
-  color: string;
-  bg: string;
-  Icon?: typeof PeopleIcon;
-  imageSrc?: string;
-};
-
-const TYPE_META: Record<string, TypeMeta> = {
-  Badanie: { color: "#0A6E8C", bg: "#E0F2F8", imageSrc: IconUsg },
-  Konsultacja: { color: BRAND_BLUE, bg: "#E1E8F8", Icon: PeopleIcon },
-  "Badania laboratoryjne": { color: "#5B2D90", bg: "#EFE6FA", Icon: BiotechIcon },
-  USG: { color: "#0A6E8C", bg: "#E0F2F8", imageSrc: IconUsg },
-};
-
-const TypeBadgeIcon = ({ typ, size = 32 }: { typ: string; size?: number }) => {
-  const meta = TYPE_META[typ] || TYPE_META.Konsultacja;
-  if (meta.imageSrc) {
-    return (
-      <Box
-        component="img"
-        src={meta.imageSrc}
-        alt=""
-        sx={{ width: size, height: size, objectFit: "contain", display: "block" }}
-      />
-    );
-  }
-  const Icon = meta.Icon ?? PeopleIcon;
-  return <Icon sx={{ fontSize: Math.round(size * 0.75), color: meta.color }} />;
-};
-
 const FORMA_META: Record<FormaWizyty, { color: string; bg: string; Icon: typeof PhoneIcon; label: string }> = {
   telefoniczna: { color: "#01847d", bg: "#E0F2F8", Icon: PhoneIcon, label: "Telemedycyna" },
   online: { color: "#005aa9", bg: "#E1E8F8", Icon: ComputerIcon, label: "Online" },
@@ -201,16 +172,23 @@ const FORMA_META: Record<FormaWizyty, { color: string; bg: string; Icon: typeof 
 
 const ALL_FORMY: FormaWizyty[] = ["telefoniczna", "online", "w placówce"];
 
-// Typ options for the filter
-const TYP_OPTIONS = ["Badanie", "Konsultacja", "Laboratoryjne"];
-
-// Specjalista options with icons
-const SPECJALISTA_OPTIONS: { label: string; Icon: typeof FavoriteIcon }[] = [
-  { label: "Kardiolog", Icon: FavoriteIcon },
-  { label: "Stomatolog", Icon: MedicalServicesIcon },
-  { label: "Dietetyk", Icon: RestaurantIcon },
-  { label: "Dermatolog", Icon: SpaIcon },
+// Etykieta w UI → wartość w danych (typ)
+const TYP_FILTER_OPTIONS: { label: string; value: Mission["typ"] }[] = [
+  { label: "Badanie", value: "Badanie" },
+  { label: "Konsultacja", value: "Konsultacja" },
+  { label: "Laboratoryjne", value: "Badania laboratoryjne" },
 ];
+
+const USLUGA_ICONS: Partial<Record<string, typeof FavoriteIcon>> = {
+  Dietetyk: RestaurantIcon,
+  Dermatolog: SpaIcon,
+  Stomatolog: MedicalServicesIcon,
+  Okulista: PeopleIcon,
+  Pediatra: FavoriteIcon,
+  Laryngolog: MedicalServicesIcon,
+  Usg: ScienceIcon,
+  "Pobranie krwi": BiotechIcon,
+};
 
 interface VisitHistoryMobileProps {
   onMissionClick: (mission: Mission) => void;
@@ -229,7 +207,7 @@ export default function VisitHistoryMobile({
   const [formy, setFormy] = useState<FormaWizyty[]>([]);
   const [uslugi, setUslugi] = useState<string[]>([]);
   const [doctors, setDoctors] = useState<string[]>([]);
-  const [typy, setTypy] = useState<string[]>([]);
+  const [typy, setTypy] = useState<Mission["typ"][]>([]);
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -237,7 +215,7 @@ export default function VisitHistoryMobile({
   // Draft state for batch filtering
   const [draftStatusTab, setDraftStatusTab] = useState<"zaplanowane" | "zrealizowane">("zaplanowane");
   const [draftFormy, setDraftFormy] = useState<FormaWizyty[]>([]);
-  const [draftTypy, setDraftTypy] = useState<string[]>([]);
+  const [draftTypy, setDraftTypy] = useState<Mission["typ"][]>([]);
   const [draftSpecjalista, setDraftSpecjalista] = useState<string | null>(null);
   const [draftDateFrom, setDraftDateFrom] = useState("");
   const [draftDateTo, setDraftDateTo] = useState("");
@@ -330,6 +308,11 @@ export default function VisitHistoryMobile({
     setDateRangeOpen(false);
   };
 
+  const tabTotalCount = useMemo(() => {
+    const statusFilter = serviceTab === "zaplanowane" ? "Planowana" : "Odbyta";
+    return missions.filter((m) => m.status === statusFilter).length;
+  }, [missions, serviceTab]);
+
   const draftCount = useMemo(() => {
     const q = query.trim().toLowerCase();
     const statusFilter = draftStatusTab === 'zaplanowane' ? 'Planowana' : 'Odbyta';
@@ -418,8 +401,8 @@ export default function VisitHistoryMobile({
   const toggleDraftForma = (f: FormaWizyty) =>
     setDraftFormy(draftFormy.includes(f) ? draftFormy.filter((x) => x !== f) : [...draftFormy, f]);
 
-  const toggleDraftTyp = (t: string) =>
-    setDraftTypy(draftTypy.includes(t) ? draftTypy.filter((x) => x !== t) : [...draftTypy, t]);
+  const toggleDraftTyp = (value: Mission["typ"]) =>
+    setDraftTypy(draftTypy.includes(value) ? draftTypy.filter((x) => x !== value) : [...draftTypy, value]);
 
   return (
     <Box sx={{ position: "relative", pb: 2, px: 2, pt: 3 }}>
@@ -580,7 +563,7 @@ export default function VisitHistoryMobile({
           <Box component="strong" sx={{ color: BRAND_BLUE }}>
             {filtered.length}
           </Box>{" "}
-          z {missions.length} wpisow
+          z {tabTotalCount} wizyt
         </Typography>
         {(activeFilters > 0 || query) && (
           <Button
@@ -618,7 +601,6 @@ export default function VisitHistoryMobile({
           </Typography>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 1, mt: 0.5 }}>
             {items.map((m) => {
-              const tm = TYPE_META[m.typ] || TYPE_META.Konsultacja;
               const formaMeta = FORMA_META[m.formaWizity];
               const dateLabel = parseDate(m.launchDate).toLocaleDateString("pl-PL", {
                 day: "2-digit",
@@ -644,52 +626,48 @@ export default function VisitHistoryMobile({
                     "&:active": { borderColor: BRAND_BLUE },
                   }}
                 >
-                  {/* Top row: forma + icon badge */}
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  {/* Nagłówek: forma + tytuł */}
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 1,
+                      pb: 1.25,
+                      borderBottom: "1px solid #E2E8F0",
+                    }}
+                  >
                     <Box sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
-                      <formaMeta.Icon sx={{ fontSize: 18, color: formaMeta.color }} />
-                      <Typography sx={{ fontSize: 15, fontWeight: 600, color: formaMeta.color }}>
+                      <formaMeta.Icon sx={{ fontSize: 16, color: formaMeta.color }} />
+                      <Typography sx={{ fontSize: 14, fontWeight: 600, color: formaMeta.color }}>
                         {formaMeta.label}
                       </Typography>
                     </Box>
-                    <Box sx={{ flex: 1 }} />
-                    <Box
-                      sx={{
-                        width: 40,
-                        height: 40,
-                        borderRadius: "50%",
-                        bgcolor: tm.bg,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        flexShrink: 0,
-                      }}
-                    >
-                      <TypeBadgeIcon typ={m.typ} size={42} />
+
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1, minWidth: 0 }}>
+                      <Box sx={{ flexShrink: 0, display: "flex", alignItems: "center" }}>
+                        <TypeIcon typ={m.typ} size={(TYPE_META[m.typ] || TYPE_META.Konsultacja).iconSize ?? 24} />
+                      </Box>
+                      <Typography
+                        sx={{
+                          fontSize: 22,
+                          fontWeight: 800,
+                          letterSpacing: -0.2,
+                          color: "text.primary",
+                          lineHeight: 1.15,
+                          minWidth: 0,
+                        }}
+                      >
+                        {m.typ} {m.usluga}
+                      </Typography>
                     </Box>
                   </Box>
 
-                  {/* Title */}
-                  <Typography
-                    sx={{
-                      fontSize: 22,
-                      fontWeight: 800,
-                      letterSpacing: -0.2,
-                      color: "text.primary",
-                      lineHeight: 1.15,
-                    }}
-                  >
-                    {m.typ} {m.usluga}
-                  </Typography>
-
-                  <Box sx={{ height: 1, bgcolor: "#EEF2F7" }} />
-
-                  {/* Details */}
+                  {/* Szczegóły */}
                   <Box sx={{ display: "flex", flexDirection: "column", gap: 1.25 }}>
                     <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 2 }}>
                       <Box sx={{ display: "flex", alignItems: "center", gap: 1.25, minWidth: 0 }}>
-                        <EventIcon sx={{ fontSize: 18, color: "#6B7280" }} />
-                        <Typography sx={{ fontSize: 16, fontWeight: 500, color: "text.primary" }} noWrap>
+                        <EventIcon sx={{ fontSize: 17, color: "#374151" }} />
+                        <Typography sx={{ fontSize: 16, fontWeight: 600, color: "#374151" }} noWrap>
                           {dateLabel}
                         </Typography>
                       </Box>
@@ -703,8 +681,8 @@ export default function VisitHistoryMobile({
 
                     {m.lekarz.length > 0 && (
                       <Box sx={{ display: "flex", alignItems: "center", gap: 1.25 }}>
-                        <PersonIcon sx={{ fontSize: 18, color: "#6B7280" }} />
-                        <Typography sx={{ fontSize: 18, fontWeight: 500, color: "#6B7280" }} noWrap>
+                        <PersonIcon sx={{ fontSize: 16, color: "#6B7280" }} />
+                        <Typography sx={{ fontSize: 15, fontWeight: 400, color: "#6B7280" }} noWrap>
                           {m.lekarz.join(", ")}
                         </Typography>
                       </Box>
@@ -712,8 +690,8 @@ export default function VisitHistoryMobile({
 
                     {m.formaWizity === "w placówce" && m.placowka ? (
                       <Box sx={{ display: "flex", alignItems: "center", gap: 1.25 }}>
-                        <PlaceIcon sx={{ fontSize: 18, color: "#6B7280" }} />
-                        <Typography sx={{ fontSize: 18, fontWeight: 500, color: "#6B7280" }} noWrap>
+                        <PlaceIcon sx={{ fontSize: 16, color: "#6B7280" }} />
+                        <Typography sx={{ fontSize: 15, fontWeight: 400, color: "#6B7280" }} noWrap>
                           {m.placowka}
                         </Typography>
                       </Box>
@@ -874,26 +852,25 @@ export default function VisitHistoryMobile({
               Typ
             </Typography>
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-              {TYP_OPTIONS.map((t) => {
-                const active = draftTypy.includes(t);
+              {TYP_FILTER_OPTIONS.map(({ label, value }) => {
+                const active = draftTypy.includes(value);
                 const TypIcon =
-                  t === "Konsultacja"
+                  value === "Konsultacja"
                     ? ChatBubbleOutlineIcon
-                    : t === "Laboratoryjne"
+                    : value === "Badania laboratoryjne"
                       ? BiotechIcon
                       : ScienceIcon;
 
                 return (
                   <Chip
-                    key={t}
+                    key={value}
                     icon={
-                      t === "Badanie" ? (
+                      value === "Badanie" ? (
                         <Box
                           component="img"
                           src={IconUsg}
                           alt=""
                           sx={{
-                            // width: "22px !important",
                             height: "22px !important",
                             objectFit: "contain",
                             display: "block",
@@ -903,8 +880,8 @@ export default function VisitHistoryMobile({
                         <TypIcon sx={{ fontSize: "18px !important" }} />
                       )
                     }
-                    label={t}
-                    onClick={() => toggleDraftTyp(t)}
+                    label={label}
+                    onClick={() => toggleDraftTyp(value)}
                     sx={filterTypChipSx(active)}
                   />
                 );
@@ -918,8 +895,9 @@ export default function VisitHistoryMobile({
               Specjalista / Usługa
             </Typography>
             <Box sx={{ display: "flex", flexDirection: "column", gap: 1.25 }}>
-              {SPECJALISTA_OPTIONS.map(({ label, Icon }) => {
+              {availableUslugi.map((label) => {
                 const active = draftSpecjalista === label;
+                const Icon = USLUGA_ICONS[label] ?? MedicalServicesIcon;
                 return (
                   <Box
                     key={label}
@@ -1119,7 +1097,7 @@ export default function VisitHistoryMobile({
                 fontWeight: 700,
               }}
             >
-              {draftActive}
+              {draftCount}
          
             </Box>
           </Button>

@@ -1,61 +1,56 @@
+import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
-import PublicIcon from '@mui/icons-material/Public';
-import NightsStayIcon from '@mui/icons-material/NightsStay';
-import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
-import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
-import SatelliteAltIcon from '@mui/icons-material/SatelliteAlt';
 import Tooltip from '@mui/material/Tooltip';
 import type { Typ } from '../types/mission';
+import { TYPE_META, TypeIcon } from './TypeIcon';
+
+const BADGE_ICON_SLOT = 20;
 
 interface TypeBadgeProps {
   type: Typ;
 }
 
-const typeConfig: Record<
-  Typ,
-  {
-    icon: React.ReactElement;
-    color: string;
-    bgColor: string;
-    borderColor: string;
-  }
-> = {
-  Badanie: {
-    icon: <PublicIcon fontSize="small" />,
-    color: '#162D4D',
-    bgColor: 'rgba(22, 45, 77, 0.12)',
-    borderColor: 'rgba(22, 45, 77, 0.28)',
-  },
-  Konsultacja: {
-    icon: <NightsStayIcon fontSize="small" />,
-    color: '#A78BFA',
-    bgColor: 'rgba(167, 139, 250, 0.12)',
-    borderColor: 'rgba(167, 139, 250, 0.28)',
-  },
-  'Badania laboratoryjne': {
-    icon: <RocketLaunchIcon fontSize="small" />,
-    color: '#8B5CF6',
-    bgColor: 'rgba(139, 92, 246, 0.12)',
-    borderColor: 'rgba(139, 92, 246, 0.28)',
-  },
-};
-
 export const TypeBadge = ({ type }: TypeBadgeProps) => {
-  const config = typeConfig[type];
+  const config = TYPE_META[type] ?? TYPE_META.Konsultacja;
+
   return (
-    <Tooltip title={'Mission Type'} sx={{ color: 'rgba(0, 0, 0, 0.87)' }}>
+    <Tooltip title="Typ wizyty">
       <Chip
-        icon={config?.icon}
-        label={type}
+        label={
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+            <Box
+              sx={{
+                width: BADGE_ICON_SLOT,
+                height: BADGE_ICON_SLOT,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+                overflow: 'hidden',
+              }}
+            >
+              <TypeIcon
+                typ={type}
+                size={BADGE_ICON_SLOT}
+                imageScale={config.imageSrc ? 1.45 : undefined}
+              />
+            </Box>
+            <span>{type}</span>
+          </Box>
+        }
         size="small"
         sx={{
           fontSize: '0.75rem',
           fontWeight: 500,
-          color: config?.color,
-          backgroundColor: config?.bgColor,
-          border: `1px solid ${config?.borderColor}`,
-          '& .MuiChip-icon': {
-            color: 'inherit',
+          color: config.color,
+          backgroundColor: config.bg,
+          border: `1px solid ${config.color}33`,
+          height: 'auto',
+          px: 1.25,
+          py: 0.5,
+          '& .MuiChip-label': {
+            px: 0,
+            py: 0,
           },
         }}
       />

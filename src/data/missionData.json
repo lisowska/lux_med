@@ -10,7 +10,9 @@
       "lekarz": ["Lek. Med. Grażyna Korolczuk"],
       "launchDate": "12-04-2026",
       "cost": 5,
-       "placowka": "LX Warszawa - Park Postępu 21C"
+      "placowka": "LX Warszawa - Park Postępu 21C",
+      "zalecenia": "Wyniki badań będą dostępne w ciągu 3 dni roboczych w Portalu Pacjenta.",
+      "zrealizowaneUslugi": ["Pobranie krwi – pakiet podstawowy"]
     },
     {
       "id": "apollo-11",
@@ -21,19 +23,23 @@
       "typ": "Konsultacja",
       "lekarz": ["Lek. Med. Anna Borkowska"],
       "launchDate": "16-02-2026",
-      "cost": 355
+      "cost": 355,
+      "zalecenia": "Utrzymywać nawodnienie, kontrolować temperaturę 2 razy dziennie.",
+      "zrealizowaneUslugi": ["Konsultacja pediatryczna"]
     },
     {
       "id": "apollo-13",
       "year": 1970,
-      "formaWizity":"w placówce",
+      "formaWizity": "w placówce",
       "status": "Odbyta",
       "usluga": "Usg",
       "typ": "Badanie",
       "lekarz": ["dr hab.n.med Rafał Słapa"],
       "launchDate": "11-03-2026",
       "cost": 375,
-      "placowka": "LX Warszawa - Park Postępu 21C"
+      "placowka": "LX Warszawa - Park Postępu 21C",
+      "zalecenia": "Brak szczególnych zaleceń po badaniu. Wynik USG w ciągu 7 dni.",
+      "zrealizowaneUslugi": ["USG jamy brzusznej"]
     },
     {
       "id": "viking-1",
@@ -56,7 +62,28 @@
       "lekarz": ["Lek. Med. Anna Kot"],
       "launchDate": "01-02-2026",
       "cost": 935,
-       "placowka": "LX Warszawa - Park Postępu 21C"
+      "placowka": "LX Warszawa - Park Postępu 21C",
+      "zalecenia": "Stosować krople nawilżające 2 razy dziennie przez 14 dni.",
+      "zrealizowaneUslugi": ["Badanie lekarskie okulistyczne"],
+      "skierowania": [
+        {
+          "specjalista": "Okulista",
+          "rodzaj": "Wizyta kontrolna",
+          "status": "Aktywne"
+        }
+      ]
+    },
+    {
+      "id": "viking-2-planned",
+      "year": 1975,
+      "formaWizity": "w placówce",
+      "status": "Planowana",
+      "usluga": "Okulista",
+      "typ": "Konsultacja",
+      "lekarz": ["Lek. Med. Anna Kot"],
+      "launchDate": "06-07-2026",
+      "cost": 935,
+      "placowka": "LX Warszawa - Park Postępu 21C"
     },
     {
       "id": "viking-3",
@@ -68,7 +95,8 @@
       "lekarz": ["Lek. Med. Anna Kot"],
       "launchDate": "15-04-2026",
       "cost": 935,
-      "placowka": "LX Warszawa - Park Postępu 21C"
+      "placowka": "LX Warszawa - Park Postępu 21C",
+      "zrealizowaneUslugi": ["Konsultacja okulistyczna"]
     },
     {
       "id": "viking-4",
@@ -79,7 +107,8 @@
       "typ": "Konsultacja",
       "lekarz": ["Lek. Med. Anna Kot"],
       "launchDate": "20-02-2026",
-      "cost": 935
+      "cost": 935,
+      "zrealizowaneUslugi": ["Telekonsultacja okulistyczna"]
     },
     {
       "id": "viking-5",
@@ -101,7 +130,16 @@
       "typ": "Konsultacja",
       "lekarz": ["Lek. Med. Janina Kot"],
       "launchDate": "26-04-2026",
-      "cost": 935
+      "cost": 935,
+      "zalecenia": "Unikać przebywania w zapylonym środowisku. Nawilżać powietrze w pomieszczeniu.",
+      "zrealizowaneUslugi": ["Konsultacja laryngologiczna"],
+      "skierowania": [
+        {
+          "specjalista": "Laryngolog",
+          "rodzaj": "Tomografia zatok",
+          "status": "Aktywne"
+        }
+      ]
     },
     {
       "id": "viking-7",
@@ -113,10 +151,12 @@
       "lekarz": ["Lek. Med.Anna Tuz"],
       "launchDate": "23-02-2026",
       "cost": 935,
-      "placowka": "LX Warszawa - Park Postępu 21C"
+      "placowka": "LX Warszawa - Park Postępu 21C",
+      "zalecenia": "Stosować krem nawilżający rano i wieczorem. Unikać ekspozycji na słońce.",
+      "zrealizowaneUslugi": ["Konsultacja dermatologiczna"]
     },
     {
-      "id": "viking-7",
+      "id": "viking-7-planned",
       "year": 1975,
       "formaWizity": "telefoniczna",
       "status": "Planowana",
@@ -128,7 +168,7 @@
       "placowka": "LX Warszawa - Park Postępu 21C"
     },
     {
-      "id": "viking-7",
+      "id": "viking-8",
       "year": 1975,
       "formaWizity": "telefoniczna",
       "status": "Odbyta",
@@ -137,7 +177,16 @@
       "lekarz": ["Lek. Med.Anna Furtak"],
       "launchDate": "23-02-2026",
       "cost": 935,
-      "placowka": "LX Stomatologia Warszawa - Domaniewska 39B"
+      "placowka": "LX Stomatologia Warszawa - Domaniewska 39B",
+      "zalecenia": "Zalecono wizytę kontrolną za 6 miesięcy.",
+      "zrealizowaneUslugi": ["Badanie lekarskie stomatologiczne"],
+      "skierowania": [
+        {
+          "specjalista": "Stomatolog",
+          "rodzaj": "Wizyta kontrolna",
+          "status": "Przeterminowane"
+        }
+      ]
     }
   ]
 }

@@ -100,8 +100,9 @@ const AppointmentsTable: React.FC<AppointmentsTableProps> = ({
                   fontWeight: 600,
                   color: '#475569',
                   fontSize: '0.8125rem',
+                  borderTop: '1px solid',
                   borderBottom: '1px solid',
-                  borderColor: 'divider',
+                  borderColor: '#E2E8F0',
                   py: 2,
                 },
               }}
@@ -239,9 +240,10 @@ const AppointmentsTable: React.FC<AppointmentsTableProps> = ({
         onRowsPerPageChange={onRowsPerPageChange}
         rowsPerPageOptions={[5, 10, 25]}
         labelRowsPerPage="Wierszy na strone"
-        labelDisplayedRows={({ from, to, count }) =>
-          `${from}-${to} z ${count !== -1 ? count : `wiecej niz ${to}`}`
-        }
+        labelDisplayedRows={({ count }) => {
+          const totalPages = Math.max(1, Math.ceil(count / rowsPerPage));
+          return `${page + 1} z ${totalPages}`;
+        }}
         sx={{
           borderTop: '1px solid',
           borderColor: 'divider',

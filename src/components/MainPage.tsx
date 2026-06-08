@@ -28,7 +28,7 @@ const MainPage: React.FC = () => {
 
   // Pagination state
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
 
   const missions: Mission[] = missionData.missions as Mission[];
 
@@ -52,6 +52,11 @@ const MainPage: React.FC = () => {
     const [day, month, year] = dateStr.split('-');
     return new Date(Number(year), Number(month) - 1, Number(day));
   };
+
+  const tabTotalCount = useMemo(() => {
+    const statusFilter = serviceTab === 'zaplanowane' ? 'Planowana' : 'Odbyta';
+    return missions.filter((m) => m.status === statusFilter).length;
+  }, [missions, serviceTab]);
 
   const filteredMissions = useMemo(() => {
     // Determine status filter based on service tab
@@ -260,7 +265,7 @@ const MainPage: React.FC = () => {
               setPage(0);
             }}
             resultCount={filteredMissions.length}
-            totalCount={missions.length}
+            totalCount={tabTotalCount}
             onClearAll={handleClearAll}
             availableDoctors={availableDoctors}
           />

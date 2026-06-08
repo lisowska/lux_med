@@ -1,14 +1,25 @@
+export type SkierowanieStatus = 'Aktywne' | 'Przeterminowane' | 'Zrealizowane';
+
+export interface Skierowanie {
+  specjalista: string;
+  rodzaj: string;
+  status: SkierowanieStatus;
+}
+
 export interface Mission {
   id: string;
   year: number;
   formaWizity: 'telefoniczna' | 'online' | 'w placówce';
   status: 'Odbyta' | 'Planowana' | 'Anulowana';
-  usluga: 'Ginekolog' | 'Pediatra' | 'Usg' | 'Dietetyk' | 'Okulista'|'Laryngolog'|'Dermatolog';
+  usluga: string;
   typ: 'Badanie' | 'Konsultacja' | 'Badania laboratoryjne';
   lekarz: string[];
   launchDate: string; //ISO date
   cost?: number;
-  placowka?:string;
+  placowka?: string;
+  zalecenia?: string;
+  zrealizowaneUslugi?: string[];
+  skierowania?: Skierowanie[];
 }
 
 export type FormaWizity = 'telefoniczna' | 'online' | 'Wplacówce';

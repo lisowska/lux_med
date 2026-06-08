@@ -1,6 +1,7 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import { ThemeProvider, createTheme, CssBaseline, Box } from '@mui/material';
+import { CssBaseline, Box } from '@mui/material';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
 import MainPage from './components/MainPage';
 import LuxMedNavbar, { MOBILE_BOTTOM_NAV_HEIGHT } from './components/NavBar';
 import AppointmentsSection from './components/ AppointmentsSection';

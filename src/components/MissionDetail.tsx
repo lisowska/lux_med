@@ -4,21 +4,19 @@ import {
   DialogContent,
   IconButton,
   Typography,
-  Chip,
-  Stack,
   Box,
-  Grid,
+  Stack,
+  Divider,
+  Link,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
-import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
-import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
-import PeopleAltOutlinedIcon from '@mui/icons-material/PeopleAltOutlined';
-import PeopleIcon from '@mui/icons-material/People';
-import { Mission } from '../types/mission';
-import { StatusBadge } from './StatusBadge';
-import { TypeBadge } from './TypeBadge';
-import cover from '../assets/space.png';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import { Mission, SkierowanieStatus } from '../types/mission';
+
+const BRAND_BLUE = '#005aa9';
 
 interface MissionDetailProps {
   mission: Mission | null;
@@ -27,200 +25,276 @@ interface MissionDetailProps {
   onBack?: () => void;
 }
 
-const MissionDetail: React.FC<MissionDetailProps> = ({
-  mission,
-  open,
-  onClose,
-}) => {
+const formaMeta: Record<Mission['formaWizity'], { label: string; color: string }> = {
+  telefoniczna: { label: 'Telemedycyna', color: '#01847d' },
+  online: { label: 'Online', color: '#005aa9' },
+  'w placówce': { label: 'Wizyta w placówce', color: '#ad029c' },
+};
+
+const statusTitle: Record<Mission['status'], string> = {
+  Odbyta: 'Zrealizowana usługa',
+  Planowana: 'Zaplanowana wizyta',
+  Anulowana: 'Anulowana wizyta',
+};
+
+const formatDateShort = (dateStr: string): string => {
+  const [day, month, year] = dateStr.split('-');
+  return `${day}.${month}.${year}`;
+};
+
+const skierowanieStatusMeta: Record<
+  SkierowanieStatus,
+  { label: string; color: string; Icon: typeof CheckCircleOutlineIcon }
+> = {
+  Aktywne: { label: 'Aktywne', color: '#16A34A', Icon: CheckCircleOutlineIcon },
+  Przeterminowane: { label: 'Przeterminowane', color: '#DC2626', Icon: CancelOutlinedIcon },
+  Zrealizowane: { label: 'Zrealizowane', color: '#16A34A', Icon: CheckCircleOutlineIcon },
+};
+
+const SectionCard = ({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) => (
+  <Box
+    sx={{
+      bgcolor: '#fff',
+      borderRadius: 3,
+      boxShadow: '0 2px 12px rgba(15, 28, 46, 0.06)',
+      border: '1px solid #F1F5F9',
+      p: 2.5,
+    }}
+  >
+    <Typography sx={{ fontWeight: 700, fontSize: 17, color: 'text.primary', mb: 1.5 }}>
+      {title}
+    </Typography>
+    {children}
+  </Box>
+);
+
+const MissionDetail: React.FC<MissionDetailProps> = ({ mission, open, onClose }) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
   if (!mission) return null;
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
-    });
-  };
+  const forma = formaMeta[mission.formaWizity];
+  const pageTitle = statusTitle[mission.status];
+  const zrealizowane =
+    mission.zrealizowaneUslugi ?? (mission.status === 'Odbyta' ? [`${mission.typ} ${mission.usluga}`] : []);
 
   return (
     <Dialog
       open={open}
       onClose={onClose}
-      maxWidth="md"
+      fullScreen={isMobile}
+      maxWidth="sm"
       fullWidth
       aria-labelledby="mission-dialog-title"
-      aria-describedby="mission-dialog-description"
       PaperProps={{
         sx: {
-          borderRadius: 2,
-          maxHeight: '90vh',
-          maxWidth: '32rem',
+          bgcolor: '#F5F7FA',
+          borderRadius: isMobile ? 0 : 3,
+          maxHeight: isMobile ? '100%' : '90vh',
+          overflow: 'hidden',
         },
       }}
     >
       <Box
         sx={{
-          position: 'relative',
-          height: { xs: '120px', sm: '150px' },
-          background: 'linear-gradient(135deg, #1976d2 0%, #1565c0 100%)',
-          backgroundImage: `url(${cover})`,
-          backgroundSize: 'cover',
-          backgroundRepeat: 'no-repeat',
-          display: 'flex',
-          alignItems: 'flex-end',
-          justifyContent: 'space-between',
-          p: 2,
+          display: 'grid',
+          gridTemplateColumns: '48px 1fr 48px',
+          alignItems: 'center',
+          px: 1,
+          py: 1.5,
+          bgcolor: '#F5F7FA',
         }}
       >
-        <Stack
-          direction="row"
-          spacing={1}
-          sx={{ position: 'absolute', top: 16, right: 16 }}
+        <IconButton
+          onClick={onClose}
+          aria-label="Wróć"
+          sx={{
+            bgcolor: '#fff',
+            boxShadow: '0 2px 8px rgba(15, 28, 46, 0.08)',
+            width: 40,
+            height: 40,
+          }}
         >
-          <IconButton
-            onClick={onClose}
-            sx={{ color: 'white' }}
-            aria-label="Close mission details"
-          >
-            <CloseIcon />
-          </IconButton>
-        </Stack>
+          <ChevronLeftIcon />
+        </IconButton>
+        <Typography
+          id="mission-dialog-title"
+          sx={{
+            fontWeight: 700,
+            fontSize: 17,
+            color: 'text.primary',
+            textAlign: 'center',
+            px: 1,
+          }}
+        >
+          {pageTitle}
+        </Typography>
+        <Box />
       </Box>
 
-      <DialogContent sx={{ padding: { xs: '25px 20px', sm: '40px 20px' } }}>
-        <Stack
-          direction="row"
-          spacing={1}
+      <DialogContent
+        sx={{
+          px: 2,
+          py: 2,
+          bgcolor: '#F5F7FA',
+        }}
+      >
+        <Box
           sx={{
-            mb: {
-              xs: 2,
-              mb: 3,
-            },
+            bgcolor: '#fff',
+            borderRadius: 3,
+            boxShadow: '0 2px 12px rgba(15, 28, 46, 0.06)',
+            border: '1px solid #F1F5F9',
+            overflow: 'hidden',
           }}
         >
-          <StatusBadge status={mission.status} />
-          <TypeBadge type={mission.usluga} />
-        </Stack>
-        <Box
-          sx={{ border: '1px solid', borderColor: 'divider', mb: '15px' }}
-        ></Box>
+          <Box sx={{ px: 2.5, py: 2 }}>
+            <Typography sx={{ fontSize: 18, fontWeight: 700, color: 'text.primary' }}>
+              {formatDateShort(mission.launchDate)}
+            </Typography>
+          </Box>
 
-        <Grid
-          container
-          spacing={2}
-          sx={{
-            pb: { xs: '0.5rem', sm: '1rem' },
-            pt: { xs: '0.5rem', sm: '1rem' },
-            ml: { xs: 0 },
-          }}
-        >
-          <Grid xs={3} sm={3} textAlign="center">
-            <IconButton
+          <Divider sx={{ borderColor: '#E2E8F0' }} />
+
+          <Box sx={{ px: 2.5, py: 2 }}>
+            <Typography sx={{ fontSize: 14, fontWeight: 600, color: forma.color, mb: 0.75 }}>
+              {forma.label}
+            </Typography>
+            <Typography
               sx={{
-                backgroundColor: '#0073e61a',
-                borderRadius: '50%',
-                width: 40,
-                height: 40,
-                padding: 0,
+                fontSize: 26,
+                fontWeight: 800,
+                letterSpacing: -0.3,
+                color: 'text.primary',
+                lineHeight: 1.15,
                 mb: 1,
               }}
-              aria-hidden="true"
             >
-              <CalendarTodayIcon
-                sx={{ fontSize: '1.2rem', color: 'primary.main' }}
-                aria-hidden="true"
-              />
-            </IconButton>
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              sx={{ fontSize: '0.625rem' }}
-            >
-              DATA WIZITY
+              {mission.usluga}
             </Typography>
-            <Typography
-              variant="body2"
-              fontWeight={600}
-              color="text.primary"
-              sx={{ fontSize: '0.75rem' }}
-            >
-              {formatDate(mission.launchDate)}
-            </Typography>
-          </Grid>
-          <Grid xs={3} sm={3} textAlign="center">
-            <IconButton
-              sx={{
-                backgroundColor: '#0073e61a',
-                borderRadius: '50%',
-                width: 40,
-                height: 40,
-                padding: 0,
-                mb: 1,
-              }}
-              aria-hidden="true"
-            >
-              <RocketLaunchIcon
-                sx={{ fontSize: '1.2rem', color: 'primary.main' }}
-                aria-hidden="true"
-              />
-            </IconButton>
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              sx={{ fontSize: '0.625rem' }}
-            >
-              forma Wizity
-            </Typography>
-            <Typography
-              variant="body1"
-              fontWeight={600}
-              sx={{ fontSize: '0.75rem' }}
-            >
-              {mission.formaWizity}
-            </Typography>
-          </Grid>
-        </Grid>
-        <Box
-          sx={{ border: '1px solid', borderColor: 'divider', mb: '15px' }}
-        ></Box>
-
-        {mission.lekarz.length > 0 && (
-          <Box sx={{ mt: 3 }}>
-            <Box
-              sx={{
-                marginBottom: '8px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 1,
-              }}
-            >
-              <PeopleAltOutlinedIcon
-                sx={{ fontSize: '1.2rem', color: 'primary.main' }}
-                aria-hidden="true"
-              />
-
-              <Typography variant="h6" sx={{ fontSize: '0.875rem' }}>
-                Lekarz
+            {mission.lekarz.length > 0 && (
+              <Typography sx={{ fontSize: 15, fontWeight: 500, color: 'text.primary' }}>
+                {mission.lekarz.join(', ')}
               </Typography>
-            </Box>
-            <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-              {mission.lekarz.map((member) => (
-                <Chip
-                  key={member}
-                  label={member}
-                  size="small"
+            )}
+          </Box>
+
+          {mission.placowka && (
+            <>
+              <Divider sx={{ borderColor: '#E2E8F0' }} />
+              <Box sx={{ px: 2.5, py: 2 }}>
+                <Typography sx={{ fontSize: 15, fontWeight: 500, color: 'text.primary', lineHeight: 1.45 }}>
+                  {mission.placowka}
+                </Typography>
+                <Link
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mission.placowka)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  underline="none"
                   sx={{
-                    backgroundColor: '#0073e61a',
-                    color: 'primary.main',
-                    fontSize: '.875rem',
-                    lineHeight: '1.25rem',
-                    border: '1px solid',
-                    borderColor: '#3399FF33',
+                    display: 'inline-block',
+                    mt: 1.25,
+                    fontSize: 15,
+                    fontWeight: 600,
+                    color: BRAND_BLUE,
+                    '&:hover': { color: '#004078' },
                   }}
-                />
-              ))}
-            </Stack>
+                >
+                  Zobacz na mapie
+                </Link>
+              </Box>
+            </>
+          )}
+        </Box>
+
+        {mission.zalecenia && (
+          <Box sx={{ mt: 2 }}>
+            <SectionCard title="Zalecenia">
+              <Typography sx={{ fontSize: 15, color: 'text.primary', lineHeight: 1.5 }}>
+                {mission.zalecenia}
+              </Typography>
+            </SectionCard>
+          </Box>
+        )}
+
+        {zrealizowane.length > 0 && (
+          <Box sx={{ mt: 2 }}>
+            <SectionCard title="Zrealizowane usługi">
+              <Stack spacing={1.5}>
+                {zrealizowane.map((usluga, index) => (
+                  <Box key={usluga} sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.25 }}>
+                    <Box
+                      sx={{
+                        width: 24,
+                        height: 24,
+                        borderRadius: '50%',
+                        border: '1.5px solid #CBD5E1',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: 13,
+                        fontWeight: 600,
+                        color: '#64748B',
+                        flexShrink: 0,
+                      }}
+                    >
+                      {index + 1}
+                    </Box>
+                    <Typography sx={{ fontSize: 15, color: 'text.primary', pt: 0.25 }}>
+                      {usluga}
+                    </Typography>
+                  </Box>
+                ))}
+              </Stack>
+            </SectionCard>
+          </Box>
+        )}
+
+        {mission.skierowania && mission.skierowania.length > 0 && (
+          <Box sx={{ mt: 2 }}>
+            <SectionCard title="Skierowania">
+              <Stack spacing={2}>
+                {mission.skierowania.map((skierowanie) => {
+                  const statusMeta = skierowanieStatusMeta[skierowanie.status];
+                  const StatusIcon = statusMeta.Icon;
+                  return (
+                    <Box key={`${skierowanie.specjalista}-${skierowanie.rodzaj}`}>
+                      <Typography sx={{ fontSize: 16, fontWeight: 700, color: 'text.primary', mb: 1 }}>
+                        {skierowanie.specjalista}
+                      </Typography>
+                      <Box
+                        sx={{
+                          display: 'inline-flex',
+                          px: 1.25,
+                          py: 0.5,
+                          borderRadius: 999,
+                          bgcolor: '#E8F4FD',
+                          color: BRAND_BLUE,
+                          fontSize: 14,
+                          fontWeight: 600,
+                          mb: 1,
+                        }}
+                      >
+                        {skierowanie.rodzaj}
+                      </Box>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+                        <StatusIcon sx={{ fontSize: 18, color: statusMeta.color }} />
+                        <Typography sx={{ fontSize: 15, fontWeight: 600, color: statusMeta.color }}>
+                          {statusMeta.label}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  );
+                })}
+              </Stack>
+            </SectionCard>
           </Box>
         )}
       </DialogContent>

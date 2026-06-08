@@ -318,7 +318,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
               <Box component="span" sx={{ color: '#004078', fontWeight: 600 }}>
                 {resultCount}
               </Box>{' '}
-              z {totalCount} wpisow
+              z {totalCount} wizyt
             </Typography>
           </Stack>
 
