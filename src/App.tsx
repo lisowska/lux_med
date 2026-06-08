@@ -23,7 +23,7 @@ declare module '@mui/material/styles' {
       Dietetyk: string;
       Okulista: string;
       Laryngolog: string;
-      Dermatolog:string
+      Dermatolog: string;
     };
     gradients: {
       header: string;
@@ -39,9 +39,8 @@ declare module '@mui/material/styles' {
       Usg?: string;
       Dietetyk?: string;
       Okulista?: string;
-      Laryngolog: string;
-      Dermatolog:string
-    
+      Laryngolog?: string;
+      Dermatolog?: string;
     };
     gradients?: {
       header?: string;
@@ -112,7 +111,8 @@ const theme = createTheme({
       Usg: '#F97316', // Orange
       Dietetyk: '#8B5CF6', // Violet
       Okulista: '#06B6D4', // Cyan
-      // satellite: '#10B981', // Emerald
+      Laryngolog: '#10B981', // Emerald
+      Dermatolog: '#EC4899', // Pink
     },
     // === GRADIENTS (custom) ===
     gradients: {
