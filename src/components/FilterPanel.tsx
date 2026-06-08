@@ -21,6 +21,7 @@ import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import CheckIcon from '@mui/icons-material/Check';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import CloseIcon from '@mui/icons-material/Close';
+import { focusVisibleRing } from '../styles/focus';
 import type { Mission } from '../types/mission';
 import { statusColor } from './styleUtils';
 
@@ -111,10 +112,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
       color: '#004078',
       boxShadow: 'none',
     },
-    '&:focus, &:focus-visible': {
-      boxShadow: 'none',
-      outline: 'none',
-    },
+    ...focusVisibleRing,
     '&:active': {
       borderColor: '#004078',
       bgcolor: '#DFEFFF',
@@ -172,7 +170,6 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
     '& .MuiInputLabel-root.Mui-focused': {
       color: '#004078',
     },
-    '&:focus, &:focus-visible': { boxShadow: 'none', outline: 'none' },
   });
 
   const handleAgencyToggle = (agency: string) => {
@@ -335,6 +332,9 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
             <Button
               id="forma-filter-button"
               variant="outlined"
+              aria-haspopup="menu"
+              aria-expanded={Boolean(formaAnchor)}
+              aria-controls="forma-filter-menu"
               endIcon={
                 <ArrowDropDownIcon
                   sx={{
@@ -377,6 +377,9 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
             <Button
               id="type-filter-button"
               variant="outlined"
+              aria-haspopup="menu"
+              aria-expanded={Boolean(typeAnchor)}
+              aria-controls="type-filter-menu"
               endIcon={
                 <ArrowDropDownIcon
                   sx={{
@@ -407,6 +410,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
                 <TextField
                   {...params}
                   placeholder="Lekarz"
+                  aria-label="Filtruj według lekarza"
                   InputProps={{
                     ...params.InputProps,
                     startAdornment: (
@@ -597,6 +601,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
 
           {/* Dropdown Menus */}
           <Menu
+            id="forma-filter-menu"
             anchorEl={formaAnchor}
             open={Boolean(formaAnchor)}
             onClose={() => setFormaAnchor(null)}
@@ -671,6 +676,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
           </Menu>
 
           <Menu
+            id="type-filter-menu"
             anchorEl={typeAnchor}
             open={Boolean(typeAnchor)}
             onClose={() => setTypeAnchor(null)}

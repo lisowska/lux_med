@@ -14,7 +14,7 @@ export const TypeBadge = ({ type }: TypeBadgeProps) => {
   const config = TYPE_META[type] ?? TYPE_META.Konsultacja;
 
   return (
-    <Tooltip title="Typ wizyty">
+    <Tooltip title={`Typ wizyty: ${type}`}>
       <Chip
         label={
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>

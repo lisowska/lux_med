@@ -41,23 +41,23 @@ const formaConfig: Record<
 > = {
   telefoniczna: {
     label: 'Telemedycyna',
-    color: '#01847d',
+    color: '#016B65',
     bg: 'rgba(1, 132, 125, 0.12)',
-    border: 'rgba(1, 132, 125, 0.35)',
+    border: 'rgba(1, 107, 101, 0.35)',
     Icon: PhoneIcon,
   },
   online: {
     label: 'Online',
-    color: '#005aa9',
+    color: '#004078',
     bg: 'rgba(0, 90, 169, 0.12)',
-    border: 'rgba(0, 90, 169, 0.35)',
+    border: 'rgba(0, 64, 120, 0.35)',
     Icon: ComputerIcon,
   },
   'w placówce': {
     label: 'Wizyta w placówce',
-    color: '#ad029c',
+    color: '#8B0278',
     bg: 'rgba(173, 2, 156, 0.10)',
-    border: 'rgba(173, 2, 156, 0.35)',
+    border: 'rgba(139, 2, 120, 0.35)',
     Icon: PlaceIcon,
   },
 };
@@ -107,30 +107,41 @@ const AppointmentsTable: React.FC<AppointmentsTableProps> = ({
                 },
               }}
             >
-              <TableCell>Usluga</TableCell>
-              <TableCell>Data</TableCell>
-              <TableCell>Lekarz</TableCell>
-              <TableCell>Typ</TableCell>
-              <TableCell>Forma wizyty</TableCell>
+              <TableCell scope="col">Usluga</TableCell>
+              <TableCell scope="col">Data</TableCell>
+              <TableCell scope="col">Lekarz</TableCell>
+              <TableCell scope="col">Typ</TableCell>
+              <TableCell scope="col">Forma wizyty</TableCell>
               {/* <TableCell>Status</TableCell> */}
-              <TableCell align="right">Akcje</TableCell>
+              <TableCell scope="col" align="right">Akcje</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {paginatedAppointments.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} align="center" sx={{ py: 6 }}>
+                <TableCell colSpan={6} align="center" sx={{ py: 6 }}>
                   <Typography variant="body2" color="text.secondary">
                     Brak wynikow dla wybranych filtrow
                   </Typography>
                 </TableCell>
               </TableRow>
             ) : (
-              paginatedAppointments.map((appointment, index) => (
+              paginatedAppointments.map((appointment, index) => {
+                const rowLabel = `${appointment.usluga}, ${formatDate(appointment.launchDate)}, ${appointment.lekarz.join(', ') || 'brak lekarza'}`;
+                return (
                 <TableRow
                   key={`${appointment.id}-${index}`}
                   hover
+                  tabIndex={0}
+                  role="button"
+                  aria-label={`Otwórz szczegóły wizyty: ${rowLabel}`}
                   onClick={() => onRowClick(appointment)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      onRowClick(appointment);
+                    }
+                  }}
                   sx={{
                     cursor: 'pointer',
                     '&:last-child td, &:last-child th': { border: 0 },
@@ -139,6 +150,12 @@ const AppointmentsTable: React.FC<AppointmentsTableProps> = ({
                       fontSize: '0.875rem',
                     },
                     '&:hover': {
+                      backgroundColor: '#F8FAFC',
+                    },
+                    '&:focus': { outline: 'none' },
+                    '&:focus-visible': {
+                      outline: '2px solid #005AA9',
+                      outlineOffset: -2,
                       backgroundColor: '#F8FAFC',
                     },
                   }}
@@ -215,7 +232,7 @@ const AppointmentsTable: React.FC<AppointmentsTableProps> = ({
                       }}
                       aria-label="Zobacz szczegoly"
                       sx={{
-                        color: '#94A3B8',
+                        color: '#64748B',
                         '&:hover': {
                           color: '#1E293B',
                           backgroundColor: '#F1F5F9',
@@ -226,7 +243,8 @@ const AppointmentsTable: React.FC<AppointmentsTableProps> = ({
                     </IconButton>
                   </TableCell>
                 </TableRow>
-              ))
+              );
+              })
             )}
           </TableBody>
         </Table>

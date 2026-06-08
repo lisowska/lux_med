@@ -38,6 +38,7 @@ import ServiceToggle, { ServiceTab } from "./ServiceToggle";
 import IconUsg from "../assets/usg.png";
 import PeopleIcon from '@mui/icons-material/People';
 import { TYPE_META, TypeIcon } from "./TypeIcon";
+import { focusVisibleRing, focusVisibleRingOnDark } from "../styles/focus";
 
 // Brand blue color
 const BRAND_BLUE = "#005aa9";
@@ -80,20 +81,20 @@ const filterTypChipSx = (active: boolean) => ({
   height: 40,
   borderRadius: 999,
   bgcolor: active ? FILTER_BLUE_LIGHT : "#fff",
-  color: active ? BRAND_BLUE : "#6B7280",
+  color: active ? BRAND_BLUE_DARK : "#4B5563",
   fontWeight: 600,
   fontSize: 14,
   border: `1.5px solid ${active ? BRAND_BLUE : FILTER_GREY_BORDER}`,
   "& .MuiChip-label": { px: 1.5 },
   "& .MuiChip-icon": {
-    color: `${active ? BRAND_BLUE : "#9CA3AF"} !important`,
+    color: `${active ? BRAND_BLUE_DARK : "#6B7280"} !important`,
   },
   "&&.MuiChip-clickable:hover, &&.MuiChip-clickable.Mui-focusVisible": {
     bgcolor: active ? FILTER_BLUE_LIGHT : "#F9FAFB",
-    color: active ? BRAND_BLUE : "#6B7280",
+    color: active ? BRAND_BLUE_DARK : "#4B5563",
     borderColor: BRAND_BLUE,
     "& .MuiChip-icon": {
-      color: `${active ? BRAND_BLUE : "#9CA3AF"} !important`,
+      color: `${active ? BRAND_BLUE_DARK : "#6B7280"} !important`,
     },
   },
   "&&.MuiChip-clickable:active": {
@@ -111,23 +112,18 @@ const filterPillButtonSx = (active: boolean) => ({
   py: 1.25,
   boxShadow: "none",
   bgcolor: active ? BRAND_BLUE : "#fff",
-  color: active ? "#fff" : "#6B7280",
+  color: active ? "#fff" : "#4B5563",
   border: `1.5px solid ${active ? BRAND_BLUE : FILTER_GREY_BORDER}`,
   "&:hover": {
     bgcolor: active ? BRAND_BLUE_DARK : "#F9FAFB",
-    color: active ? "#fff" : "#6B7280",
+    color: active ? "#fff" : "#4B5563",
     borderColor: active ? BRAND_BLUE_DARK : FILTER_GREY_BORDER,
     boxShadow: "none",
   },
-  "&:focus, &:focus-visible": {
-    bgcolor: active ? BRAND_BLUE : "#fff",
-    color: active ? "#fff" : "#6B7280",
-    borderColor: BRAND_BLUE,
-    boxShadow: "none",
-  },
+  ...focusVisibleRing,
   "&:active": {
     bgcolor: active ? BRAND_BLUE_PRESSED : "#F3F4F6",
-    color: active ? "#fff" : "#6B7280",
+    color: active ? "#fff" : "#4B5563",
     boxShadow: "none",
   },
 });
@@ -165,9 +161,9 @@ const filterFormaCardSx = (active: boolean) => ({
 type FormaWizyty = Mission["formaWizity"];
 
 const FORMA_META: Record<FormaWizyty, { color: string; bg: string; Icon: typeof PhoneIcon; label: string }> = {
-  telefoniczna: { color: "#01847d", bg: "#E0F2F8", Icon: PhoneIcon, label: "Telemedycyna" },
-  online: { color: "#005aa9", bg: "#E1E8F8", Icon: ComputerIcon, label: "Online" },
-  "w placówce": { color: "#ad029c", bg: "#FCE8F9", Icon: PlaceIcon, label: "Wizyta w placówce" },
+  telefoniczna: { color: "#016B65", bg: "#E0F2F8", Icon: PhoneIcon, label: "Telemedycyna" },
+  online: { color: "#004078", bg: "#E1E8F8", Icon: ComputerIcon, label: "Online" },
+  "w placówce": { color: "#8B0278", bg: "#FCE8F9", Icon: PlaceIcon, label: "Wizyta w placówce" },
 };
 
 const ALL_FORMY: FormaWizyty[] = ["telefoniczna", "online", "w placówce"];
@@ -404,8 +400,24 @@ export default function VisitHistoryMobile({
   const toggleDraftTyp = (value: Mission["typ"]) =>
     setDraftTypy(draftTypy.includes(value) ? draftTypy.filter((x) => x !== value) : [...draftTypy, value]);
 
+  const srOnlySx = {
+    position: "absolute" as const,
+    width: 1,
+    height: 1,
+    padding: 0,
+    margin: -1,
+    overflow: "hidden",
+    clip: "rect(0, 0, 0, 0)",
+    whiteSpace: "nowrap" as const,
+    border: 0,
+  };
+
   return (
     <Box sx={{ position: "relative", pb: 2, px: 2, pt: 3 }}>
+      <Typography component="h1" sx={srOnlySx}>
+        Historia leczenia
+      </Typography>
+
       {/* Service Toggle */}
       <Box sx={{ width: '100%', mb: 3 }}>
         <ServiceToggle
@@ -434,6 +446,7 @@ export default function VisitHistoryMobile({
             <TextField
               {...params}
               placeholder="Szukaj lekarza lub uslugi..."
+              aria-label="Szukaj lekarza lub usługi"
               fullWidth
               size="small"
               sx={{
@@ -450,7 +463,11 @@ export default function VisitHistoryMobile({
                   <>
                     {query ? (
                       <InputAdornment position="end">
-                        <IconButton size="small" onClick={() => setQuery("")}>
+                        <IconButton
+                          size="small"
+                          onClick={() => setQuery("")}
+                          aria-label="Wyczyść wyszukiwanie"
+                        >
                           <CloseIcon fontSize="small" />
                         </IconButton>
                       </InputAdornment>
@@ -467,6 +484,8 @@ export default function VisitHistoryMobile({
         <Box sx={{ display: "flex", alignItems: "center", mt: 2 }}>
           <Button
             onClick={openDrawer}
+            aria-label="Otwórz filtry wizyt"
+            aria-haspopup="dialog"
             startIcon={<TuneIcon sx={{ fontSize: 20, color: BRAND_BLUE }} />}
             sx={{
               textTransform: "none",
@@ -484,10 +503,7 @@ export default function VisitHistoryMobile({
                 bgcolor: FILTER_BLUE_HOVER,
                 boxShadow: "none",
               },
-              "&:focus, &:focus-visible": {
-                bgcolor: FILTER_BLUE_LIGHT,
-                boxShadow: "none",
-              },
+              ...focusVisibleRing,
               "&:active": {
                 bgcolor: "#C5D9F0",
                 boxShadow: "none",
@@ -607,10 +623,21 @@ export default function VisitHistoryMobile({
                 month: "long",
                 year: "numeric",
               });
+              const cardLabel = `${m.typ} ${m.usluga}, ${dateLabel}`;
               return (
                 <Box
                   key={m.id}
+                  component="article"
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`Otwórz szczegóły wizyty: ${cardLabel}`}
                   onClick={() => onMissionClick(m)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      onMissionClick(m);
+                    }
+                  }}
                   sx={{
                     bgcolor: "#fff",
                     borderRadius: 4,
@@ -624,6 +651,12 @@ export default function VisitHistoryMobile({
                     cursor: "pointer",
                     transition: "border-color .15s",
                     "&:active": { borderColor: BRAND_BLUE },
+                    "&:focus": { outline: "none" },
+                    "&:focus-visible": {
+                      outline: `2px solid ${BRAND_BLUE}`,
+                      outlineOffset: 2,
+                      borderColor: BRAND_BLUE,
+                    },
                   }}
                 >
                   {/* Nagłówek: forma + tytuł */}
@@ -709,6 +742,7 @@ export default function VisitHistoryMobile({
         anchor="bottom"
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
+        aria-labelledby="filter-drawer-title"
         PaperProps={{
           sx: {
             borderTopLeftRadius: 24,
@@ -734,6 +768,7 @@ export default function VisitHistoryMobile({
         >
           <IconButton
             onClick={() => setDrawerOpen(false)}
+            aria-label="Zamknij filtry"
             size="small"
             sx={{
               bgcolor: "#fff",
@@ -746,7 +781,9 @@ export default function VisitHistoryMobile({
             <ChevronLeftIcon sx={{ fontSize: 22 }} />
           </IconButton>
           <Typography
+            id="filter-drawer-title"
             variant="h6"
+            component="h2"
             sx={{
               fontWeight: 700,
               fontSize: 18,
@@ -894,14 +931,15 @@ export default function VisitHistoryMobile({
             <Typography sx={{ fontWeight: 700, fontSize: 15, color: "text.primary", mb: 1.5 }}>
               Specjalista / Usługa
             </Typography>
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 1.25 }}>
+            <Box role="radiogroup" aria-label="Specjalista lub usługa" sx={{ display: "flex", flexDirection: "column", gap: 1.25 }}>
               {availableUslugi.map((label) => {
                 const active = draftSpecjalista === label;
                 const Icon = USLUGA_ICONS[label] ?? MedicalServicesIcon;
                 return (
                   <Box
                     key={label}
-                    role="button"
+                    role="radio"
+                    aria-checked={active}
                     tabIndex={0}
                     onClick={() => setDraftSpecjalista(active ? null : label)}
                     onKeyDown={(e) => {
@@ -961,6 +999,8 @@ export default function VisitHistoryMobile({
                     </Typography>
                     <Radio
                       checked={active}
+                      tabIndex={-1}
+                      aria-hidden
                       sx={{
                         p: 0.5,
                         color: FILTER_GREY_BORDER,
@@ -979,6 +1019,8 @@ export default function VisitHistoryMobile({
             <Box
               role="button"
               tabIndex={0}
+              aria-expanded={dateRangeOpen}
+              aria-controls="date-range-panel"
               onClick={() => setDateRangeOpen((open) => !open)}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") {
@@ -1006,7 +1048,7 @@ export default function VisitHistoryMobile({
               />
             </Box>
             <Collapse in={dateRangeOpen}>
-              <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+              <Box id="date-range-panel" sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
                 <TextField
                   type="date"
                   label="Od dnia"
@@ -1076,7 +1118,7 @@ export default function VisitHistoryMobile({
               bgcolor: BRAND_BLUE,
               boxShadow: "none",
               "&:hover": { bgcolor: BRAND_BLUE_DARK, boxShadow: "none" },
-              "&:focus, &:focus-visible": { bgcolor: BRAND_BLUE, boxShadow: "none" },
+              ...focusVisibleRingOnDark,
               "&:active": { bgcolor: BRAND_BLUE_PRESSED, boxShadow: "none" },
             }}
           >

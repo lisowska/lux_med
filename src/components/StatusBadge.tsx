@@ -12,18 +12,18 @@ interface StatusBadgeProps {
 }
 export const getStatusIcon = (status: MissionStatus) => {
   const iconMap = {
-    Odbyta: <CheckCircleOutlineIcon fontSize="small" htmlColor="#16A34A" />,
+    Odbyta: <CheckCircleOutlineIcon fontSize="small" htmlColor="#15803D" />,
     Anulowana: (
-      <HighlightOffOutlinedIcon fontSize="small" htmlColor="#EF4444" />
+      <HighlightOffOutlinedIcon fontSize="small" htmlColor="#B91C1C" />
     ),
-    Planowana: <CalendarTodayIcon fontSize="small" htmlColor="#B453094" />,
+    Planowana: <CalendarTodayIcon fontSize="small" htmlColor="#0E7490" />,
   };
   return iconMap[status] ?? null;
 };
 
 export const StatusBadge = ({ status }: StatusBadgeProps) => {
   return (
-    <Tooltip title={'Mission Status'} sx={{ color: 'rgba(0, 0, 0, 0.87)' }}>
+    <Tooltip title={`Status wizyty: ${status}`} sx={{ color: 'rgba(0, 0, 0, 0.87)' }}>
       <Chip
         icon={getStatusIcon(status)}
         label={status}

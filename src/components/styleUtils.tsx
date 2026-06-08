@@ -4,26 +4,26 @@ export const getStatusStyles = (status: MissionStatus) => {
   const styles = {
     Odbyta: {
       backgroundColor: 'rgba(22, 163, 74, 0.15)',
-      color: '#16A34A',
-      border: '1px solid rgba(22, 163, 74, 0.3)',
+      color: '#15803D',
+      border: '1px solid rgba(21, 128, 61, 0.35)',
     },
     Anulowana: {
       backgroundColor: 'rgba(239, 68, 68, 0.15)',
-      color: '#EF4444',
-      border: '1px solid rgba(239, 68, 68, 0.3)',
+      color: '#B91C1C',
+      border: '1px solid rgba(185, 28, 28, 0.35)',
     },
     Planowana: {
-      backgroundColor: 'rgba(6, 182, 212, 0.15)',
-      color: '#06B6D4',
-      border: '1px solid rgba(6, 182, 212, 0.3)',
+      backgroundColor: 'rgba(14, 116, 144, 0.12)',
+      color: '#0E7490',
+      border: '1px solid rgba(14, 116, 144, 0.35)',
     },
   };
   return styles[status];
 };
 
 export const statusColor: Record<Mission['status'], string> = {
-  Odbyta: '#16A34A',
-  Planowana: '#06B6D4',
-  Anulowana: '#EF4444',
+  Odbyta: '#15803D',
+  Planowana: '#0E7490',
+  Anulowana: '#B91C1C',
   // Planned: '#F59E0B',
 };

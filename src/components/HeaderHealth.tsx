@@ -46,7 +46,7 @@ const HeaderHealth = () => {
           <Box sx={{ flex: 1, minWidth: 0, pl: { md: 2 } }}>
             <Typography
               variant="h5"
-              component="h2"
+              component="h1"
               sx={{
                 fontWeight: 'bold',
                 color: 'text.primary',

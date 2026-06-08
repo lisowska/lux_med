@@ -179,7 +179,7 @@ const MainPage: React.FC = () => {
   // Mobile view
   if (isMobile) {
     return (
-      <Box sx={{ minHeight: '100vh', backgroundColor: '#F8FAFC' }}>
+      <Box component="main" sx={{ minHeight: '100vh', backgroundColor: '#F8FAFC' }}>
         <VisitHistoryMobile 
           onMissionClick={handleMissionClick}
           serviceTab={serviceTab}
@@ -196,7 +196,7 @@ const MainPage: React.FC = () => {
 
   // Desktop view
   return (
-    <Box sx={{ minHeight: '100vh', backgroundColor: '#F8FAFC' }}>
+    <Box component="main" sx={{ minHeight: '100vh', backgroundColor: '#F8FAFC' }}>
       <Box
         sx={{
           maxWidth: { xs: '100%', lg: '1400px' },

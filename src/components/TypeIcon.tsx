@@ -4,7 +4,11 @@ import BiotechIcon from "@mui/icons-material/Biotech";
 import IconUsg from "../assets/usg.png";
 import type { Typ } from "../types/mission";
 
-const BRAND_BLUE = "#005aa9";
+const TYPE_COLORS = {
+  konsultacja: "#004078",
+  badanie: "#016B65",
+  laboratoryjne: "#4A2475",
+} as const;
 
 type TypeMeta = {
   color: string;
@@ -15,13 +19,11 @@ type TypeMeta = {
   imageScale?: number;
 };
 
-const BADANIE_GREEN = "#01847d";
-
 export const TYPE_META: Record<string, TypeMeta> = {
-  Badanie: { color: BADANIE_GREEN, bg: "#E6F5F3", imageSrc: IconUsg, iconSize: 32, imageScale: 1.55 },
-  Konsultacja: { color: BRAND_BLUE, bg: "#E1E8F8", Icon: PeopleIcon, iconSize: 24 },
-  "Badania laboratoryjne": { color: "#5B2D90", bg: "#EFE6FA", Icon: BiotechIcon, iconSize: 28 },
-  USG: { color: BADANIE_GREEN, bg: "#E6F5F3", imageSrc: IconUsg, iconSize: 32, imageScale: 1.55 },
+  Badanie: { color: TYPE_COLORS.badanie, bg: "#E6F5F3", imageSrc: IconUsg, iconSize: 32, imageScale: 1.55 },
+  Konsultacja: { color: TYPE_COLORS.konsultacja, bg: "#E1E8F8", Icon: PeopleIcon, iconSize: 24 },
+  "Badania laboratoryjne": { color: TYPE_COLORS.laboratoryjne, bg: "#EFE6FA", Icon: BiotechIcon, iconSize: 28 },
+  USG: { color: TYPE_COLORS.badanie, bg: "#E6F5F3", imageSrc: IconUsg, iconSize: 32, imageScale: 1.55 },
 };
 
 interface TypeIconProps {

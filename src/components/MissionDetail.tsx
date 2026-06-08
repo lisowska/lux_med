@@ -26,9 +26,9 @@ interface MissionDetailProps {
 }
 
 const formaMeta: Record<Mission['formaWizity'], { label: string; color: string }> = {
-  telefoniczna: { label: 'Telemedycyna', color: '#01847d' },
-  online: { label: 'Online', color: '#005aa9' },
-  'w placówce': { label: 'Wizyta w placówce', color: '#ad029c' },
+  telefoniczna: { label: 'Telemedycyna', color: '#016B65' },
+  online: { label: 'Online', color: '#004078' },
+  'w placówce': { label: 'Wizyta w placówce', color: '#8B0278' },
 };
 
 const statusTitle: Record<Mission['status'], string> = {
@@ -276,7 +276,7 @@ const MissionDetail: React.FC<MissionDetailProps> = ({ mission, open, onClose })
                           py: 0.5,
                           borderRadius: 999,
                           bgcolor: '#E8F4FD',
-                          color: BRAND_BLUE,
+                          color: '#004078',
                           fontSize: 14,
                           fontWeight: 600,
                           mb: 1,
