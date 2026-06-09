@@ -17,6 +17,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import MenuIcon from '@mui/icons-material/Menu';
 import AddIcon from '@mui/icons-material/Add';
 import LogoLuxMed from '../assets/LX_logo.90x26.svg';
+import LogoLuxMedMobile from '../assets/luxmedLogoMobile.32x32.svg';
 import Notification from '../assets/inbox.blue.24x24.svg';
 import IconStart from '../assets/start.grey.24x24.svg';
 import IconCalendar from '../assets/calendar24x24.svg';
@@ -55,10 +56,21 @@ const BOTTOM_NAV_ICONS: Record<BottomNavKey, string> = {
 
 export const MOBILE_BOTTOM_NAV_HEIGHT = 72;
 
-const LuxMedLogo = () => (
-  <Box sx={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-    <Box component="img" alt="Lux Med" src={LogoLuxMed} />
-  </Box>
+const DESKTOP_LOGO_HEIGHT = 26;
+
+const LuxMedLogo = ({ mobile = false }: { mobile?: boolean }) => (
+  <Box
+    component="img"
+    alt="Lux Med"
+    src={mobile ? LogoLuxMedMobile : LogoLuxMed}
+    sx={{
+      width: mobile ? 32 : 'auto',
+      height: mobile ? 32 : DESKTOP_LOGO_HEIGHT,
+      display: 'block',
+      flexShrink: 0,
+      mb: mobile ? 0 : '9px',
+    }}
+  />
 );
 
 const NotificationsButton = () => (
@@ -121,34 +133,86 @@ export default function LuxMedNavbar() {
         elevation={0}
         sx={{
           backgroundColor: '#fff',
-          borderBottom: '1px solid #f0f0f0',
           boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
         }}
       >
         <Toolbar
           sx={{
-            minHeight: { xs: '56px !important', md: '64px !important' },
+            position: 'relative',
+            minHeight: { xs: '56px !important', md: '56px !important' },
+            py: { xs: 0, md: 0 },
             px: { xs: 2, md: 3 },
             gap: 1,
             justifyContent: isMobile ? 'space-between' : 'flex-start',
+            alignItems: { xs: 'center', md: 'stretch' },
           }}
         >
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-            <IconButton
-              edge="start"
-              sx={{ color: BRAND_BLUE, mr: isMobile ? 0.5 : 1 }}
-              aria-label="menu"
-            >
-              <MenuIcon />
-            </IconButton>
-            <LuxMedLogo />
-          </Box>
-
           {isMobile ? (
-            <NotificationsButton />
+            <>
+              <IconButton
+                edge="start"
+                sx={{ color: BRAND_BLUE }}
+                aria-label="menu"
+              >
+                <MenuIcon />
+              </IconButton>
+
+              <Box
+                sx={{
+                  position: 'absolute',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  pointerEvents: 'none',
+                }}
+              >
+                <LuxMedLogo mobile />
+              </Box>
+
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                <NotificationsButton />
+                <Avatar
+                  sx={{
+                    width: 32,
+                    height: 32,
+                    bgcolor: '#fff',
+                    color: 'black',
+                    fontFamily: "'Montserrat', sans-serif",
+                    fontWeight: 700,
+                    fontSize: '0.7rem',
+                    cursor: 'pointer',
+                    border: '.8px solid #E0E0E0',
+                  }}
+                >
+                  A
+                </Avatar>
+              </Box>
+            </>
           ) : (
             <>
-              <Box sx={{ width: '1px', height: 28, bgcolor: '#e0e0e0', mx: 2 }} />
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1,
+                  flexShrink: 0,
+                  alignSelf: 'center',
+                }}
+              >
+                <IconButton
+                  sx={{
+                    color: BRAND_BLUE,
+                    p: 0,
+                    width: DESKTOP_LOGO_HEIGHT,
+                    height: DESKTOP_LOGO_HEIGHT,
+                  }}
+                  aria-label="menu"
+                >
+                  <MenuIcon sx={{ fontSize: 24 }} />
+                </IconButton>
+                <LuxMedLogo />
+              </Box>
 
               <Tabs
                 value={activeTab}
@@ -158,10 +222,17 @@ export default function LuxMedNavbar() {
                 }}
                 sx={{
                   flexGrow: 1,
-                  minHeight: '64px',
+                  minHeight: 56,
+                  ml: 2,
+                  alignSelf: 'stretch',
+                  '& .MuiTabs-flexContainer': {
+                    height: '100%',
+                    alignItems: 'center',
+                  },
                   '& .MuiTabs-indicator': {
                     backgroundColor: BRAND_BLUE,
                     height: '2px',
+                    bottom: 0,
                     borderRadius: '3px 3px 0 0',
                   },
                   '& .MuiTab-root': {
@@ -170,7 +241,8 @@ export default function LuxMedNavbar() {
                     fontSize: '1.0rem',
                     textTransform: 'none',
                     color: '#555',
-                    minHeight: '64px',
+                    minHeight: 56,
+                    py: 0,
                     px: 2,
                     '&.Mui-selected': { color: BRAND_BLUE },
                   },
@@ -181,20 +253,35 @@ export default function LuxMedNavbar() {
                 ))}
               </Tabs>
 
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1,
+                  alignSelf: 'center',
+                }}
+              >
                 <Button
                   variant="contained"
-                  startIcon={<AddIcon sx={{ fontSize: '1rem !important' }} />}
+                  size="small"
+                  startIcon={<AddIcon sx={{ fontSize: '18px !important' }} />}
                   sx={{
                     backgroundColor: BRAND_GREEN,
                     fontFamily: "'Montserrat', sans-serif",
                     fontWeight: 700,
-                    fontSize: '1.0rem',
+                    fontSize: '0.875rem',
                     textTransform: 'none',
                     borderRadius: '999px',
-                    px: 2.5,
-                    py: 1,
+                    minHeight: 32,
+                    height: 32,
+                    px: 1.75,
+                    py: 0,
+                    lineHeight: 1,
                     boxShadow: 'none',
+                    '& .MuiButton-startIcon': {
+                      mr: 0.5,
+                      ml: 0,
+                    },
                     '&:hover': {
                       backgroundColor: BRAND_GREEN,
                       boxShadow: 'none',
