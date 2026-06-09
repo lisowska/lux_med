@@ -20,7 +20,6 @@ import PersonIcon from '@mui/icons-material/Person';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import CheckIcon from '@mui/icons-material/Check';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import CloseIcon from '@mui/icons-material/Close';
 import { focusVisibleRing } from '../styles/focus';
 import type { Mission } from '../types/mission';
 import { statusColor } from './styleUtils';
@@ -258,13 +257,28 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
         }}
       >
         <Box sx={{ p: 3 }}>
-          {/* First row - Search and result count */}
-          <Stack
-            direction={{ xs: 'column', md: 'row' }}
-            spacing={2}
-            sx={{ mb: 2 }}
-            alignItems={{ xs: 'stretch', md: 'center' }}
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: {
+                xs: '1fr',
+                md: 'auto auto 160px 160px minmax(0, 1fr)',
+              },
+              gridTemplateRows: { md: 'auto auto' },
+              columnGap: 1.5,
+              rowGap: { xs: 2, md: 1.5 },
+              mb: 2,
+              alignItems: 'center',
+            }}
           >
+            <Box
+              sx={{
+                gridColumn: { md: '1 / 5' },
+                gridRow: { md: '1' },
+                width: '100%',
+                minWidth: 0,
+              }}
+            >
             <Autocomplete
               freeSolo
               options={searchOptions}
@@ -317,7 +331,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
               }}
               ListboxProps={{ style: { maxHeight: 280 } }}
               sx={{
-                width: { xs: '100%', md: 560 },
+                width: '100%',
                 '& .MuiAutocomplete-listbox': { py: 0.5 },
                 '& .MuiAutocomplete-option': { whiteSpace: 'nowrap' },
               }}
@@ -406,31 +420,58 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
                 />
               )}
             />
-            <Box sx={{ flexGrow: 1 }} />
-            <Typography
+            </Box>
+            <Box
               sx={{
-                fontSize: '0.875rem',
-                color: '#64748B',
-                whiteSpace: 'nowrap',
+                gridColumn: { md: '5' },
+                gridRow: { md: '1' },
+                justifySelf: { md: 'end' },
+                alignSelf: { md: 'center' },
+                display: 'flex',
+                flexDirection: { xs: 'column', sm: 'row' },
+                alignItems: { xs: 'flex-start', sm: 'center' },
+                gap: { xs: 0.5, sm: 2 },
               }}
             >
-              Znaleziono{' '}
-              <Box component="span" sx={{ color: '#004078', fontWeight: 600 }}>
-                {resultCount}
-              </Box>{' '}
-              z {totalCount} wizyt
-            </Typography>
-          </Stack>
+              <Typography
+                sx={{
+                  fontSize: '0.875rem',
+                  color: '#64748B',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                Znaleziono{' '}
+                <Box component="span" sx={{ color: '#004078', fontWeight: 600 }}>
+                  {resultCount}
+                </Box>{' '}
+                z {totalCount} wizyt
+              </Typography>
+              {activeFilterCount > 0 && (
+                <Button
+                  variant="text"
+                  size="small"
+                  onClick={onClearAll}
+                  sx={{
+                    textTransform: 'none',
+                    color: '#005AA9',
+                    minWidth: 'auto',
+                    px: 0.5,
+                    py: 0.25,
+                    fontSize: '0.875rem',
+                    fontWeight: 500,
+                    whiteSpace: 'nowrap',
+                    '&:hover': {
+                      bgcolor: '#F1F5F9',
+                      textDecoration: 'underline',
+                    },
+                    ...focusVisibleRing,
+                  }}
+                >
+                  Wyczyść filtry
+                </Button>
+              )}
+            </Box>
 
-          {/* Second row - Filter buttons */}
-          <Stack
-            direction="row"
-            spacing={1.5}
-            flexWrap="wrap"
-            useFlexGap
-            gap={1.5}
-            alignItems="center"
-          >
             {/* Forma wizyty dropdown */}
             <Button
               id="forma-filter-button"
@@ -448,7 +489,12 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
               }
               onClick={(e) => setFormaAnchor(e.currentTarget)}
               size="small"
-              sx={filterSelectButtonSx(selectedForma.length > 0)}
+              sx={{
+                ...filterSelectButtonSx(selectedForma.length > 0),
+                gridColumn: { md: '1' },
+                gridRow: { md: '2' },
+                justifySelf: { md: 'start' },
+              }}
             >
               <BusinessIcon sx={{ mr: 1, fontSize: 18 }} />
               Forma wizyty
@@ -493,7 +539,12 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
               }
               onClick={(e) => setTypeAnchor(e.currentTarget)}
               size="small"
-              sx={filterSelectButtonSx(selectedTypes.length > 0)}
+              sx={{
+                ...filterSelectButtonSx(selectedTypes.length > 0),
+                gridColumn: { md: '2' },
+                gridRow: { md: '2' },
+                justifySelf: { md: 'start' },
+              }}
             >
               <MedicalServicesIcon sx={{ mr: 1, fontSize: 18 }} />
               Usluga
@@ -501,7 +552,13 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
             </Button>
 
             {/* Date range pickers */}
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Box
+              sx={{
+                display: { xs: 'flex', md: 'contents' },
+                alignItems: 'center',
+                gap: 1,
+              }}
+            >
               <TextField
                 type="date"
                 size="small"
@@ -509,7 +566,13 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
                 value={dateFrom}
                 onChange={(e) => onDateFromChange(e.target.value)}
                 InputLabelProps={{ shrink: true }}
-                sx={{ width: 160, ...filterFieldSx(Boolean(dateFrom)) }}
+                sx={{
+                  width: { xs: '50%', md: '100%' },
+                  maxWidth: 160,
+                  gridColumn: { md: '3' },
+                  gridRow: { md: '2' },
+                  ...filterFieldSx(Boolean(dateFrom)),
+                }}
               />
               <TextField
                 type="date"
@@ -518,30 +581,17 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
                 value={dateTo}
                 onChange={(e) => onDateToChange(e.target.value)}
                 InputLabelProps={{ shrink: true }}
-                sx={{ width: 160, ...filterFieldSx(Boolean(dateTo)) }}
+                sx={{
+                  width: { xs: '50%', md: '100%' },
+                  maxWidth: 160,
+                  gridColumn: { md: '4' },
+                  gridRow: { md: '2' },
+                  ...filterFieldSx(Boolean(dateTo)),
+                }}
               />
             </Box>
 
-            {/* Clear all button */}
-            {activeFilterCount > 0 && (
-              <Button
-                variant="text"
-                size="small"
-                onClick={onClearAll}
-                sx={{
-                  textTransform: 'none',
-                  color: '#EF4444',
-                  '&:hover': {
-                    bgcolor: '#FEF2F2',
-                  },
-                  ml: 'auto',
-                }}
-              >
-                <CloseIcon sx={{ mr: 0.5, fontSize: 16 }} />
-                Wyczysc filtry
-              </Button>
-            )}
-          </Stack>
+          </Box>
 
           {/* Active filters chips */}
           {activeFilterCount > 0 && (
