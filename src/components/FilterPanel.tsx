@@ -32,8 +32,10 @@ type SearchOption = {
 };
 
 interface FilterPanelProps {
-  searchQuery: string;
-  onSearchChange: (query: string) => void;
+  searchInput: string;
+  onSearchInputChange: (query: string) => void;
+  searchFilter: string;
+  onSearchFilterChange: (query: string) => void;
   availableUslugi: string[];
   selectedForma: string[];
   onAgencyFilterChange: (agencies: string[]) => void;
@@ -52,8 +54,10 @@ interface FilterPanelProps {
 }
 
 const FilterPanel: React.FC<FilterPanelProps> = ({
-  searchQuery,
-  onSearchChange,
+  searchInput,
+  onSearchInputChange,
+  searchFilter,
+  onSearchFilterChange,
   availableUslugi,
   selectedForma,
   onAgencyFilterChange,
@@ -92,7 +96,14 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
   const getSearchLabel = (option: SearchOption | string) =>
     typeof option === 'string' ? option : option.label;
 
-  const canShowSearchList = searchQuery.trim().length >= MIN_SEARCH_CHARS;
+  const canShowSearchList = searchInput.trim().length >= MIN_SEARCH_CHARS;
+
+  const commitSearch = (value: string) => {
+    const trimmed = value.trim();
+    if (!trimmed) return;
+    onSearchFilterChange(trimmed);
+    onSearchInputChange('');
+  };
 
   const wizyty: Mission['formaWizity'][] = [
     'telefoniczna',
@@ -109,7 +120,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
   ];
 
   const activeFilterCount =
-    (searchQuery.trim() ? 1 : 0) +
+    (searchFilter.trim() || searchInput.trim() ? 1 : 0) +
     selectedForma.length +
     selectedStatuses.length +
     selectedTypes.length +
@@ -262,7 +273,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
               display: 'grid',
               gridTemplateColumns: {
                 xs: '1fr',
-                md: 'auto auto 160px 160px minmax(0, 1fr)',
+                md: 'auto auto 160px 160px minmax(max-content, 1fr)',
               },
               gridTemplateRows: { md: 'auto auto' },
               columnGap: 1.5,
@@ -277,6 +288,8 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
                 gridRow: { md: '1' },
                 width: '100%',
                 minWidth: 0,
+                maxWidth: '100%',
+                overflow: 'hidden',
               }}
             >
             <Autocomplete
@@ -301,20 +314,20 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
                 if (canShowSearchList) setSearchOpen(true);
               }}
               onClose={() => setSearchOpen(false)}
-              inputValue={searchQuery}
+              inputValue={searchInput}
               onInputChange={(_, v, reason) => {
                 if (reason === 'reset') {
-                  onSearchChange('');
+                  onSearchInputChange('');
                   setSearchOpen(false);
                   return;
                 }
-                onSearchChange(v);
+                onSearchInputChange(v);
                 setSearchOpen(v.trim().length >= MIN_SEARCH_CHARS);
               }}
               onChange={(_, value) => {
                 const label =
                   typeof value === 'string' ? value : value?.label ?? '';
-                onSearchChange(label);
+                if (label.trim()) commitSearch(label);
               }}
               slotProps={{
                 popper: {
@@ -391,6 +404,12 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
                   placeholder="Szukaj lekarza lub usługi..."
                   size="small"
                   aria-label="Szukaj lekarza lub usługi"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      commitSearch(searchInput);
+                    }
+                  }}
                   InputProps={{
                     ...params.InputProps,
                     startAdornment: (
@@ -431,6 +450,9 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
                 flexDirection: { xs: 'column', sm: 'row' },
                 alignItems: { xs: 'flex-start', sm: 'center' },
                 gap: { xs: 0.5, sm: 2 },
+                flexShrink: 0,
+                width: 'max-content',
+                minWidth: 'max-content',
               }}
             >
               <Typography
@@ -649,10 +671,10 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
                   }}
                 />
               ))}
-              {searchQuery.trim() && (
+              {searchFilter.trim() && (
                 <Chip
-                  label={searchQuery.trim()}
-                  onDelete={() => onSearchChange('')}
+                  label={searchFilter.trim()}
+                  onDelete={() => onSearchFilterChange('')}
                   size="small"
                   sx={{
                     bgcolor: '#E0F2FE',

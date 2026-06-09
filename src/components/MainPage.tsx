@@ -16,7 +16,8 @@ import { normalizeSearchLabel, uniqueSearchLabels } from '../utils/searchLabels'
 const MainPage: React.FC = () => {
   const isMobile = useIsMobile();
   const [serviceTab, setServiceTab] = useState<ServiceTab>('zaplanowane');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchInput, setSearchInput] = useState('');
+  const [searchFilter, setSearchFilter] = useState('');
   const [selectedAgencies, setSelectedAgencies] = useState<string[]>([]);
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
@@ -69,10 +70,11 @@ const MainPage: React.FC = () => {
           return false;
         }
 
-        // Search query filter (usługa, lekarz, typ)
-        if (searchQuery) {
+        // Search filter (usługa, lekarz, typ) — wpisywany tekst lub zatwierdzony chip
+        const activeSearch = (searchFilter || searchInput).trim();
+        if (activeSearch) {
           const blob = `${mission.lekarz.map(normalizeSearchLabel).join(' ')} ${mission.usluga} ${mission.typ}`.toLowerCase();
-          const query = normalizeSearchLabel(searchQuery).toLowerCase();
+          const query = normalizeSearchLabel(activeSearch).toLowerCase();
           if (!blob.includes(query)) {
             return false;
           }
@@ -131,7 +133,8 @@ const MainPage: React.FC = () => {
   }, [
     missions,
     serviceTab,
-    searchQuery,
+    searchInput,
+    searchFilter,
     selectedAgencies,
     selectedStatuses,
     selectedTypes,
@@ -145,7 +148,8 @@ const MainPage: React.FC = () => {
   };
 
   const handleClearAll = () => {
-    setSearchQuery('');
+    setSearchInput('');
+    setSearchFilter('');
     setSelectedAgencies([]);
     setSelectedStatuses([]);
     setSelectedTypes([]);
@@ -217,9 +221,14 @@ const MainPage: React.FC = () => {
           
         <Box sx={{ maxWidth: 920, mx: 'auto' }}>
           <FilterPanel
-            searchQuery={searchQuery}
-            onSearchChange={(query) => {
-              setSearchQuery(query);
+            searchInput={searchInput}
+            onSearchInputChange={(query) => {
+              setSearchInput(query);
+              setPage(0);
+            }}
+            searchFilter={searchFilter}
+            onSearchFilterChange={(query) => {
+              setSearchFilter(query);
               setPage(0);
             }}
             availableUslugi={availableUslugi}
