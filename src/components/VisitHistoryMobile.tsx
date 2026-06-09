@@ -25,6 +25,7 @@ import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import EventIcon from '@mui/icons-material/Event';
 import PlaceIcon from "@mui/icons-material/Place";
 import PersonIcon from "@mui/icons-material/Person";
+import MedicalServicesIcon from "@mui/icons-material/MedicalServices";
 import PhoneIcon from "@mui/icons-material/Phone";
 import ComputerIcon from "@mui/icons-material/Computer";
 import type { Mission } from "../types/mission";
@@ -33,6 +34,7 @@ import ServiceToggle, { ServiceTab } from "./ServiceToggle";
 import IconUsg from "../assets/usg.png";
 import { TYPE_META, TypeIcon } from "./TypeIcon";
 import { focusVisibleRing, focusVisibleRingOnDark } from "../styles/focus";
+import { normalizeSearchLabel, uniqueSearchLabels } from "../utils/searchLabels";
 
 // Brand blue color
 const BRAND_BLUE = "#005aa9";
@@ -42,6 +44,12 @@ const FILTER_GREY_BORDER = "#E5E7EB";
 const FILTER_CARD_SHADOW = "0 2px 10px rgba(15, 28, 46, 0.08)";
 const BRAND_BLUE_DARK = "#004a8c";
 const BRAND_BLUE_PRESSED = "#003d75";
+const MIN_SEARCH_CHARS = 2;
+
+type SearchOption = {
+  label: string;
+  group: "Usługi" | "Lekarze";
+};
 
 /** MUI Chip overrides – prevents grey hover / white-on-grey focus */
 const formaQuickChipSx = (active: boolean) => ({
@@ -179,6 +187,34 @@ const formatVisitCount = (count: number) => {
   return `${count} wizyt`;
 };
 
+const formatChipDate = (iso: string) => {
+  const [year, month, day] = iso.split("-");
+  return `${day}.${month}.${year}`;
+};
+
+const typLabelByValue = Object.fromEntries(
+  TYP_FILTER_OPTIONS.map((option) => [option.value, option.label]),
+) as Record<Mission["typ"], string>;
+
+const activeFilterChipSx = {
+  height: 36,
+  borderRadius: 999,
+  bgcolor: FILTER_BLUE_LIGHT,
+  color: BRAND_BLUE_DARK,
+  fontWeight: 600,
+  fontSize: 14,
+  border: `1.5px solid ${BRAND_BLUE}`,
+  "& .MuiChip-label": { px: 1.25 },
+  "& .MuiChip-icon": {
+    color: `${BRAND_BLUE} !important`,
+  },
+  "& .MuiChip-deleteIcon": {
+    color: BRAND_BLUE,
+    fontSize: 18,
+    "&:hover": { color: BRAND_BLUE_DARK },
+  },
+};
+
 interface VisitHistoryMobileProps {
   onMissionClick: (mission: Mission) => void;
   serviceTab: ServiceTab;
@@ -193,6 +229,7 @@ export default function VisitHistoryMobile({
   const missions: Mission[] = missionData.missions as Mission[];
 
   const [query, setQuery] = useState("");
+  const [searchFilter, setSearchFilter] = useState<string | null>(null);
   const [formy, setFormy] = useState<FormaWizyty[]>([]);
   const [typy, setTypy] = useState<Mission["typ"][]>([]);
   const [dateFrom, setDateFrom] = useState("");
@@ -206,15 +243,30 @@ export default function VisitHistoryMobile({
   const [draftDateFrom, setDraftDateFrom] = useState("");
   const [draftDateTo, setDraftDateTo] = useState("");
   const [dateRangeOpen, setDateRangeOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
 
   const searchOptions = useMemo(() => {
-    const options = new Set<string>();
+    const uslugi = new Set<string>();
+    const doctors: string[] = [];
     missions.forEach((m) => {
-      options.add(m.usluga);
-      m.lekarz.forEach((d) => options.add(d));
+      uslugi.add(m.usluga);
+      m.lekarz.forEach((d) => doctors.push(d));
     });
-    return Array.from(options).sort((a, b) => a.localeCompare(b, "pl"));
+    const sortPl = (a: string, b: string) => a.localeCompare(b, "pl");
+    return [
+      ...Array.from(uslugi)
+        .sort(sortPl)
+        .map((label): SearchOption => ({ label, group: "Usługi" })),
+      ...uniqueSearchLabels(doctors)
+        .sort(sortPl)
+        .map((label): SearchOption => ({ label, group: "Lekarze" })),
+    ];
   }, [missions]);
+
+  const getSearchLabel = (option: SearchOption | string) =>
+    typeof option === "string" ? option : option.label;
+
+  const canShowSearchList = query.trim().length >= MIN_SEARCH_CHARS;
 
   // Parse date (DD-MM-YYYY) to Date object
   const parseDate = (dateStr: string): Date => {
@@ -300,8 +352,14 @@ export default function VisitHistoryMobile({
     return missions.filter((m) => m.status === statusFilter).length;
   }, [missions, serviceTab]);
 
+  const matchesSearch = (mission: Mission, search: string) => {
+    if (!search) return true;
+    const blob = `${mission.lekarz.map(normalizeSearchLabel).join(" ")} ${mission.usluga} ${mission.typ}`.toLowerCase();
+    return blob.includes(normalizeSearchLabel(search).toLowerCase());
+  };
+
   const draftCount = useMemo(() => {
-    const q = query.trim().toLowerCase();
+    const search = (searchFilter || query).trim().toLowerCase();
     const statusFilter = draftStatusTab === 'zaplanowane' ? 'Planowana' : 'Odbyta';
     
     return missions.filter((m) => {
@@ -309,13 +367,10 @@ export default function VisitHistoryMobile({
       if (draftFormy.length && !draftFormy.includes(m.formaWizity)) return false;
       if (draftTypy.length && !draftTypy.includes(m.typ)) return false;
       if (!matchesDateRange(m.launchDate, draftDateFrom, draftDateTo)) return false;
-      if (q) {
-        const blob = `${m.lekarz.join(" ")} ${m.usluga} ${m.typ}`.toLowerCase();
-        if (!blob.includes(q)) return false;
-      }
+      if (!matchesSearch(m, search)) return false;
       return true;
     }).length;
-  }, [query, draftStatusTab, draftFormy, draftTypy, draftDateFrom, draftDateTo, missions]);
+  }, [query, searchFilter, draftStatusTab, draftFormy, draftTypy, draftDateFrom, draftDateTo, missions]);
 
   const draftActive =
     draftFormy.length +
@@ -324,7 +379,7 @@ export default function VisitHistoryMobile({
     (draftDateTo ? 1 : 0);
 
   const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
+    const search = (searchFilter || query).trim().toLowerCase();
     const statusFilter = serviceTab === 'zaplanowane' ? 'Planowana' : 'Odbyta';
     
     return missions
@@ -333,10 +388,7 @@ export default function VisitHistoryMobile({
         if (formy.length && !formy.includes(m.formaWizity)) return false;
         if (typy.length && !typy.includes(m.typ)) return false;
         if (!matchesDateRange(m.launchDate, dateFrom, dateTo)) return false;
-        if (q) {
-          const blob = `${m.lekarz.join(" ")} ${m.usluga} ${m.typ}`.toLowerCase();
-          if (!blob.includes(q)) return false;
-        }
+        if (!matchesSearch(m, search)) return false;
         return true;
       })
       .sort((a, b) => {
@@ -344,7 +396,20 @@ export default function VisitHistoryMobile({
         const dateB = parseDate(b.launchDate);
         return dateB.getTime() - dateA.getTime();
       });
-  }, [query, serviceTab, formy, typy, dateFrom, dateTo, missions]);
+  }, [query, searchFilter, serviceTab, formy, typy, dateFrom, dateTo, missions]);
+
+  const dateChipLabel = useMemo(() => {
+    if (dateFrom && dateTo) {
+      return `${formatChipDate(dateFrom)} – ${formatChipDate(dateTo)}`;
+    }
+    if (dateFrom) return `Od ${formatChipDate(dateFrom)}`;
+    if (dateTo) return `Do ${formatChipDate(dateTo)}`;
+    return "";
+  }, [dateFrom, dateTo]);
+
+  const hasActiveChips = Boolean(
+    searchFilter || formy.length || typy.length || dateFrom || dateTo,
+  );
 
   const activeFilters =
     formy.length +
@@ -353,10 +418,19 @@ export default function VisitHistoryMobile({
     (dateTo ? 1 : 0);
 
   const clearAll = () => {
+    setQuery("");
+    setSearchFilter(null);
     setFormy([]);
     setTypy([]);
     setDateFrom("");
     setDateTo("");
+  };
+
+  const commitSearch = (value: string) => {
+    const trimmed = value.trim();
+    if (!trimmed) return;
+    setSearchFilter(trimmed);
+    setQuery("");
   };
 
   // Group by Year-Month
@@ -423,9 +497,98 @@ export default function VisitHistoryMobile({
           freeSolo
           disableClearable
           options={searchOptions}
+          groupBy={(option) =>
+            typeof option === "string" ? "Wyniki" : option.group
+          }
+          getOptionLabel={getSearchLabel}
+          isOptionEqualToValue={(option, value) =>
+            getSearchLabel(option) === getSearchLabel(value)
+          }
+          filterOptions={(options, { inputValue }) => {
+            const input = inputValue.trim().toLowerCase();
+            if (input.length < MIN_SEARCH_CHARS) return [];
+            return options.filter((option) =>
+              getSearchLabel(option).toLowerCase().includes(input),
+            );
+          }}
+          open={searchOpen && canShowSearchList}
+          onOpen={() => {
+            if (canShowSearchList) setSearchOpen(true);
+          }}
+          onClose={() => setSearchOpen(false)}
           inputValue={query}
-          onInputChange={(_, v) => setQuery(v)}
-          onChange={(_, v) => setQuery((v as string) || "")}
+          onInputChange={(_, v, reason) => {
+            if (reason === "reset") {
+              setQuery("");
+              setSearchOpen(false);
+              return;
+            }
+            setQuery(v);
+            setSearchOpen(v.trim().length >= MIN_SEARCH_CHARS);
+          }}
+          onChange={(_, value) => {
+            const label =
+              typeof value === "string" ? value : value?.label ?? "";
+            if (label.trim()) commitSearch(label);
+          }}
+          slotProps={{
+            popper: { sx: { zIndex: 1400 } },
+            paper: {
+              sx: {
+                mt: 0.5,
+                borderRadius: 2,
+                boxShadow: "0 8px 24px rgba(15, 28, 46, 0.12)",
+              },
+            },
+          }}
+          ListboxProps={{ style: { maxHeight: 280 } }}
+          renderGroup={(params) => (
+            <li key={params.key}>
+              <Typography
+                sx={{
+                  px: 2,
+                  pt: 1.25,
+                  pb: 0.5,
+                  fontSize: 11,
+                  fontWeight: 700,
+                  letterSpacing: 0.6,
+                  textTransform: "uppercase",
+                  color: "#64748B",
+                }}
+              >
+                {params.group}
+              </Typography>
+              <Box component="ul" sx={{ p: 0, m: 0 }}>
+                {params.children}
+              </Box>
+            </li>
+          )}
+          renderOption={(props, option) => {
+            const { key, ...optionProps } = props;
+            const label = getSearchLabel(option);
+            const isDoctor =
+              typeof option === "object" && option.group === "Lekarze";
+            const OptionIcon = isDoctor ? PersonIcon : MedicalServicesIcon;
+            return (
+              <Box
+                component="li"
+                key={key}
+                {...optionProps}
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1.5,
+                  py: 1.25,
+                  px: 2,
+                }}
+              >
+                <OptionIcon sx={{ fontSize: 20, color: "#6B7280", flexShrink: 0 }} />
+                <Typography sx={{ fontSize: 15, color: "text.primary" }}>
+                  {label}
+                </Typography>
+              </Box>
+            );
+          }}
           renderInput={(params) => (
             <TextField
               {...params}
@@ -433,6 +596,12 @@ export default function VisitHistoryMobile({
               aria-label="Szukaj lekarza lub usługi"
               fullWidth
               size="small"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  commitSearch(query);
+                }
+              }}
               sx={{
                 "& .MuiOutlinedInput-root": { borderRadius: 999, bgcolor: "#fff" },
               }}
@@ -450,7 +619,7 @@ export default function VisitHistoryMobile({
                         <IconButton
                           size="small"
                           onClick={() => setQuery("")}
-                          aria-label="Wyczyść wyszukiwanie"
+                          aria-label="Wyczyść wpisywany tekst"
                         >
                           <CloseIcon fontSize="small" />
                         </IconButton>
@@ -464,23 +633,53 @@ export default function VisitHistoryMobile({
           )}
         />
 
-        {query.trim() ? (
-          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mt: 1.5 }}>
-            <Chip
-              label={query.trim()}
-              size="small"
-              onDelete={() => setQuery("")}
-              sx={{
-                bgcolor: FILTER_BLUE_LIGHT,
-                color: BRAND_BLUE_DARK,
-                fontWeight: 600,
-                border: `1.5px solid ${BRAND_BLUE}`,
-                "& .MuiChip-deleteIcon": {
-                  color: BRAND_BLUE,
-                  "&:hover": { color: BRAND_BLUE_DARK },
-                },
-              }}
-            />
+        {hasActiveChips ? (
+          <Box
+            sx={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 1,
+              mt: 1.5,
+            }}
+          >
+            {searchFilter ? (
+              <Chip
+                label={searchFilter}
+                onDelete={() => setSearchFilter(null)}
+                sx={activeFilterChipSx}
+              />
+            ) : null}
+            {formy.map((forma) => {
+              const FormaIcon = FORMA_META[forma].Icon;
+              return (
+                <Chip
+                  key={forma}
+                  icon={<FormaIcon sx={{ fontSize: "16px !important" }} />}
+                  label={FORMA_META[forma].label}
+                  onDelete={() => setFormy(formy.filter((f) => f !== forma))}
+                  sx={activeFilterChipSx}
+                />
+              );
+            })}
+            {typy.map((typ) => (
+              <Chip
+                key={typ}
+                label={typLabelByValue[typ] ?? typ}
+                onDelete={() => setTypy(typy.filter((t) => t !== typ))}
+                sx={activeFilterChipSx}
+              />
+            ))}
+            {dateChipLabel ? (
+              <Chip
+                icon={<EventIcon sx={{ fontSize: "16px !important" }} />}
+                label={dateChipLabel}
+                onDelete={() => {
+                  setDateFrom("");
+                  setDateTo("");
+                }}
+                sx={activeFilterChipSx}
+              />
+            ) : null}
           </Box>
         ) : null}
 
@@ -585,14 +784,11 @@ export default function VisitHistoryMobile({
           </Box>{" "}
           z {tabTotalCount} wizyt
         </Typography>
-        {(activeFilters > 0 || query) && (
+        {(activeFilters > 0 || searchFilter || query.trim()) && (
           <Button
             size="small"
             sx={{ color: BRAND_BLUE, textTransform: "none" }}
-            onClick={() => {
-              clearAll();
-              setQuery("");
-            }}
+            onClick={clearAll}
           >
             Wyczyść filtry
           </Button>
@@ -843,7 +1039,7 @@ export default function VisitHistoryMobile({
           {/* Forma wizyty */}
           <Box sx={{ mb: 3 }}>
             <Typography sx={{ fontWeight: 700, fontSize: 15, color: "text.primary", mb: 1.5 }}>
-              Forma wizyty an
+              Forma wizyty
             </Typography>
             <Box sx={{ display: "flex", gap: 1.5 }}>
               {ALL_FORMY.map((f) => {

@@ -11,6 +11,7 @@ import AppointmentsTable from './AppointmentsTable';
 import VisitHistoryMobile from './VisitHistoryMobile';
 import ServiceToggle, { ServiceTab } from './ServiceToggle';
 import { useIsMobile } from '../hooks/use-mobile';
+import { normalizeSearchLabel, uniqueSearchLabels } from '../utils/searchLabels';
 
 const MainPage: React.FC = () => {
   const isMobile = useIsMobile();
@@ -19,7 +20,6 @@ const MainPage: React.FC = () => {
   const [selectedAgencies, setSelectedAgencies] = useState<string[]>([]);
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
-  const [selectedDoctor, setSelectedDoctor] = useState('');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
 
@@ -34,11 +34,11 @@ const MainPage: React.FC = () => {
 
   // Extract unique doctors for autocomplete
   const availableDoctors = useMemo(() => {
-    const doctors = new Set<string>();
+    const doctors: string[] = [];
     missions.forEach((mission) => {
-      mission.lekarz.forEach((doc) => doctors.add(doc));
+      mission.lekarz.forEach((doc) => doctors.push(doc));
     });
-    return Array.from(doctors).sort();
+    return uniqueSearchLabels(doctors).sort((a, b) => a.localeCompare(b, 'pl'));
   }, [missions]);
 
   const availableUslugi = useMemo(() => {
@@ -69,10 +69,11 @@ const MainPage: React.FC = () => {
           return false;
         }
 
-        // Search query filter
+        // Search query filter (usługa, lekarz, typ)
         if (searchQuery) {
-          const query = searchQuery.toLowerCase();
-          if (!mission.usluga.toLowerCase().includes(query)) {
+          const blob = `${mission.lekarz.map(normalizeSearchLabel).join(' ')} ${mission.usluga} ${mission.typ}`.toLowerCase();
+          const query = normalizeSearchLabel(searchQuery).toLowerCase();
+          if (!blob.includes(query)) {
             return false;
           }
         }
@@ -99,16 +100,6 @@ const MainPage: React.FC = () => {
           !selectedTypes.includes(mission.usluga)
         ) {
           return false;
-        }
-
-        // Doctor filter
-        if (selectedDoctor) {
-          const doctorMatch = mission.lekarz.some((doc) =>
-            doc.toLowerCase().includes(selectedDoctor.toLowerCase())
-          );
-          if (!doctorMatch) {
-            return false;
-          }
         }
 
         // Date range filter
@@ -144,7 +135,6 @@ const MainPage: React.FC = () => {
     selectedAgencies,
     selectedStatuses,
     selectedTypes,
-    selectedDoctor,
     dateFrom,
     dateTo,
   ]);
@@ -159,7 +149,6 @@ const MainPage: React.FC = () => {
     setSelectedAgencies([]);
     setSelectedStatuses([]);
     setSelectedTypes([]);
-    setSelectedDoctor('');
     setDateFrom('');
     setDateTo('');
     setPage(0);
@@ -247,11 +236,6 @@ const MainPage: React.FC = () => {
             selectedTypes={selectedTypes}
             onTypeFilterChange={(types) => {
               setSelectedTypes(types);
-              setPage(0);
-            }}
-            selectedDoctor={selectedDoctor}
-            onDoctorFilterChange={(doctor) => {
-              setSelectedDoctor(doctor);
               setPage(0);
             }}
             dateFrom={dateFrom}

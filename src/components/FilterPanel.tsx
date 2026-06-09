@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   Box,
   TextField,
@@ -25,6 +25,13 @@ import { focusVisibleRing } from '../styles/focus';
 import type { Mission } from '../types/mission';
 import { statusColor } from './styleUtils';
 
+const MIN_SEARCH_CHARS = 2;
+
+type SearchOption = {
+  label: string;
+  group: 'Usługi' | 'Lekarze';
+};
+
 interface FilterPanelProps {
   searchQuery: string;
   onSearchChange: (query: string) => void;
@@ -35,8 +42,6 @@ interface FilterPanelProps {
   onStatusFilterChange: (statuses: string[]) => void;
   selectedTypes: string[];
   onTypeFilterChange: (types: string[]) => void;
-  selectedDoctor: string;
-  onDoctorFilterChange: (doctor: string) => void;
   dateFrom: string;
   dateTo: string;
   onDateFromChange: (date: string) => void;
@@ -57,8 +62,6 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
   onStatusFilterChange,
   selectedTypes,
   onTypeFilterChange,
-  selectedDoctor,
-  onDoctorFilterChange,
   dateFrom,
   dateTo,
   onDateFromChange,
@@ -71,6 +74,26 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
   const [formaAnchor, setFormaAnchor] = useState<null | HTMLElement>(null);
   const [statusAnchor, setStatusAnchor] = useState<null | HTMLElement>(null);
   const [typeAnchor, setTypeAnchor] = useState<null | HTMLElement>(null);
+  const [searchOpen, setSearchOpen] = useState(false);
+
+  const searchOptions = useMemo(() => {
+    const sortPl = (a: string, b: string) => a.localeCompare(b, 'pl');
+    return [
+      ...availableUslugi
+        .slice()
+        .sort(sortPl)
+        .map((label): SearchOption => ({ label, group: 'Usługi' })),
+      ...availableDoctors
+        .slice()
+        .sort(sortPl)
+        .map((label): SearchOption => ({ label, group: 'Lekarze' })),
+    ];
+  }, [availableUslugi, availableDoctors]);
+
+  const getSearchLabel = (option: SearchOption | string) =>
+    typeof option === 'string' ? option : option.label;
+
+  const canShowSearchList = searchQuery.trim().length >= MIN_SEARCH_CHARS;
 
   const wizyty: Mission['formaWizity'][] = [
     'telefoniczna',
@@ -87,10 +110,10 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
   ];
 
   const activeFilterCount =
+    (searchQuery.trim() ? 1 : 0) +
     selectedForma.length +
     selectedStatuses.length +
     selectedTypes.length +
-    (selectedDoctor ? 1 : 0) +
     (dateFrom ? 1 : 0) +
     (dateTo ? 1 : 0);
 
@@ -244,11 +267,41 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
           >
             <Autocomplete
               freeSolo
-              openOnFocus
-              options={availableUslugi}
+              options={searchOptions}
+              groupBy={(option) =>
+                typeof option === 'string' ? 'Wyniki' : option.group
+              }
+              getOptionLabel={getSearchLabel}
+              isOptionEqualToValue={(option, value) =>
+                getSearchLabel(option) === getSearchLabel(value)
+              }
+              filterOptions={(options, { inputValue }) => {
+                const input = inputValue.trim().toLowerCase();
+                if (input.length < MIN_SEARCH_CHARS) return [];
+                return options.filter((option) =>
+                  getSearchLabel(option).toLowerCase().includes(input),
+                );
+              }}
+              open={searchOpen && canShowSearchList}
+              onOpen={() => {
+                if (canShowSearchList) setSearchOpen(true);
+              }}
+              onClose={() => setSearchOpen(false)}
               inputValue={searchQuery}
-              onInputChange={(_, v) => onSearchChange(v)}
-              onChange={(_, v) => onSearchChange((v as string) || '')}
+              onInputChange={(_, v, reason) => {
+                if (reason === 'reset') {
+                  onSearchChange('');
+                  setSearchOpen(false);
+                  return;
+                }
+                onSearchChange(v);
+                setSearchOpen(v.trim().length >= MIN_SEARCH_CHARS);
+              }}
+              onChange={(_, value) => {
+                const label =
+                  typeof value === 'string' ? value : value?.label ?? '';
+                onSearchChange(label);
+              }}
               slotProps={{
                 popper: {
                   sx: { zIndex: 1400 },
@@ -257,6 +310,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
                 paper: {
                   sx: {
                     mt: 0.5,
+                    borderRadius: 2,
                     boxShadow: '0 8px 24px rgba(15, 28, 46, 0.12)',
                   },
                 },
@@ -267,13 +321,62 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
                 '& .MuiAutocomplete-listbox': { py: 0.5 },
                 '& .MuiAutocomplete-option': { whiteSpace: 'nowrap' },
               }}
+              renderGroup={(params) => (
+                <li key={params.key}>
+                  <Typography
+                    sx={{
+                      px: 2,
+                      pt: 1.25,
+                      pb: 0.5,
+                      fontSize: 11,
+                      fontWeight: 700,
+                      letterSpacing: 0.6,
+                      textTransform: 'uppercase',
+                      color: '#64748B',
+                    }}
+                  >
+                    {params.group}
+                  </Typography>
+                  <Box component="ul" sx={{ p: 0, m: 0 }}>
+                    {params.children}
+                  </Box>
+                </li>
+              )}
+              renderOption={(props, option) => {
+                const { key, ...optionProps } = props;
+                const label = getSearchLabel(option);
+                const isDoctor =
+                  typeof option === 'object' && option.group === 'Lekarze';
+                const OptionIcon = isDoctor ? PersonIcon : MedicalServicesIcon;
+                return (
+                  <Box
+                    component="li"
+                    key={key}
+                    {...optionProps}
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 1.5,
+                      py: 1.25,
+                      px: 2,
+                    }}
+                  >
+                    <OptionIcon
+                      sx={{ fontSize: 20, color: '#6B7280', flexShrink: 0 }}
+                    />
+                    <Typography sx={{ fontSize: 15, color: 'text.primary' }}>
+                      {label}
+                    </Typography>
+                  </Box>
+                );
+              }}
               renderInput={(params) => (
                 <TextField
                   {...params}
                   fullWidth
-                  placeholder="Wyszukaj usluge..."
+                  placeholder="Szukaj lekarza lub usługi..."
                   size="small"
-                  aria-label="Szukaj uslugi"
+                  aria-label="Szukaj lekarza lub usługi"
                   InputProps={{
                     ...params.InputProps,
                     startAdornment: (
@@ -397,37 +500,6 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
               {selectedTypes.length > 0 && ` (${selectedTypes.length})`}
             </Button>
 
-            {/* Lekarz autocomplete */}
-            <Autocomplete
-              freeSolo
-              options={availableDoctors}
-              value={selectedDoctor}
-              onChange={(_, newValue) => onDoctorFilterChange(newValue || '')}
-              onInputChange={(_, newValue) => onDoctorFilterChange(newValue)}
-              size="small"
-              sx={{ minWidth: 180, ...filterFieldSx(Boolean(selectedDoctor)) }}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  placeholder="Lekarz"
-                  aria-label="Filtruj według lekarza"
-                  InputProps={{
-                    ...params.InputProps,
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <PersonIcon
-                          sx={{
-                            fontSize: 18,
-                            color: selectedDoctor ? '#004078' : '#005AA9',
-                          }}
-                        />
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-              )}
-            />
-
             {/* Date range pickers */}
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <TextField
@@ -527,6 +599,23 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
                   }}
                 />
               ))}
+              {searchQuery.trim() && (
+                <Chip
+                  label={searchQuery.trim()}
+                  onDelete={() => onSearchChange('')}
+                  size="small"
+                  sx={{
+                    bgcolor: '#E0F2FE',
+                    color: '#0369A1',
+                    '& .MuiChip-deleteIcon': {
+                      color: '#0369A1',
+                      '&:hover': {
+                        color: '#0284C7',
+                      },
+                    },
+                  }}
+                />
+              )}
               {selectedTypes.map((type) => (
                 <Chip
                   key={type}
@@ -545,23 +634,6 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
                   }}
                 />
               ))}
-              {selectedDoctor && (
-                <Chip
-                  label={`Lekarz: ${selectedDoctor}`}
-                  onDelete={() => onDoctorFilterChange('')}
-                  size="small"
-                  sx={{
-                    bgcolor: '#E0F2FE',
-                    color: '#0369A1',
-                    '& .MuiChip-deleteIcon': {
-                      color: '#0369A1',
-                      '&:hover': {
-                        color: '#0284C7',
-                      },
-                    },
-                  }}
-                />
-              )}
               {dateFrom && (
                 <Chip
                   label={`Od: ${dateFrom}`}
