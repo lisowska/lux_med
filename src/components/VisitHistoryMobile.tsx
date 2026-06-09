@@ -9,7 +9,6 @@ import {
   Typography,
   Drawer,
   Button,
-  Radio,
   Collapse,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
@@ -28,15 +27,10 @@ import PlaceIcon from "@mui/icons-material/Place";
 import PersonIcon from "@mui/icons-material/Person";
 import PhoneIcon from "@mui/icons-material/Phone";
 import ComputerIcon from "@mui/icons-material/Computer";
-import FavoriteIcon from "@mui/icons-material/Favorite";
-import MedicalServicesIcon from "@mui/icons-material/MedicalServices";
-import RestaurantIcon from "@mui/icons-material/Restaurant";
-import SpaIcon from "@mui/icons-material/Spa";
 import type { Mission } from "../types/mission";
 import missionData from "../data/missionData.json";
 import ServiceToggle, { ServiceTab } from "./ServiceToggle";
 import IconUsg from "../assets/usg.png";
-import PeopleIcon from '@mui/icons-material/People';
 import { TYPE_META, TypeIcon } from "./TypeIcon";
 import { focusVisibleRing, focusVisibleRingOnDark } from "../styles/focus";
 
@@ -175,15 +169,14 @@ const TYP_FILTER_OPTIONS: { label: string; value: Mission["typ"] }[] = [
   { label: "Laboratoryjne", value: "Badania laboratoryjne" },
 ];
 
-const USLUGA_ICONS: Partial<Record<string, typeof FavoriteIcon>> = {
-  Dietetyk: RestaurantIcon,
-  Dermatolog: SpaIcon,
-  Stomatolog: MedicalServicesIcon,
-  Okulista: PeopleIcon,
-  Pediatra: FavoriteIcon,
-  Laryngolog: MedicalServicesIcon,
-  Usg: ScienceIcon,
-  "Pobranie krwi": BiotechIcon,
+const formatVisitCount = (count: number) => {
+  if (count === 1) return "1 wizytę";
+  const mod10 = count % 10;
+  const mod100 = count % 100;
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) {
+    return `${count} wizyty`;
+  }
+  return `${count} wizyt`;
 };
 
 interface VisitHistoryMobileProps {
@@ -201,8 +194,6 @@ export default function VisitHistoryMobile({
 
   const [query, setQuery] = useState("");
   const [formy, setFormy] = useState<FormaWizyty[]>([]);
-  const [uslugi, setUslugi] = useState<string[]>([]);
-  const [doctors, setDoctors] = useState<string[]>([]);
   const [typy, setTypy] = useState<Mission["typ"][]>([]);
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
@@ -212,23 +203,17 @@ export default function VisitHistoryMobile({
   const [draftStatusTab, setDraftStatusTab] = useState<"zaplanowane" | "zrealizowane">("zaplanowane");
   const [draftFormy, setDraftFormy] = useState<FormaWizyty[]>([]);
   const [draftTypy, setDraftTypy] = useState<Mission["typ"][]>([]);
-  const [draftSpecjalista, setDraftSpecjalista] = useState<string | null>(null);
   const [draftDateFrom, setDraftDateFrom] = useState("");
   const [draftDateTo, setDraftDateTo] = useState("");
   const [dateRangeOpen, setDateRangeOpen] = useState(false);
 
-  // Get unique doctors from data
-  const availableDoctors = useMemo(() => {
-    const docs = new Set<string>();
-    missions.forEach((m) => m.lekarz.forEach((d) => docs.add(d)));
-    return Array.from(docs).sort();
-  }, [missions]);
-
-  // Get unique uslugi from data
-  const availableUslugi = useMemo(() => {
-    const uslugiSet = new Set<string>();
-    missions.forEach((m) => uslugiSet.add(m.usluga));
-    return Array.from(uslugiSet).sort();
+  const searchOptions = useMemo(() => {
+    const options = new Set<string>();
+    missions.forEach((m) => {
+      options.add(m.usluga);
+      m.lekarz.forEach((d) => options.add(d));
+    });
+    return Array.from(options).sort((a, b) => a.localeCompare(b, "pl"));
   }, [missions]);
 
   // Parse date (DD-MM-YYYY) to Date object
@@ -273,22 +258,29 @@ export default function VisitHistoryMobile({
     },
   });
 
-  const openDrawer = () => {
+  const syncDraftFromApplied = () => {
     setDraftStatusTab(serviceTab);
     setDraftFormy(formy);
     setDraftTypy(typy);
-    setDraftSpecjalista(uslugi[0] || null);
     setDraftDateFrom(dateFrom);
     setDraftDateTo(dateTo);
     setDateRangeOpen(Boolean(dateFrom || dateTo));
+  };
+
+  const openDrawer = () => {
+    syncDraftFromApplied();
     setDrawerOpen(true);
+  };
+
+  const closeDrawer = () => {
+    syncDraftFromApplied();
+    setDrawerOpen(false);
   };
 
   const applyDraft = () => {
     onServiceTabChange(draftStatusTab);
     setFormy(draftFormy);
     setTypy(draftTypy);
-    setUslugi(draftSpecjalista ? [draftSpecjalista] : []);
     setDateFrom(draftDateFrom);
     setDateTo(draftDateTo);
     setDrawerOpen(false);
@@ -298,7 +290,6 @@ export default function VisitHistoryMobile({
     setDraftStatusTab("zaplanowane");
     setDraftFormy([]);
     setDraftTypy([]);
-    setDraftSpecjalista(null);
     setDraftDateFrom("");
     setDraftDateTo("");
     setDateRangeOpen(false);
@@ -317,7 +308,6 @@ export default function VisitHistoryMobile({
       if (m.status !== statusFilter) return false;
       if (draftFormy.length && !draftFormy.includes(m.formaWizity)) return false;
       if (draftTypy.length && !draftTypy.includes(m.typ)) return false;
-      if (draftSpecjalista && m.usluga !== draftSpecjalista) return false;
       if (!matchesDateRange(m.launchDate, draftDateFrom, draftDateTo)) return false;
       if (q) {
         const blob = `${m.lekarz.join(" ")} ${m.usluga} ${m.typ}`.toLowerCase();
@@ -325,12 +315,11 @@ export default function VisitHistoryMobile({
       }
       return true;
     }).length;
-  }, [query, draftStatusTab, draftFormy, draftTypy, draftSpecjalista, draftDateFrom, draftDateTo, missions]);
+  }, [query, draftStatusTab, draftFormy, draftTypy, draftDateFrom, draftDateTo, missions]);
 
   const draftActive =
     draftFormy.length +
     draftTypy.length +
-    (draftSpecjalista ? 1 : 0) +
     (draftDateFrom ? 1 : 0) +
     (draftDateTo ? 1 : 0);
 
@@ -343,8 +332,6 @@ export default function VisitHistoryMobile({
         if (m.status !== statusFilter) return false;
         if (formy.length && !formy.includes(m.formaWizity)) return false;
         if (typy.length && !typy.includes(m.typ)) return false;
-        if (uslugi.length && !uslugi.includes(m.usluga)) return false;
-        if (doctors.length && !doctors.some((d) => m.lekarz.includes(d))) return false;
         if (!matchesDateRange(m.launchDate, dateFrom, dateTo)) return false;
         if (q) {
           const blob = `${m.lekarz.join(" ")} ${m.usluga} ${m.typ}`.toLowerCase();
@@ -357,21 +344,17 @@ export default function VisitHistoryMobile({
         const dateB = parseDate(b.launchDate);
         return dateB.getTime() - dateA.getTime();
       });
-  }, [query, serviceTab, formy, typy, uslugi, doctors, dateFrom, dateTo, missions]);
+  }, [query, serviceTab, formy, typy, dateFrom, dateTo, missions]);
 
   const activeFilters =
     formy.length +
     typy.length +
-    uslugi.length +
-    doctors.length +
     (dateFrom ? 1 : 0) +
     (dateTo ? 1 : 0);
 
   const clearAll = () => {
     setFormy([]);
     setTypy([]);
-    setUslugi([]);
-    setDoctors([]);
     setDateFrom("");
     setDateTo("");
   };
@@ -438,14 +421,15 @@ export default function VisitHistoryMobile({
       >
         <Autocomplete
           freeSolo
-          options={availableUslugi}
+          disableClearable
+          options={searchOptions}
           inputValue={query}
           onInputChange={(_, v) => setQuery(v)}
           onChange={(_, v) => setQuery((v as string) || "")}
           renderInput={(params) => (
             <TextField
               {...params}
-              placeholder="Szukaj lekarza lub uslugi..."
+              placeholder="Szukaj lekarza lub usługi..."
               aria-label="Szukaj lekarza lub usługi"
               fullWidth
               size="small"
@@ -479,6 +463,26 @@ export default function VisitHistoryMobile({
             />
           )}
         />
+
+        {query.trim() ? (
+          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mt: 1.5 }}>
+            <Chip
+              label={query.trim()}
+              size="small"
+              onDelete={() => setQuery("")}
+              sx={{
+                bgcolor: FILTER_BLUE_LIGHT,
+                color: BRAND_BLUE_DARK,
+                fontWeight: 600,
+                border: `1.5px solid ${BRAND_BLUE}`,
+                "& .MuiChip-deleteIcon": {
+                  color: BRAND_BLUE,
+                  "&:hover": { color: BRAND_BLUE_DARK },
+                },
+              }}
+            />
+          </Box>
+        ) : null}
 
         {/* Filtry – pod wyszukiwarką */}
         <Box sx={{ display: "flex", alignItems: "center", mt: 2 }}>
@@ -741,7 +745,7 @@ export default function VisitHistoryMobile({
       <Drawer
         anchor="bottom"
         open={drawerOpen}
-        onClose={() => setDrawerOpen(false)}
+        onClose={closeDrawer}
         aria-labelledby="filter-drawer-title"
         PaperProps={{
           sx: {
@@ -767,7 +771,7 @@ export default function VisitHistoryMobile({
           }}
         >
           <IconButton
-            onClick={() => setDrawerOpen(false)}
+            onClick={closeDrawer}
             aria-label="Zamknij filtry"
             size="small"
             sx={{
@@ -926,94 +930,6 @@ export default function VisitHistoryMobile({
             </Box>
           </Box>
 
-          {/* Specjalista / Usługa */}
-          <Box sx={{ mb: 2 }}>
-            <Typography sx={{ fontWeight: 700, fontSize: 15, color: "text.primary", mb: 1.5 }}>
-              Specjalista / Usługa
-            </Typography>
-            <Box role="radiogroup" aria-label="Specjalista lub usługa" sx={{ display: "flex", flexDirection: "column", gap: 1.25 }}>
-              {availableUslugi.map((label) => {
-                const active = draftSpecjalista === label;
-                const Icon = USLUGA_ICONS[label] ?? MedicalServicesIcon;
-                return (
-                  <Box
-                    key={label}
-                    role="radio"
-                    aria-checked={active}
-                    tabIndex={0}
-                    onClick={() => setDraftSpecjalista(active ? null : label)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        setDraftSpecjalista(active ? null : label);
-                      }
-                    }}
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 1.5,
-                      p: 1.5,
-                      borderRadius: 3,
-                      border: active ? `2px solid ${BRAND_BLUE}` : "2px solid transparent",
-                      bgcolor: active ? FILTER_BLUE_LIGHT : "#fff",
-                      boxShadow: active ? "none" : FILTER_CARD_SHADOW,
-                      cursor: "pointer",
-                      transition: "border-color 0.15s, box-shadow 0.15s, background-color 0.15s",
-                      "&:hover": {
-                        bgcolor: active ? FILTER_BLUE_LIGHT : "#F9FAFB",
-                        borderColor: active ? BRAND_BLUE : "transparent",
-                      },
-                      "&:focus-visible": {
-                        outline: `2px solid ${BRAND_BLUE}`,
-                        outlineOffset: 2,
-                        borderColor: BRAND_BLUE,
-                      },
-                      "&:active": {
-                        bgcolor: active ? FILTER_BLUE_HOVER : "#F3F4F6",
-                      },
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        width: 40,
-                        height: 40,
-                        borderRadius: "50%",
-                        bgcolor: active ? "#fff" : "#F3F4F6",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        flexShrink: 0,
-                      }}
-                    >
-                      <Icon sx={{ fontSize: 22, color: active ? BRAND_BLUE : "#9CA3AF" }} />
-                    </Box>
-                    <Typography
-                      sx={{
-                        flex: 1,
-                        fontWeight: active ? 600 : 500,
-                        fontSize: 15,
-                        color: active ? BRAND_BLUE : "text.primary",
-                      }}
-                    >
-                      {label}
-                    </Typography>
-                    <Radio
-                      checked={active}
-                      tabIndex={-1}
-                      aria-hidden
-                      sx={{
-                        p: 0.5,
-                        color: FILTER_GREY_BORDER,
-                        "&.Mui-checked": { color: BRAND_BLUE },
-                        "& .MuiSvgIcon-root": { fontSize: 22 },
-                      }}
-                    />
-                  </Box>
-                );
-              })}
-            </Box>
-          </Box>
-
           {/* Zakres dat */}
           <Box sx={{ mb: 2 }}>
             <Box
@@ -1122,26 +1038,7 @@ export default function VisitHistoryMobile({
               "&:active": { bgcolor: BRAND_BLUE_PRESSED, boxShadow: "none" },
             }}
           >
-            Zastosuj filtry
-            <Box
-              component="span"
-              sx={{
-                ml: 1,
-                minWidth: 28,
-                height: 28,
-                px: 1,
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                borderRadius: "50%",
-                bgcolor: "rgba(255,255,255,0.28)",
-                fontSize: 14,
-                fontWeight: 700,
-              }}
-            >
-              {draftCount}
-         
-            </Box>
+            Pokaż {formatVisitCount(draftCount)}
           </Button>
         </Box>
       </Drawer>
