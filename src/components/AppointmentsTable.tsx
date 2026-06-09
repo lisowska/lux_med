@@ -19,6 +19,7 @@ import PlaceIcon from '@mui/icons-material/Place';
 import { Mission } from '../types/mission';
 import { StatusBadge } from './StatusBadge';
 import { TypeBadge } from './TypeBadge';
+import { TABLE_BADGE_ICON_SIZE, tableBadgeBaseSx } from './styleUtils';
 
 interface AppointmentsTableProps {
   appointments: Mission[];
@@ -201,20 +202,13 @@ const AppointmentsTable: React.FC<AppointmentsTableProps> = ({
                       return (
                     <Box
                       sx={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        px: 1.25,
-                        py: 0.45,
-                        borderRadius: 1,
+                        ...tableBadgeBaseSx,
                         backgroundColor: cfg.bg,
                         color: cfg.color,
-                        fontSize: '0.75rem',
-                        fontWeight: 600,
                         border: `1px solid ${cfg.border}`,
-                        gap: 0.75,
                       }}
                     >
-                      <FormaIcon sx={{ fontSize: 16 }} />
+                      <FormaIcon sx={{ fontSize: TABLE_BADGE_ICON_SIZE }} />
                       {cfg.label}
                     </Box>
                       );

@@ -21,6 +21,22 @@ export const getStatusStyles = (status: MissionStatus) => {
   return styles[status];
 };
 
+export const TABLE_BADGE_ICON_SIZE = 20;
+
+export const tableBadgeBaseSx = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  minHeight: 28,
+  height: 28,
+  px: 1.25,
+  borderRadius: '999px',
+  fontSize: '0.75rem',
+  fontWeight: 600,
+  lineHeight: 1,
+  gap: 0.75,
+  boxSizing: 'border-box' as const,
+};
+
 export const statusColor: Record<Mission['status'], string> = {
   Odbyta: '#15803D',
   Planowana: '#0E7490',
