@@ -85,9 +85,9 @@ const AppointmentsTable: React.FC<AppointmentsTableProps> = ({
         backgroundColor: 'white',
       }}
     >
-      <TableContainer>
+      <TableContainer sx={{ width: '100%' }}>
         <Table
-          sx={{ width: 'max-content', maxWidth: '100%', tableLayout: 'fixed' }}
+          sx={{ width: '100%', tableLayout: 'fixed' }}
           aria-label="tabela wizyt"
         >
           <TableHead>
@@ -106,12 +106,14 @@ const AppointmentsTable: React.FC<AppointmentsTableProps> = ({
                 },
               }}
             >
-              <TableCell scope="col" sx={{ width: 128 }}>Usługa</TableCell>
-              <TableCell scope="col" sx={{ width: 108 }}>Data</TableCell>
-              <TableCell scope="col" sx={{ width: 248 }}>Lekarz</TableCell>
-              <TableCell scope="col" sx={{ width: 200 }}>Typ</TableCell>
-              <TableCell scope="col" sx={{ width: 192 }}>Forma wizyty</TableCell>
-              <TableCell scope="col" align="right" sx={{ width: 56 }}>Akcje</TableCell>
+              <TableCell scope="col" sx={{ width: '13%' }}>Usługa</TableCell>
+              <TableCell scope="col" sx={{ width: '10%' }}>Data</TableCell>
+              <TableCell scope="col" sx={{ width: '20%' }}>Lekarz</TableCell>
+              <TableCell scope="col" sx={{ width: '23%' }}>Typ</TableCell>
+              <TableCell scope="col" sx={{ width: '26%' }}>Forma wizyty</TableCell>
+              <TableCell scope="col" align="right" sx={{ width: '8%', minWidth: 72, pr: 2 }}>
+                Akcje
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -223,7 +225,7 @@ const AppointmentsTable: React.FC<AppointmentsTableProps> = ({
                   {/* <TableCell>
                     <StatusBadge status={appointment.status} />
                   </TableCell> */}
-                  <TableCell align="right">
+                  <TableCell align="right" sx={{ width: '8%', minWidth: 72, pr: 1 }}>
                     <IconButton
                       size="small"
                       onClick={(e) => {
