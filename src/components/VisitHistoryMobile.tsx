@@ -109,6 +109,18 @@ const filterTypChipSx = (active: boolean) => ({
   },
 });
 
+const filterDrawerRowChipSx = (active: boolean) => ({
+  ...filterTypChipSx(active),
+  flex: 1,
+  minWidth: 0,
+  "& .MuiChip-label": {
+    px: 1,
+    fontSize: 13,
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+  },
+});
+
 const filterPillButtonSx = (active: boolean) => ({
   flex: 1,
   borderRadius: 999,
@@ -139,7 +151,7 @@ type FormaWizyty = Mission["formaWizity"];
 const FORMA_META: Record<FormaWizyty, { color: string; bg: string; Icon: typeof PhoneIcon; label: string }> = {
   telefoniczna: { color: "#016B65", bg: "#E0F2F8", Icon: PhoneIcon, label: "Telemedycyna" },
   online: { color: "#004078", bg: "#E1E8F8", Icon: ComputerIcon, label: "Online" },
-  "w placówce": { color: "#8B0278", bg: "#FCE8F9", Icon: PlaceIcon, label: "Wizyta w placówce" },
+  "w placówce": { color: "#8B0278", bg: "#FCE8F9", Icon: PlaceIcon, label: "W placówce" },
 };
 
 const ALL_FORMY: FormaWizyty[] = ["telefoniczna", "online", "w placówce"];
@@ -1000,7 +1012,7 @@ export default function VisitHistoryMobile({
             <Typography sx={{ fontWeight: 700, fontSize: 15, color: "text.primary", mb: 1.5 }}>
               Forma wizyty
             </Typography>
-            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+            <Box sx={{ display: "flex", gap: 1 }}>
               {ALL_FORMY.map((f) => {
                 const active = draftFormy.includes(f);
                 const meta = FORMA_META[f];
@@ -1011,7 +1023,7 @@ export default function VisitHistoryMobile({
                     icon={<Icon sx={{ fontSize: "18px !important" }} />}
                     label={meta.label}
                     onClick={() => toggleDraftForma(f)}
-                    sx={filterTypChipSx(active)}
+                    sx={filterDrawerRowChipSx(active)}
                   />
                 );
               })}
@@ -1023,7 +1035,7 @@ export default function VisitHistoryMobile({
             <Typography sx={{ fontWeight: 700, fontSize: 15, color: "text.primary", mb: 1.5 }}>
               Typ
             </Typography>
-            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+            <Box sx={{ display: "flex", gap: 1 }}>
               {TYP_FILTER_OPTIONS.map(({ label, value }) => {
                 const active = draftTypy.includes(value);
                 const TypIcon =
@@ -1054,7 +1066,7 @@ export default function VisitHistoryMobile({
                     }
                     label={label}
                     onClick={() => toggleDraftTyp(value)}
-                    sx={filterTypChipSx(active)}
+                    sx={filterDrawerRowChipSx(active)}
                   />
                 );
               })}
