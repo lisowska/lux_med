@@ -45,11 +45,13 @@ export const TypeBadge = ({ type }: TypeBadgeProps) => {
           color: config.color,
           backgroundColor: config.bg,
           border: `1px solid ${config.color}33`,
+          maxWidth: 'none',
           '& .MuiChip-label': {
             px: 0,
             py: 0,
             display: 'flex',
             alignItems: 'center',
+            whiteSpace: 'nowrap',
           },
         }}
       />

@@ -35,6 +35,9 @@ import IconUsg from "../assets/usg.png";
 import { TYPE_META, TypeIcon } from "./TypeIcon";
 import { focusVisibleRing, focusVisibleRingOnDark } from "../styles/focus";
 import { normalizeSearchLabel, uniqueSearchLabels } from "../utils/searchLabels";
+import { formatIsoDateForDisplay } from "../utils/formatDate";
+import { formatVisitCount } from "../utils/visitCount";
+import ResultCountLabel from "./ResultCountLabel";
 
 // Brand blue color
 const BRAND_BLUE = "#005aa9";
@@ -176,21 +179,6 @@ const TYP_FILTER_OPTIONS: { label: string; value: Mission["typ"] }[] = [
   { label: "Konsultacja", value: "Konsultacja" },
   { label: "Laboratoryjne", value: "Badania laboratoryjne" },
 ];
-
-const formatVisitCount = (count: number) => {
-  if (count === 1) return "1 wizytę";
-  const mod10 = count % 10;
-  const mod100 = count % 100;
-  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) {
-    return `${count} wizyty`;
-  }
-  return `${count} wizyt`;
-};
-
-const formatChipDate = (iso: string) => {
-  const [year, month, day] = iso.split("-");
-  return `${day}.${month}.${year}`;
-};
 
 const typLabelByValue = Object.fromEntries(
   TYP_FILTER_OPTIONS.map((option) => [option.value, option.label]),
@@ -400,10 +388,10 @@ export default function VisitHistoryMobile({
 
   const dateChipLabel = useMemo(() => {
     if (dateFrom && dateTo) {
-      return `${formatChipDate(dateFrom)} – ${formatChipDate(dateTo)}`;
+      return `${formatIsoDateForDisplay(dateFrom)} – ${formatIsoDateForDisplay(dateTo)}`;
     }
-    if (dateFrom) return `Od ${formatChipDate(dateFrom)}`;
-    if (dateTo) return `Do ${formatChipDate(dateTo)}`;
+    if (dateFrom) return `Od ${formatIsoDateForDisplay(dateFrom)}`;
+    if (dateTo) return `Do ${formatIsoDateForDisplay(dateTo)}`;
     return "";
   }, [dateFrom, dateTo]);
 
@@ -778,12 +766,12 @@ export default function VisitHistoryMobile({
           mt: 0.5,
         }}
       >
-        <Typography variant="body2" color="text.secondary">
-          <Box component="strong" sx={{ color: BRAND_BLUE }}>
-            {filtered.length}
-          </Box>{" "}
-          z {tabTotalCount} wizyt
-        </Typography>
+        <ResultCountLabel
+          filtered={filtered.length}
+          total={tabTotalCount}
+          hasActiveFilters={hasActiveChips}
+          highlightColor={BRAND_BLUE}
+        />
         {(activeFilters > 0 || searchFilter || query.trim()) && (
           <Button
             size="small"
@@ -798,7 +786,7 @@ export default function VisitHistoryMobile({
       {/* Cards grouped by month */}
       {grouped.length === 0 && (
         <Box sx={{ py: 6, textAlign: "center" }}>
-          <Typography color="text.secondary">Brak wynikow.</Typography>
+          <Typography color="text.secondary">Brak wyników.</Typography>
         </Box>
       )}
 

@@ -20,7 +20,7 @@ const MainPage: React.FC = () => {
   const [searchFilter, setSearchFilter] = useState('');
   const [selectedAgencies, setSelectedAgencies] = useState<string[]>([]);
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
-  const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
+  const [selectedTypy, setSelectedTypy] = useState<Mission['typ'][]>([]);
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
 
@@ -96,10 +96,10 @@ const MainPage: React.FC = () => {
           return false;
         }
 
-        // Usluga filter
+        // Typ wizyty filter
         if (
-          selectedTypes.length > 0 &&
-          !selectedTypes.includes(mission.usluga)
+          selectedTypy.length > 0 &&
+          !selectedTypy.includes(mission.typ)
         ) {
           return false;
         }
@@ -137,7 +137,7 @@ const MainPage: React.FC = () => {
     searchFilter,
     selectedAgencies,
     selectedStatuses,
-    selectedTypes,
+    selectedTypy,
     dateFrom,
     dateTo,
   ]);
@@ -152,7 +152,7 @@ const MainPage: React.FC = () => {
     setSearchFilter('');
     setSelectedAgencies([]);
     setSelectedStatuses([]);
-    setSelectedTypes([]);
+    setSelectedTypy([]);
     setDateFrom('');
     setDateTo('');
     setPage(0);
@@ -219,7 +219,7 @@ const MainPage: React.FC = () => {
           />
         </Box>
           
-        <Box sx={{ maxWidth: 920, mx: 'auto' }}>
+        <Box sx={{ width: '100%', maxWidth: 1080, mx: 'auto' }}>
           <FilterPanel
             searchInput={searchInput}
             onSearchInputChange={(query) => {
@@ -242,9 +242,9 @@ const MainPage: React.FC = () => {
               setSelectedStatuses(statuses);
               setPage(0);
             }}
-            selectedTypes={selectedTypes}
-            onTypeFilterChange={(types) => {
-              setSelectedTypes(types);
+            selectedTypy={selectedTypy}
+            onTypFilterChange={(typy) => {
+              setSelectedTypy(typy);
               setPage(0);
             }}
             dateFrom={dateFrom}
@@ -264,7 +264,7 @@ const MainPage: React.FC = () => {
           />
         </Box>
 
-        <Box sx={{ maxWidth: 920, mx: 'auto' }}>
+        <Box sx={{ width: '100%', maxWidth: 1080, mx: 'auto' }}>
           {filteredMissions.length === 0 ? (
             <Paper
               sx={{
@@ -298,10 +298,10 @@ const MainPage: React.FC = () => {
                 variant="h6"
                 sx={{ color: '#1E293B', fontWeight: 600, mb: 1 }}
               >
-                Brak wynikow
+                Brak wyników
               </Typography>
               <Typography variant="body2" sx={{ color: '#64748B' }}>
-                Sprobuj wyszukac inna usluge lub dostosuj filtry
+                Spróbuj wyszukać inną usługę lub dostosuj filtry
               </Typography>
             </Paper>
           ) : (

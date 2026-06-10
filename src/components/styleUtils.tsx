@@ -35,6 +35,8 @@ export const tableBadgeBaseSx = {
   lineHeight: 1,
   gap: 0.75,
   boxSizing: 'border-box' as const,
+  whiteSpace: 'nowrap',
+  flexShrink: 0,
 };
 
 export const statusColor: Record<Mission['status'], string> = {

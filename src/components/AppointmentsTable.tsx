@@ -14,6 +14,7 @@ import {
 } from '@mui/material';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import PhoneIcon from '@mui/icons-material/Phone';
+import { formatLaunchDate } from '../utils/formatDate';
 import ComputerIcon from '@mui/icons-material/Computer';
 import PlaceIcon from '@mui/icons-material/Place';
 import { Mission } from '../types/mission';
@@ -29,12 +30,6 @@ interface AppointmentsTableProps {
   onPageChange: (event: unknown, newPage: number) => void;
   onRowsPerPageChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
-
-const formatDate = (dateString: string): string => {
-  const [day, month, year] = dateString.split('-');
-  // desired format: dd.mm.yyyy
-  return `${String(day).padStart(2, '0')}.${String(month).padStart(2, '0')}.${year}`;
-};
 
 const formaConfig: Record<
   Mission['formaWizity'],
@@ -91,12 +86,14 @@ const AppointmentsTable: React.FC<AppointmentsTableProps> = ({
       }}
     >
       <TableContainer>
-        <Table sx={{ minWidth: 900 }} aria-label="tabela wizyt">
+        <Table
+          sx={{ width: 'max-content', maxWidth: '100%', tableLayout: 'fixed' }}
+          aria-label="tabela wizyt"
+        >
           <TableHead>
             <TableRow
               sx={{
                 backgroundColor:'#F0F2F6',
-                // backgroundColor: '#E2E8F0',
                 '& th': {
                   fontWeight: 600,
                   color: '#475569',
@@ -105,16 +102,16 @@ const AppointmentsTable: React.FC<AppointmentsTableProps> = ({
                   borderBottom: '1px solid',
                   borderColor: '#E2E8F0',
                   py: 2,
+                  whiteSpace: 'nowrap',
                 },
               }}
             >
-              <TableCell scope="col">Usluga</TableCell>
-              <TableCell scope="col">Data</TableCell>
-              <TableCell scope="col">Lekarz</TableCell>
-              <TableCell scope="col">Typ</TableCell>
-              <TableCell scope="col">Forma wizyty</TableCell>
-              {/* <TableCell>Status</TableCell> */}
-              <TableCell scope="col" align="right">Akcje</TableCell>
+              <TableCell scope="col" sx={{ width: 128 }}>Usługa</TableCell>
+              <TableCell scope="col" sx={{ width: 108 }}>Data</TableCell>
+              <TableCell scope="col" sx={{ width: 248 }}>Lekarz</TableCell>
+              <TableCell scope="col" sx={{ width: 200 }}>Typ</TableCell>
+              <TableCell scope="col" sx={{ width: 192 }}>Forma wizyty</TableCell>
+              <TableCell scope="col" align="right" sx={{ width: 56 }}>Akcje</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -122,13 +119,13 @@ const AppointmentsTable: React.FC<AppointmentsTableProps> = ({
               <TableRow>
                 <TableCell colSpan={6} align="center" sx={{ py: 6 }}>
                   <Typography variant="body2" color="text.secondary">
-                    Brak wynikow dla wybranych filtrow
+                    Brak wyników dla wybranych filtrów
                   </Typography>
                 </TableCell>
               </TableRow>
             ) : (
               paginatedAppointments.map((appointment, index) => {
-                const rowLabel = `${appointment.usluga}, ${formatDate(appointment.launchDate)}, ${appointment.lekarz.join(', ') || 'brak lekarza'}`;
+                const rowLabel = `${appointment.usluga}, ${formatLaunchDate(appointment.launchDate)}, ${appointment.lekarz.join(', ') || 'brak lekarza'}`;
                 return (
                 <TableRow
                   key={`${appointment.id}-${index}`}
@@ -161,7 +158,7 @@ const AppointmentsTable: React.FC<AppointmentsTableProps> = ({
                     },
                   }}
                 >
-                  <TableCell>
+                  <TableCell sx={{ whiteSpace: 'nowrap' }}>
                     <Typography
                       sx={{
                         fontWeight: 500,
@@ -172,18 +169,27 @@ const AppointmentsTable: React.FC<AppointmentsTableProps> = ({
                       {appointment.usluga}
                     </Typography>
                   </TableCell>
-                  <TableCell>
+                  <TableCell sx={{ whiteSpace: 'nowrap' }}>
                     <Typography
                       sx={{
                         color: '#475569',
                         fontSize: '0.875rem',
                       }}
                     >
-                      {formatDate(appointment.launchDate)}
+                      {formatLaunchDate(appointment.launchDate)}
                     </Typography>
                   </TableCell>
-                  <TableCell>
+                  <TableCell
+                    sx={{
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      maxWidth: 0,
+                    }}
+                  >
                     <Typography
+                      noWrap
+                      title={appointment.lekarz.join(', ') || undefined}
                       sx={{
                         color: '#475569',
                         fontSize: '0.875rem',
@@ -192,10 +198,10 @@ const AppointmentsTable: React.FC<AppointmentsTableProps> = ({
                       {appointment.lekarz.join(', ') || '—'}
                     </Typography>
                   </TableCell>
-                  <TableCell>
+                  <TableCell sx={{ whiteSpace: 'nowrap' }}>
                     <TypeBadge type={appointment.typ} />
                   </TableCell>
-                  <TableCell>
+                  <TableCell sx={{ whiteSpace: 'nowrap' }}>
                     {(() => {
                       const cfg = formaConfig[appointment.formaWizity];
                       const FormaIcon = cfg.Icon;
@@ -224,7 +230,7 @@ const AppointmentsTable: React.FC<AppointmentsTableProps> = ({
                         e.stopPropagation();
                         onRowClick(appointment);
                       }}
-                      aria-label="Zobacz szczegoly"
+                      aria-label="Zobacz szczegóły"
                       sx={{
                         color: '#64748B',
                         '&:hover': {
@@ -251,7 +257,7 @@ const AppointmentsTable: React.FC<AppointmentsTableProps> = ({
         rowsPerPage={rowsPerPage}
         onRowsPerPageChange={onRowsPerPageChange}
         rowsPerPageOptions={[5, 10, 25]}
-        labelRowsPerPage="Wierszy na strone"
+        labelRowsPerPage="Wierszy na stronę"
         labelDisplayedRows={({ count }) => {
           const totalPages = Math.max(1, Math.ceil(count / rowsPerPage));
           return `${page + 1} z ${totalPages}`;

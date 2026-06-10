@@ -15,6 +15,7 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { Mission, SkierowanieStatus } from '../types/mission';
+import { formatLaunchDate } from '../utils/formatDate';
 
 const BRAND_BLUE = '#005aa9';
 
@@ -35,11 +36,6 @@ const statusTitle: Record<Mission['status'], string> = {
   Odbyta: 'Zrealizowana usługa',
   Planowana: 'Zaplanowana wizyta',
   Anulowana: 'Anulowana wizyta',
-};
-
-const formatDateShort = (dateStr: string): string => {
-  const [day, month, year] = dateStr.split('-');
-  return `${day}.${month}.${year}`;
 };
 
 const skierowanieStatusMeta: Record<
@@ -157,7 +153,7 @@ const MissionDetail: React.FC<MissionDetailProps> = ({ mission, open, onClose })
         >
           <Box sx={{ px: 2.5, py: 2 }}>
             <Typography sx={{ fontSize: 18, fontWeight: 700, color: 'text.primary' }}>
-              {formatDateShort(mission.launchDate)}
+              {formatLaunchDate(mission.launchDate)}
             </Typography>
           </Box>
 

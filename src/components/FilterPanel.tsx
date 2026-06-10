@@ -16,11 +16,14 @@ import SearchIcon from '@mui/icons-material/Search';
 import BusinessIcon from '@mui/icons-material/Business';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 import MedicalServicesIcon from '@mui/icons-material/MedicalServices';
+import ScienceIcon from '@mui/icons-material/Science';
 import PersonIcon from '@mui/icons-material/Person';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import CheckIcon from '@mui/icons-material/Check';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { focusVisibleRing } from '../styles/focus';
+import { formatIsoDateForDisplay } from '../utils/formatDate';
+import ResultCountLabel from './ResultCountLabel';
 import type { Mission } from '../types/mission';
 import { statusColor } from './styleUtils';
 
@@ -41,8 +44,8 @@ interface FilterPanelProps {
   onAgencyFilterChange: (agencies: string[]) => void;
   selectedStatuses: string[];
   onStatusFilterChange: (statuses: string[]) => void;
-  selectedTypes: string[];
-  onTypeFilterChange: (types: string[]) => void;
+  selectedTypy: Mission['typ'][];
+  onTypFilterChange: (typy: Mission['typ'][]) => void;
   dateFrom: string;
   dateTo: string;
   onDateFromChange: (date: string) => void;
@@ -63,8 +66,8 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
   onAgencyFilterChange,
   selectedStatuses,
   onStatusFilterChange,
-  selectedTypes,
-  onTypeFilterChange,
+  selectedTypy,
+  onTypFilterChange,
   dateFrom,
   dateTo,
   onDateFromChange,
@@ -111,19 +114,20 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
     'w placówce',
   ];
   const statuses: Mission['status'][] = ['Odbyta', 'Planowana', 'Anulowana'];
-  const types: Mission['usluga'][] = [
-    'Ginekolog',
-    'Pediatra',
-    'Usg',
-    'Dietetyk',
-    'Okulista',
+  const TYP_FILTER_OPTIONS: { label: string; value: Mission['typ'] }[] = [
+    { label: 'Badanie', value: 'Badanie' },
+    { label: 'Konsultacja', value: 'Konsultacja' },
+    { label: 'Laboratoryjne', value: 'Badania laboratoryjne' },
   ];
+  const typLabelByValue = Object.fromEntries(
+    TYP_FILTER_OPTIONS.map((option) => [option.value, option.label]),
+  ) as Record<Mission['typ'], string>;
 
   const activeFilterCount =
-    (searchFilter.trim() || searchInput.trim() ? 1 : 0) +
+    (searchFilter.trim() ? 1 : 0) +
     selectedForma.length +
     selectedStatuses.length +
-    selectedTypes.length +
+    selectedTypy.length +
     (dateFrom ? 1 : 0) +
     (dateTo ? 1 : 0);
 
@@ -221,11 +225,11 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
     }
   };
 
-  const handleTypeToggle = (type: string) => {
-    if (selectedTypes.includes(type)) {
-      onTypeFilterChange(selectedTypes.filter((t) => t !== type));
+  const handleTypToggle = (typ: Mission['typ']) => {
+    if (selectedTypy.includes(typ)) {
+      onTypFilterChange(selectedTypy.filter((t) => t !== typ));
     } else {
-      onTypeFilterChange([...selectedTypes, type]);
+      onTypFilterChange([...selectedTypy, typ]);
     }
   };
 
@@ -244,9 +248,9 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
 
   const getFormaWizytyLabel = (forma: string): string => {
     const labels: Record<string, string> = {
-      telefoniczna: 'Telefoniczna',
+      telefoniczna: 'Telemedycyna',
       online: 'Online',
-      'w placówce': 'W placówce',
+      'w placówce': 'Wizyta w placówce',
     };
     return labels[forma] || forma;
   };
@@ -455,19 +459,11 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
                 minWidth: 'max-content',
               }}
             >
-              <Typography
-                sx={{
-                  fontSize: '0.875rem',
-                  color: '#64748B',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                Znaleziono{' '}
-                <Box component="span" sx={{ color: '#004078', fontWeight: 600 }}>
-                  {resultCount}
-                </Box>{' '}
-                z {totalCount} wizyt
-              </Typography>
+              <ResultCountLabel
+                filtered={resultCount}
+                total={totalCount}
+                hasActiveFilters={activeFilterCount > 0}
+              />
               {activeFilterCount > 0 && (
                 <Button
                   variant="text"
@@ -544,13 +540,13 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
               {selectedStatuses.length > 0 && ` (${selectedStatuses.length})`}
             </Button> */}
 
-            {/* Usluga dropdown */}
+            {/* Typ wizyty dropdown */}
             <Button
-              id="type-filter-button"
+              id="typ-filter-button"
               variant="outlined"
               aria-haspopup="menu"
               aria-expanded={Boolean(typeAnchor)}
-              aria-controls="type-filter-menu"
+              aria-controls="typ-filter-menu"
               endIcon={
                 <ArrowDropDownIcon
                   sx={{
@@ -562,15 +558,15 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
               onClick={(e) => setTypeAnchor(e.currentTarget)}
               size="small"
               sx={{
-                ...filterSelectButtonSx(selectedTypes.length > 0),
+                ...filterSelectButtonSx(selectedTypy.length > 0),
                 gridColumn: { md: '2' },
                 gridRow: { md: '2' },
                 justifySelf: { md: 'start' },
               }}
             >
-              <MedicalServicesIcon sx={{ mr: 1, fontSize: 18 }} />
-              Usluga
-              {selectedTypes.length > 0 && ` (${selectedTypes.length})`}
+              <ScienceIcon sx={{ mr: 1, fontSize: 18 }} />
+              Typ
+              {selectedTypy.length > 0 && ` (${selectedTypy.length})`}
             </Button>
 
             {/* Date range pickers */}
@@ -688,11 +684,11 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
                   }}
                 />
               )}
-              {selectedTypes.map((type) => (
+              {selectedTypy.map((typ) => (
                 <Chip
-                  key={type}
-                  label={type}
-                  onDelete={() => handleTypeToggle(type)}
+                  key={typ}
+                  label={typLabelByValue[typ] ?? typ}
+                  onDelete={() => handleTypToggle(typ)}
                   size="small"
                   sx={{
                     bgcolor: '#E0F2FE',
@@ -708,7 +704,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
               ))}
               {dateFrom && (
                 <Chip
-                  label={`Od: ${dateFrom}`}
+                  label={`Od: ${formatIsoDateForDisplay(dateFrom)}`}
                   onDelete={() => onDateFromChange('')}
                   size="small"
                   sx={{
@@ -725,7 +721,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
               )}
               {dateTo && (
                 <Chip
-                  label={`Do: ${dateTo}`}
+                  label={`Do: ${formatIsoDateForDisplay(dateTo)}`}
                   onDelete={() => onDateToChange('')}
                   size="small"
                   sx={{
@@ -820,7 +816,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
           </Menu>
 
           <Menu
-            id="type-filter-menu"
+            id="typ-filter-menu"
             anchorEl={typeAnchor}
             open={Boolean(typeAnchor)}
             onClose={() => setTypeAnchor(null)}
@@ -835,17 +831,17 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
               },
             }}
           >
-            {types.map((type) => (
+            {TYP_FILTER_OPTIONS.map(({ label, value }) => (
               <MenuItem
-                key={type}
-                onClick={() => handleTypeToggle(type)}
-                selected={selectedTypes.includes(type)}
+                key={value}
+                onClick={() => handleTypToggle(value)}
+                selected={selectedTypy.includes(value)}
                 sx={{ py: 1.25, gap: 1.5, justifyContent: 'space-between' }}
               >
                 <Typography sx={{ fontWeight: 500, fontSize: '0.875rem' }}>
-                  {type}
+                  {label}
                 </Typography>
-                <CheckSlot checked={selectedTypes.includes(type)} />
+                <CheckSlot checked={selectedTypy.includes(value)} />
               </MenuItem>
             ))}
           </Menu>

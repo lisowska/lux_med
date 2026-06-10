@@ -7,7 +7,7 @@ const HeaderHealth = () => {
   return (
     <Box
       sx={{
-        maxWidth: { md: 920 },
+        maxWidth: { md: 1080 },
         position: 'relative',
         color: 'black',
         background: 'white',
@@ -63,7 +63,7 @@ const HeaderHealth = () => {
                 color: 'grey',
                 lineHeight: 1.6,
                 fontSize: { xs: '0.75rem', md: '0.95rem' },
-                maxWidth: 340,
+                maxWidth: { md: 480 },
               }}
             >
               Przeszukuj i filtruj swoje wizyty, badania, teleporady w jednym
