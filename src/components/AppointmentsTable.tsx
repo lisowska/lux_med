@@ -111,8 +111,8 @@ const AppointmentsTable: React.FC<AppointmentsTableProps> = ({
               <TableCell scope="col" sx={{ width: '20%' }}>Lekarz</TableCell>
               <TableCell scope="col" sx={{ width: '23%' }}>Typ</TableCell>
               <TableCell scope="col" sx={{ width: '26%' }}>Forma wizyty</TableCell>
-              <TableCell scope="col" align="right" sx={{ width: '8%', minWidth: 72, pr: 2 }}>
-                Akcje
+              <TableCell scope="col" align="right" sx={{ width: '8%', minWidth: 88, pr: 2 }}>
+                Szczegóły
               </TableCell>
             </TableRow>
           </TableHead>
@@ -225,7 +225,7 @@ const AppointmentsTable: React.FC<AppointmentsTableProps> = ({
                   {/* <TableCell>
                     <StatusBadge status={appointment.status} />
                   </TableCell> */}
-                  <TableCell align="right" sx={{ width: '8%', minWidth: 72, pr: 1 }}>
+                  <TableCell align="right" sx={{ width: '8%', minWidth: 88, pr: 1 }}>
                     <IconButton
                       size="small"
                       onClick={(e) => {
