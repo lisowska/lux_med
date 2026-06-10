@@ -36,6 +36,7 @@ import { TYPE_META, TypeIcon } from "./TypeIcon";
 import { focusVisibleRing, focusVisibleRingOnDark } from "../styles/focus";
 import { normalizeSearchLabel, uniqueSearchLabels } from "../utils/searchLabels";
 import { formatIsoDateForDisplay } from "../utils/formatDate";
+import { handleDateFieldClick } from "../utils/dateInput";
 import { formatVisitCount } from "../utils/visitCount";
 import ResultCountLabel from "./ResultCountLabel";
 
@@ -1158,6 +1159,8 @@ export default function VisitHistoryMobile({
                   size="small"
                   InputLabelProps={{ shrink: true }}
                   InputProps={{
+                    onClick: handleDateFieldClick,
+                    sx: { cursor: "pointer" },
                     startAdornment: (
                       <InputAdornment position="start">
                         <CalendarTodayIcon
@@ -1178,6 +1181,8 @@ export default function VisitHistoryMobile({
                   InputLabelProps={{ shrink: true }}
                   inputProps={{ min: draftDateFrom || undefined }}
                   InputProps={{
+                    onClick: handleDateFieldClick,
+                    sx: { cursor: "pointer" },
                     startAdornment: (
                       <InputAdornment position="start">
                         <CalendarTodayIcon

@@ -23,6 +23,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { focusVisibleRing } from '../styles/focus';
 import { formatIsoDateForDisplay } from '../utils/formatDate';
+import { handleDateFieldClick } from '../utils/dateInput';
 import ResultCountLabel from './ResultCountLabel';
 import type { Mission } from '../types/mission';
 import { statusColor } from './styleUtils';
@@ -131,13 +132,16 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
     (dateFrom ? 1 : 0) +
     (dateTo ? 1 : 0);
 
+  const filterActiveBg = '#E8F4FD';
+
   const filterSelectButtonSx = (isActive: boolean) => ({
     textTransform: 'none',
     borderRadius: 2,
     borderWidth: '1px',
+    borderStyle: 'solid',
     borderColor: isActive ? '#004078' : '#005AA9',
     color: isActive ? '#004078' : '#005AA9',
-    bgcolor: isActive ? '#DFEFFF' : 'transparent',
+    bgcolor: isActive ? filterActiveBg : 'transparent',
     boxShadow: 'none',
     height: 40,
     minHeight: 40,
@@ -145,14 +149,14 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
     '& .MuiSvgIcon-root': { color: 'inherit' },
     '&:hover': {
       borderColor: '#004078',
-      bgcolor: '#F7FAFD',
+      bgcolor: isActive ? filterActiveBg : '#F7FAFD',
       color: '#004078',
       boxShadow: 'none',
     },
     ...focusVisibleRing,
     '&:active': {
       borderColor: '#004078',
-      bgcolor: '#DFEFFF',
+      bgcolor: filterActiveBg,
       color: '#004078',
       boxShadow: 'none',
     },
@@ -160,24 +164,29 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
     py: 0.75,
   });
 
+  const filterFieldBorderSx = (isActive: boolean) => ({
+    borderWidth: '1px',
+    borderColor: isActive ? '#004078' : '#005AA9',
+  });
+
   const filterFieldSx = (isActive: boolean) => ({
     '& .MuiOutlinedInput-root': {
       height: 40,
       minHeight: 40,
       borderRadius: 2,
-      borderWidth: '1px',
-      bgcolor: isActive ? '#DFEFFF' : 'transparent',
+      bgcolor: isActive ? filterActiveBg : 'transparent',
       py: 0,
       alignItems: 'center',
-      '& fieldset': {
-        borderColor: isActive ? '#004078' : '#005AA9',
-      },
-      '&:hover fieldset': {
+      cursor: 'pointer',
+      '& .MuiOutlinedInput-notchedOutline': filterFieldBorderSx(isActive),
+      '&:hover .MuiOutlinedInput-notchedOutline': {
+        borderWidth: '1px',
         borderColor: '#004078',
       },
-    },
-    '&& .MuiOutlinedInput-root.Mui-focused fieldset': {
-      borderColor: '#004078',
+      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+        borderWidth: '1px',
+        borderColor: '#004078',
+      },
     },
     '& .MuiOutlinedInput-input, & .MuiInputBase-input': {
       height: 40,
@@ -192,6 +201,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
       height: 40,
       paddingTop: 0,
       paddingBottom: 0,
+      cursor: 'pointer',
     },
     // Chrome/Safari date icon color (native calendar indicator)
     '& input[type=\"date\"]::-webkit-calendar-picker-indicator': {
@@ -584,6 +594,9 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
                 value={dateFrom}
                 onChange={(e) => onDateFromChange(e.target.value)}
                 InputLabelProps={{ shrink: true }}
+                InputProps={{
+                  onClick: handleDateFieldClick,
+                }}
                 sx={{
                   width: { xs: '50%', md: '100%' },
                   maxWidth: 160,
@@ -599,6 +612,9 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
                 value={dateTo}
                 onChange={(e) => onDateToChange(e.target.value)}
                 InputLabelProps={{ shrink: true }}
+                InputProps={{
+                  onClick: handleDateFieldClick,
+                }}
                 sx={{
                   width: { xs: '50%', md: '100%' },
                   maxWidth: 160,
