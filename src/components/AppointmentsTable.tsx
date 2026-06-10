@@ -87,7 +87,21 @@ const AppointmentsTable: React.FC<AppointmentsTableProps> = ({
     >
       <TableContainer sx={{ width: '100%' }}>
         <Table
-          sx={{ width: '100%', tableLayout: 'fixed' }}
+          sx={{
+            width: '100%',
+            tableLayout: 'fixed',
+            '& .MuiTableCell-root:first-of-type': { pl: 3 },
+            '& .MuiTableCell-root:last-of-type': {
+              width: 132,
+              minWidth: 132,
+              maxWidth: 132,
+              pr: 3,
+              pl: 1,
+              textAlign: 'right',
+              whiteSpace: 'nowrap',
+              overflow: 'visible',
+            },
+          }}
           aria-label="tabela wizyt"
         >
           <TableHead>
@@ -110,10 +124,8 @@ const AppointmentsTable: React.FC<AppointmentsTableProps> = ({
               <TableCell scope="col" sx={{ width: '10%' }}>Data</TableCell>
               <TableCell scope="col" sx={{ width: '20%' }}>Lekarz</TableCell>
               <TableCell scope="col" sx={{ width: '23%' }}>Typ</TableCell>
-              <TableCell scope="col" sx={{ width: '26%' }}>Forma wizyty</TableCell>
-              <TableCell scope="col" align="right" sx={{ width: '8%', minWidth: 88, pr: 2 }}>
-                Szczegóły
-              </TableCell>
+              <TableCell scope="col">Forma wizyty</TableCell>
+              <TableCell scope="col">Szczegóły</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -225,24 +237,27 @@ const AppointmentsTable: React.FC<AppointmentsTableProps> = ({
                   {/* <TableCell>
                     <StatusBadge status={appointment.status} />
                   </TableCell> */}
-                  <TableCell align="right" sx={{ width: '8%', minWidth: 88, pr: 1 }}>
-                    <IconButton
-                      size="small"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onRowClick(appointment);
-                      }}
-                      aria-label="Zobacz szczegóły"
-                      sx={{
-                        color: '#64748B',
-                        '&:hover': {
-                          color: '#1E293B',
-                          backgroundColor: '#F1F5F9',
-                        },
-                      }}
-                    >
-                      <ChevronRightIcon />
-                    </IconButton>
+                  <TableCell>
+                    <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                      <IconButton
+                        size="small"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onRowClick(appointment);
+                        }}
+                        aria-label="Zobacz szczegóły"
+                        sx={{
+                          mr: -0.75,
+                          color: '#64748B',
+                          '&:hover': {
+                            color: '#1E293B',
+                            backgroundColor: '#F1F5F9',
+                          },
+                        }}
+                      >
+                        <ChevronRightIcon />
+                      </IconButton>
+                    </Box>
                   </TableCell>
                 </TableRow>
               );
@@ -268,7 +283,7 @@ const AppointmentsTable: React.FC<AppointmentsTableProps> = ({
           borderTop: '1px solid',
           borderColor: 'divider',
           '& .MuiTablePagination-toolbar': {
-            px: 2,
+            px: 3,
           },
           '& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows':
             {
