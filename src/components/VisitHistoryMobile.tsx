@@ -134,36 +134,6 @@ const filterPillButtonSx = (active: boolean) => ({
   },
 });
 
-const filterFormaCardSx = (active: boolean) => ({
-  flex: 1,
-  py: 2,
-  px: 1,
-  borderRadius: 2.5,
-  border: `2px solid ${active ? BRAND_BLUE : "transparent"}`,
-  bgcolor: active ? FILTER_BLUE_LIGHT : "#fff",
-  boxShadow: FILTER_CARD_SHADOW,
-  display: "flex",
-  flexDirection: "column" as const,
-  alignItems: "center",
-  gap: 1,
-  cursor: "pointer",
-  transition: "border-color 0.15s, background-color 0.15s",
-  "&:hover": {
-    bgcolor: active ? FILTER_BLUE_LIGHT : "#F9FAFB",
-    borderColor: active ? BRAND_BLUE : FILTER_GREY_BORDER,
-  },
-  "&:focus-visible": {
-    outline: `2px solid ${BRAND_BLUE}`,
-    outlineOffset: 2,
-    bgcolor: active ? FILTER_BLUE_LIGHT : "#fff",
-    borderColor: BRAND_BLUE,
-  },
-  "&:active": {
-    bgcolor: active ? FILTER_BLUE_HOVER : "#F3F4F6",
-    borderColor: BRAND_BLUE,
-  },
-});
-
 type FormaWizyty = Mission["formaWizity"];
 
 const FORMA_META: Record<FormaWizyty, { color: string; bg: string; Icon: typeof PhoneIcon; label: string }> = {
@@ -1030,43 +1000,19 @@ export default function VisitHistoryMobile({
             <Typography sx={{ fontWeight: 700, fontSize: 15, color: "text.primary", mb: 1.5 }}>
               Forma wizyty
             </Typography>
-            <Box sx={{ display: "flex", gap: 1.5 }}>
+            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
               {ALL_FORMY.map((f) => {
                 const active = draftFormy.includes(f);
                 const meta = FORMA_META[f];
                 const Icon = meta.Icon;
                 return (
-                  <Box
+                  <Chip
                     key={f}
-                    role="button"
-                    tabIndex={0}
+                    icon={<Icon sx={{ fontSize: "18px !important" }} />}
+                    label={meta.label}
                     onClick={() => toggleDraftForma(f)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        toggleDraftForma(f);
-                      }
-                    }}
-                    sx={{
-                      ...filterFormaCardSx(active),
-                      py: "8px", // Override padding top and bottom to 8px
-                    }}
-                  >
-             
-                    
-                
-                    <Icon sx={{ fontSize: 28, color: active ? BRAND_BLUE : "#9CA3AF" }} />
-                    <Typography
-                      sx={{
-                        fontSize: 13,
-                        fontWeight: 600,
-                        color: active ? BRAND_BLUE : "#6B7280",
-                        textAlign: "center",
-                      }}
-                    >
-                      {meta.label}
-                    </Typography>
-                  </Box>
+                    sx={filterTypChipSx(active)}
+                  />
                 );
               })}
             </Box>
